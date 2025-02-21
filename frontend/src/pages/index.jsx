@@ -1,105 +1,130 @@
-import React, { Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
+import { Link } from "react-router-dom";
 
-function index() {
+function Index() {
+  const [activeTab, setActiveTab] = useState("design"); // State for active tab
+
+  useEffect(() => {
+    // Load external scripts
+    const loadScripts = () => {
+      const scripts = [
+        "/asset/js/jquery.min.js",
+        "/asset/js/bootstrap.bundle.min.js",
+        "/asset/js/jquery.sticky.js",
+        "/asset/js/click-scroll.js",
+        "/asset/js/custom.js"
+      ];
+
+      scripts.forEach((src) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = false; // Maintain execution order
+        document.body.appendChild(script);
+      });
+    };
+
+    loadScripts();
+
+    // Cleanup if needed
+    return () => {
+      // Remove scripts if necessary
+    };
+  }, []);
+
+  const tabContent = {
+    design: [
+      {
+        title: "Web Design",
+        description: "Topic Listing Template based on Bootstrap 5",
+        badge: 14,
+        image: "/asset/images/topics/undraw_Remote_design_team_re_urdx.png",
+      },
+      {
+        title: "Graphic",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 75,
+        image: "/asset/images/topics/undraw_Redesign_feedback_re_jvm0.png",
+      },
+      {
+        title: "Logo Design",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 100,
+        image: "/asset/images/topics/colleagues-working-cozy-office-medium-shot.png",
+      },
+    ],
+    marketing: [
+      {
+        title: "Advertising",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 30,
+        image: "/asset/images/topics/undraw_online_ad_re_ol62.png",
+      },
+      {
+        title: "Video Content",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 65,
+        image: "/asset/images/topics/undraw_Group_video_re_btu7.png",
+      },
+      {
+        title: "Viral Tweet",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 50,
+        image: "/asset/images/topics/undraw_viral_tweet_gndb.png",
+      },
+    ],
+    finance: [
+      {
+        title: "Investment",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 30,
+        image: "/asset/images/topics/undraw_Finance_re_gnv2.png",
+      },
+      {
+        title: "Finance",
+        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit.",
+        badge: 25,
+        image: "/asset/images/businesswoman-using-tablet-analysis.jpg",
+      },
+    ],
+    music: [
+      {
+        title: "Composing Song",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 45,
+        image: "/asset/images/topics/undraw_Compose_music_re_wpiw.png",
+      },
+      {
+        title: "Online Music",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 45,
+        image: "/asset/images/topics/undraw_happy_music_g6wc.png",
+      },
+      {
+        title: "Podcast",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 20,
+        image: "/asset/images/topics/undraw_Podcast_audience_re_4i5q.png",
+      },
+    ],
+    education: [
+      {
+        title: "Graduation",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 80,
+        image: "/asset/images/topics/undraw_Graduation_re_gthn.png",
+      },
+      {
+        title: "Educator",
+        description: "Lorem Ipsum dolor sit amet consectetur",
+        badge: 75,
+        image: "/asset/images/topics/undraw_Educator_re_ju47.png",
+      },
+    ],
+  };
+
   return (
     <Fragment>
       <main>
-        <nav className="navbar navbar-expand-lg">
-          <div className="container">
-            <a className="navbar-brand" href="index.html">
-              <i className="bi-back"></i>
-              <span>Topic</span>
-            </a>
-
-            <div className="d-lg-none ms-auto me-4">
-              <a href="#top" className="navbar-icon bi-person smoothscroll"></a>
-            </div>
-
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarNav"
-              aria-controls="navbarNav"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span className="navbar-toggler-icon"></span>
-            </button>
-
-            <div className="collapse navbar-collapse" id="navbarNav">
-              <ul className="navbar-nav ms-lg-5 me-lg-auto">
-                <li className="nav-item">
-                  <a className="nav-link click-scroll" href="#section_1">
-                    Home
-                  </a>
-                </li>
-
-                <li className="nav-item">
-                  <a className="nav-link click-scroll" href="#section_2">
-                    Browse Topics
-                  </a>
-                </li>
-
-                <li className="nav-item">
-                  <a className="nav-link click-scroll" href="#section_3">
-                    How it works
-                  </a>
-                </li>
-
-                <li className="nav-item">
-                  <a className="nav-link click-scroll" href="#section_4">
-                    FAQs
-                  </a>
-                </li>
-
-                <li className="nav-item">
-                  <a className="nav-link click-scroll" href="#section_5">
-                    Contact
-                  </a>
-                </li>
-
-                <li className="nav-item dropdown">
-                  <a
-                    className="nav-link dropdown-toggle"
-                    href="#"
-                    id="navbarLightDropdownMenuLink"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Pages
-                  </a>
-
-                  <ul
-                    className="dropdown-menu dropdown-menu-light"
-                    aria-labelledby="navbarLightDropdownMenuLink"
-                  >
-                    <li>
-                      <a className="dropdown-item" href="topics-listing.html">
-                        Topics Listing
-                      </a>
-                    </li>
-
-                    <li>
-                      <a className="dropdown-item" href="contact.html">
-                        Contact Form
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-
-              <div className="d-none d-lg-block">
-                <a
-                  href="#top"
-                  className="navbar-icon bi-person smoothscroll"
-                ></a>
-              </div>
-            </div>
-          </div>
-        </nav>
-
         <section
           className="hero-section d-flex justify-content-center align-items-center"
           id="section_1"
@@ -261,14 +286,8 @@ function index() {
               <ul className="nav nav-tabs" id="myTab" role="tablist">
                 <li className="nav-item" role="presentation">
                   <button
-                    className="nav-link active"
-                    id="design-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#design-tab-pane"
-                    type="button"
-                    role="tab"
-                    aria-controls="design-tab-pane"
-                    aria-selected="true"
+                    className={`nav-link ${activeTab === "design" ? "active" : ""}`}
+                    onClick={() => setActiveTab("design")}
                   >
                     Design
                   </button>
@@ -276,14 +295,8 @@ function index() {
 
                 <li className="nav-item" role="presentation">
                   <button
-                    className="nav-link"
-                    id="marketing-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#marketing-tab-pane"
-                    type="button"
-                    role="tab"
-                    aria-controls="marketing-tab-pane"
-                    aria-selected="false"
+                    className={`nav-link ${activeTab === "marketing" ? "active" : ""}`}
+                    onClick={() => setActiveTab("marketing")}
                   >
                     Marketing
                   </button>
@@ -291,14 +304,8 @@ function index() {
 
                 <li className="nav-item" role="presentation">
                   <button
-                    className="nav-link"
-                    id="finance-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#finance-tab-pane"
-                    type="button"
-                    role="tab"
-                    aria-controls="finance-tab-pane"
-                    aria-selected="false"
+                    className={`nav-link ${activeTab === "finance" ? "active" : ""}`}
+                    onClick={() => setActiveTab("finance")}
                   >
                     Finance
                   </button>
@@ -306,14 +313,8 @@ function index() {
 
                 <li className="nav-item" role="presentation">
                   <button
-                    className="nav-link"
-                    id="music-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#music-tab-pane"
-                    type="button"
-                    role="tab"
-                    aria-controls="music-tab-pane"
-                    aria-selected="false"
+                    className={`nav-link ${activeTab === "music" ? "active" : ""}`}
+                    onClick={() => setActiveTab("music")}
                   >
                     Music
                   </button>
@@ -321,14 +322,8 @@ function index() {
 
                 <li className="nav-item" role="presentation">
                   <button
-                    className="nav-link"
-                    id="education-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#education-tab-pane"
-                    type="button"
-                    role="tab"
-                    aria-controls="education-tab-pane"
-                    aria-selected="false"
+                    className={`nav-link ${activeTab === "education" ? "active" : ""}`}
+                    onClick={() => setActiveTab("education")}
                   >
                     Education
                   </button>
@@ -341,437 +336,37 @@ function index() {
             <div className="row">
               <div className="col-12">
                 <div className="tab-content" id="myTabContent">
-                  <div
-                    className="tab-pane fade show active"
-                    id="design-tab-pane"
-                    role="tabpanel"
-                    aria-labelledby="design-tab"
-                    tabIndex="0"
-                  >
-                    <div className="row">
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-0">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Web Design</h5>
-
-                                <p className="mb-0">
-                                  Topic Listing Template based on Bootstrap 5
-                                </p>
+                  {Object.keys(tabContent).map((tab) => (
+                    <div
+                      key={tab}
+                      className={`tab-pane fade ${activeTab === tab ? "show active" : ""}`}
+                      role="tabpanel"
+                      aria-labelledby={`${tab}-tab`}
+                    >
+                      <div className="row">
+                        {tabContent[tab].map((item, index) => (
+                          <div key={index} className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-0">
+                            <div className="custom-block bg-white shadow-lg">
+                              <div className="d-flex">
+                                <div>
+                                  <h5 className="mb-2">{item.title}</h5>
+                                  <p className="mb-0">{item.description}</p>
+                                </div>
+                                <span className="badge bg-design rounded-pill ms-auto">
+                                  {item.badge}
+                                </span>
                               </div>
-
-                              <span className="badge bg-design rounded-pill ms-auto">
-                                14
-                              </span>
+                              <img
+                                src={item.image}
+                                className="custom-block-image img-fluid"
+                                alt=""
+                              />
                             </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Remote_design_team_re_urdx.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-0">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Graphic</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-design rounded-pill ms-auto">
-                                75
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Redesign_feedback_re_jvm0.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Logo Design</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-design rounded-pill ms-auto">
-                                100
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/colleagues-working-cozy-office-medium-shot.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className="tab-pane fade"
-                    id="marketing-tab-pane"
-                    role="tabpanel"
-                    aria-labelledby="marketing-tab"
-                    tabIndex="0"
-                  >
-                    <div className="row">
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Advertising</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-advertising rounded-pill ms-auto">
-                                30
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_online_ad_re_ol62.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Video Content</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-advertising rounded-pill ms-auto">
-                                65
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Group_video_re_btu7.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Viral Tweet</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-advertising rounded-pill ms-auto">
-                                50
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_viral_tweet_gndb.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className="tab-pane fade"
-                    id="finance-tab-pane"
-                    role="tabpanel"
-                    aria-labelledby="finance-tab"
-                    tabIndex="0"
-                  >
-                    {" "}
-                    <div className="row">
-                      <div className="col-lg-6 col-md-6 col-12 mb-4 mb-lg-0">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Investment</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-finance rounded-pill ms-auto">
-                                30
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Finance_re_gnv2.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-6 col-md-6 col-12">
-                        <div className="custom-block custom-block-overlay">
-                          <div className="d-flex flex-column h-100">
-                            <img
-                              src="/asset/images/businesswoman-using-tablet-analysis-graph-company-finance-strategy-statistics-success-concept-planning-future-office-room.jpg"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-
-                            <div className="custom-block-overlay-text d-flex">
-                              <div>
-                                <h5 className="text-white mb-2">Finance</h5>
-
-                                <p className="text-white">
-                                  Lorem ipsum dolor, sit amet consectetur
-                                  adipisicing elit. Sint animi necessitatibus
-                                  aperiam repudiandae nam omnis
-                                </p>
-
-                                <a
-                                  href="topics-detail.html"
-                                  className="btn custom-btn mt-2 mt-lg-3"
-                                >
-                                  Learn More
-                                </a>
-                              </div>
-
-                              <span className="badge bg-finance rounded-pill ms-auto">
-                                25
-                              </span>
-                            </div>
-
-                            <div className="social-share d-flex">
-                              <p className="text-white me-4">Share:</p>
-
-                              <ul className="social-icon">
-                                <li className="social-icon-item">
-                                  <a
-                                    href="#"
-                                    className="social-icon-link bi-twitter"
-                                  ></a>
-                                </li>
-
-                                <li className="social-icon-item">
-                                  <a
-                                    href="#"
-                                    className="social-icon-link bi-facebook"
-                                  ></a>
-                                </li>
-
-                                <li className="social-icon-item">
-                                  <a
-                                    href="#"
-                                    className="social-icon-link bi-pinterest"
-                                  ></a>
-                                </li>
-                              </ul>
-
-                              <a
-                                href="#"
-                                className="custom-icon bi-bookmark ms-auto"
-                              ></a>
-                            </div>
-
-                            <div className="section-overlay"></div>
                           </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
-
-                  <div
-                    className="tab-pane fade"
-                    id="music-tab-pane"
-                    role="tabpanel"
-                    aria-labelledby="music-tab"
-                    tabIndex="0"
-                  >
-                    <div className="row">
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Composing Song</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-music rounded-pill ms-auto">
-                                45
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Compose_music_re_wpiw.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Online Music</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-music rounded-pill ms-auto">
-                                45
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_happy_music_g6wc.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Podcast</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-music rounded-pill ms-auto">
-                                20
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Podcast_audience_re_4i5q.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className="tab-pane fade"
-                    id="education-tab-pane"
-                    role="tabpanel"
-                    aria-labelledby="education-tab"
-                    tabIndex="0"
-                  >
-                    <div className="row">
-                      <div className="col-lg-6 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Graduation</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-education rounded-pill ms-auto">
-                                80
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Graduation_re_gthn.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-6 col-md-6 col-12">
-                        <div className="custom-block bg-white shadow-lg">
-                          <a href="topics-detail.html">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Educator</h5>
-
-                                <p className="mb-0">
-                                  Lorem Ipsum dolor sit amet consectetur
-                                </p>
-                              </div>
-
-                              <span className="badge bg-education rounded-pill ms-auto">
-                                75
-                              </span>
-                            </div>
-
-                            <img
-                              src="/asset/images/topics/undraw_Educator_re_ju47.png"
-                              className="custom-block-image img-fluid"
-                              alt=""
-                            />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -991,7 +586,7 @@ function index() {
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2595.065641062665!2d-122.4230416990949!3d37.80335401520422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858127459fabad%3A0x808ba520e5e9edb7!2sFrancisco%20Park!5e1!3m2!1sen!2sth!4v1684340239744!5m2!1sen!2sth"
                   width="100%"
                   height="250"
-                  style={{border:0}}
+                  style={{ border: 0 }}
                   allowFullScreen=""
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -1059,115 +654,8 @@ function index() {
         </section>
       </main>
 
-      <footer className="site-footer section-padding">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-3 col-12 mb-4 pb-2">
-              <a className="navbar-brand mb-2" href="index.html">
-                <i className="bi-back"></i>
-                <span>Topic</span>
-              </a>
-            </div>
-
-            <div className="col-lg-3 col-md-4 col-6">
-              <h6 className="site-footer-title mb-3">Resources</h6>
-
-              <ul className="site-footer-links">
-                <li className="site-footer-link-item">
-                  <a href="#" className="site-footer-link">
-                    Home
-                  </a>
-                </li>
-
-                <li className="site-footer-link-item">
-                  <a href="#" className="site-footer-link">
-                    How it works
-                  </a>
-                </li>
-
-                <li className="site-footer-link-item">
-                  <a href="#" className="site-footer-link">
-                    FAQs
-                  </a>
-                </li>
-
-                <li className="site-footer-link-item">
-                  <a href="#" className="site-footer-link">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="col-lg-3 col-md-4 col-6 mb-4 mb-lg-0">
-              <h6 className="site-footer-title mb-3">Information</h6>
-
-              <p className="text-white d-flex mb-1">
-                <a href="tel: 305-240-9671" className="site-footer-link">
-                  305-240-9671
-                </a>
-              </p>
-
-              <p className="text-white d-flex">
-                <a href="mailto:info@company.com" className="site-footer-link">
-                  info@company.com
-                </a>
-              </p>
-            </div>
-
-            <div className="col-lg-3 col-md-4 col-12 mt-4 mt-lg-0 ms-auto">
-              <div className="dropdown">
-                <button
-                  className="btn btn-secondary dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  English
-                </button>
-
-                <ul className="dropdown-menu">
-                  <li>
-                    <button className="dropdown-item" type="button">
-                      Thai
-                    </button>
-                  </li>
-
-                  <li>
-                    <button className="dropdown-item" type="button">
-                      Myanmar
-                    </button>
-                  </li>
-
-                  <li>
-                    <button className="dropdown-item" type="button">
-                      Arabic
-                    </button>
-                  </li>
-                </ul>
-              </div>
-
-              <p className="copyright-text mt-lg-5 mt-4">
-                Copyright © 2048 Topic Listing Center. All rights reserved.
-                <br />
-                <br />
-                Design:{" "}
-                <a rel="nofollow" href="https://templatemo.com" target="_blank">
-                  TemplateMo
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
-      
-      <script src="public/asset/js/jquery.min.js"></script>
-      <script src="public/asset/js/bootstrap.bundle.min.js"></script>
-      <script src="public/asset/js/jquery.sticky.js"></script>
-      <script src="public/asset/js/click-scroll.js"></script>
-      <script src="public/asset/js/custom.js"></script>
     </Fragment>
   );
 }
 
-export default index;
+export default Index;
