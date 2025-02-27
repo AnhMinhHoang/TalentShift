@@ -6,7 +6,7 @@ const Footer = () => {
             <div className="container">
                 <div className="row">
                     <div className="col-lg-3 col-12 mb-4 pb-2">
-                        <a className="navbar-brand mb-2" href="index.html">
+                        <a className="navbar-brand mb-2" href="/">
                             <i className="bi-back"></i>
                             <span>Topic</span>
                         </a>
@@ -87,10 +87,9 @@ const Footer = () => {
                             <br />
                             Design:{" "}
                             <a
-                                rel="nofollow"
+                                rel="nofollow noopener noreferrer"
                                 href="https://templatemo.com"
                                 target="_blank"
-                                rel="noopener noreferrer"
                             >
                                 TemplateMo
                             </a>
