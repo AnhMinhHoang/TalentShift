@@ -1,0 +1,25 @@
+.padding-profile{
+    padding-top: 120px; 
+  }
+
+.text-small{
+    font-size: 14px;
+}
+
+.border-bottom{
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Badge */
+.badge-available {
+    background-color: #E7F2EF ;
+    color: #53c285 ;
+}
+
+.badge-background{
+    background-color: #f1f1f1aa;
+}
+
+
+/* Icon */
+
