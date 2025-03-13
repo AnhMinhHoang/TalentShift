@@ -37,7 +37,7 @@ const UserProfile = () => {
                                 <p className='badge text-dark fw-normal badge-background rounded-pill p-2'>Adobe XD</p>
                                 <p className='badge text-dark fw-normal badge-background rounded-pill p-2'>Figma</p>
                             </div>
-                            <div className="d-flex gap-2 align-items-center justify-content-center">
+                            <div className="d-flex gap-2 align-items-center justify-content-center pt-3">
                                 <p className=' text-muted fw-normal text-small'>Tokyo, Japan</p>
                                 <p className=' text-muted fw-normal text-small'>$300/day</p>
                             </div>

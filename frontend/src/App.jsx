@@ -10,6 +10,9 @@ import Contact from "./pages/Contact.jsx";
 import ScrollToAnchor from "./ScrollToAnchor.jsx";
 import UserProfile from './pages/UserProfile/UserProfile.jsx';
 import UserProfileSettings from './pages/UserProfile/UserProfileSettings.jsx';
+import JobApply from './pages/jobApply/jobApplyPage.jsx';
+import JobPost from './pages/jobPost/jobPostPage.jsx';
+
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ScrollToTop() {
@@ -36,7 +39,9 @@ function App() {
                     <Route path="/topic-listing" element={<TopicListing />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/user-profile" element={<UserProfile />} />
-                    <Route path="/user-profile-settings" element={<UserProfileSettings />} />
+                    <Route path="/user-profile-setting" element={<UserProfileSettings />} />
+                    <Route path="/job-apply" element={<JobApply />} />
+                    <Route path="/job-post" element={<JobPost />} />
                 </Routes>
             </Router>
             <Footer />
