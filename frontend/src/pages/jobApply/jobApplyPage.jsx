@@ -52,7 +52,7 @@ export default function JobApply() {
                             justifyContent: "center",
                             alignItems: "center",
                             position: "relative",
-                            paddingBottom: '60px'
+                            paddingBottom: '60px',
                         }}
                     >
                         <div className="container position-relative z-1">
@@ -97,11 +97,11 @@ export default function JobApply() {
 
             </section >
 
-            <section className="section bg-light  py-5">
+            <section className="section bg-light py-5 ">
                 <div className="container">
                     <div className="row justify-content-center">
-                        <div className="col-lg-7 col-md-7">
-                            <div className="card border-0 shadow">
+                        <div className="col-lg-6 col-md-6">
+                            <div className="card border-0 shadow" >
                                 <form className="rounded p-4">
                                     <div className="row">
                                         <div className="col-12">
@@ -234,7 +234,7 @@ export default function JobApply() {
                                                         htmlFor="flexCheckDefault"
                                                     >
                                                         I Accept{" "}
-                                                        <Link to="#" className="text-primary">
+                                                        <Link to="#" className="text-primary decoration-none">
                                                             Terms And Condition
                                                         </Link>
                                                     </label>

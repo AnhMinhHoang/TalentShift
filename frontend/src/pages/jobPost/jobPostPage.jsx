@@ -63,7 +63,7 @@ export default function JobPost() {
             <section className="section bg-light  py-5">
                 <div className="container">
                     <div className="row justify-content-center">
-                        <div className="col-lg-7 col-md-7">
+                        <div className="col-lg-6 col-md-6">
                             <div className="card border-0 shadow">
                                 <form className="rounded shadow p-4">
                                     <div className="row">
