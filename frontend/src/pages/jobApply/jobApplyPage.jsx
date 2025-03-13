@@ -52,41 +52,45 @@ export default function JobApply() {
                             justifyContent: "center",
                             alignItems: "center",
                             position: "relative",
+                            paddingBottom: '60px'
                         }}
                     >
                         <div className="container position-relative z-1">
                             <div className="mb-4">
                                 <div className="bg-white rounded-circle d-inline-flex p-2 mb-3">
-                                    <div
-                                        className="bg-danger rounded-circle d-flex align-items-center justify-content-center"
+                                    <img
+                                        src={logo1}
+                                        className="avatar avatar-ex-sm rounded-circle"
+                                        alt="logo"
                                         style={{ width: "50px", height: "50px" }}
-                                    >
-                                        <span className="text-white fw-bold">L</span>
-                                    </div>
+                                    />
                                 </div>
                             </div>
                             <h1 className="display-4 fw-bold mb-4">Back-End Developer</h1>
 
-                            <nav aria-label="breadcrumb">
-                                <ol className="breadcrumb justify-content-center">
-                                    <li className="breadcrumb-item">
-                                        <Link to="/" className="text-white me-2">
-                                            TalentShift
-                                        </Link>
-                                    </li>
-                                    /
-                                    <li className="breadcrumb-item">
-                                        <Link to="/" className="text-white me-2">
-                                            Job
-                                        </Link>
-                                    </li>
-                                    /
-                                    <li className="breadcrumb-item active text-white" aria-current="page">
-                                        Job Apply
-                                    </li>
-                                </ol>
-                            </nav>
                         </div>
+                        <nav aria-label="breadcrumb"
+                            className="position-absolute bottom-0 start-50 translate-middle-x"
+                        >
+                            <ol className="breadcrumb justify-content-center">
+                                <li className="breadcrumb-item">
+                                    <Link to="/" className="text-white me-2">
+                                        TalentShift
+                                    </Link>
+                                </li>
+                                /
+                                <li className="breadcrumb-item">
+                                    <Link to="/" className="text-white me-2">
+                                        Job
+                                    </Link>
+                                </li>
+                                /
+                                <li className="breadcrumb-item active text-white" aria-current="page">
+                                    Job Apply
+                                </li>
+                            </ol>
+                        </nav>
+
                     </div>
 
                 </div>

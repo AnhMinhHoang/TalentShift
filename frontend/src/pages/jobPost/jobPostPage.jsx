@@ -14,12 +14,11 @@ export default function JobPost() {
             >
                 <div className="bg-overlay bg-gradient-overlay"></div>
 
-                <div className="position-relatives">
+                <div className="position-relative" style={{ minHeight: '300px' }}>
                     <div
-                        className="hero-banner text-white text-center py-5"
+                        className="hero-banner text-white text-center"
                         style={{
-                            backgroundImage:
-                                'linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url("/placeholder.svg?height=500&width=1200")',
+                            backgroundImage: 'linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url("/placeholder.svg?height=500&width=1200")',
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             minHeight: "300px",
@@ -28,46 +27,38 @@ export default function JobPost() {
                             justifyContent: "center",
                             alignItems: "center",
                             position: "relative",
+                            paddingBottom: '60px'
                         }}
                     >
                         <div className="container position-relative z-1">
-                            <div className="mb-4">
-                                <div className="bg-white rounded-circle d-inline-flex p-2 mb-3">
-                                    <div
-                                        className="bg-danger rounded-circle d-flex align-items-center justify-content-center"
-                                        style={{ width: "50px", height: "50px" }}
-                                    >
-                                        <span className="text-white fw-bold">L</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <h1 className="display-4 fw-bold mb-4">Back-End Developer</h1>
-
-                            <nav aria-label="breadcrumb">
-                                <ol className="breadcrumb justify-content-center">
-                                    <li className="breadcrumb-item">
-                                        <Link to="/" className="text-white me-2">
-                                            TalentShift
-                                        </Link>
-                                    </li>
-                                    /
-                                    <li className="breadcrumb-item">
-                                        <Link to="/" className="text-white me-2">
-                                            Job
-                                        </Link>
-                                    </li>
-                                    /
-                                    <li className="breadcrumb-item active text-white" aria-current="page">
-                                        Job Apply
-                                    </li>
-                                </ol>
-                            </nav>
+                            <h1 className="display-6 fw-bold mt-5">Create a Job Post</h1>
                         </div>
+
+                        <nav
+                            aria-label="breadcrumb"
+                            className="position-absolute bottom-0 start-50 translate-middle-x"
+                        >
+                            <ol className="breadcrumb justify-content-center">
+                                <li className="breadcrumb-item">
+                                    <Link to="/" className="text-white me-2">
+                                        TalentShift
+                                    </Link>
+                                </li>
+                                /
+                                <li className="breadcrumb-item">
+                                    <Link to="/" className="text-white me-2">
+                                        Job
+                                    </Link>
+                                </li>
+                                /
+                                <li className="breadcrumb-item active text-white" aria-current="page">
+                                    Job Post
+                                </li>
+                            </ol>
+                        </nav>
                     </div>
-
                 </div>
-
-            </section >
+            </section>
 
             <section className="section bg-light  py-5">
                 <div className="container">
