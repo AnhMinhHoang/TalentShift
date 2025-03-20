@@ -1155,15 +1155,6 @@ const OverviewTab = () => {
                                 placeholder="Description"
                             ></textarea>
 
-                            <textarea
-                                className="form-control"
-                                id="eduDescription"
-                                name="description"
-                                rows="3"
-                                value={formData.description || ""}
-                                onChange={handleInputChange}
-                                placeholder="Description"
-                            ></textarea>
                         </div>
 
                         <div className="d-flex justify-content-between">
