@@ -151,10 +151,10 @@ function Navbar() {
                     </ul>
 
                     <div className="d-none d-lg-block">
-                        <a
-                            href="#"
+                        <Link
+                            to="/authentication"
                             className="navbar-icon bi-person smoothscroll"
-                        ></a>
+                        ></Link>
                     </div>
                 </div>
             </div>
