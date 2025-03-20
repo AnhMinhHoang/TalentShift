@@ -37,10 +37,12 @@ export default function JobPost() {
   });
 
   const handleNext = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
@@ -51,6 +53,7 @@ export default function JobPost() {
   const handleSubmit = (isDraft = false) => {
     // Here you would typically send the data to your backend
     console.log("Submitting form data:", formData);
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     setAlert({
       open: true,

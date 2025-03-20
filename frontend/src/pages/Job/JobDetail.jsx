@@ -139,11 +139,6 @@ export default function JobDetail() {
   return (
     <div className={`${styles.pageWrapper} ${styles.jobDetail}`}>
       {contextHolder} {/* Ant Design notification container */}
-      <div className={styles.headerBanner}>
-        <Container>
-          <header className="mb-4"></header>
-        </Container>
-      </div>
       <Container className={styles.jobDetailContainer}>
         <Row className="mb-4">
           <Col md={12}>
@@ -167,10 +162,10 @@ export default function JobDetail() {
                       <span className={styles.category}>
                         <FaBriefcase className={styles.icon} /> {job.category}
                       </span>
-                      <span className={styles.location}>
+                      {/* <span className={styles.location}>
                         <FaMapMarkerAlt className={styles.icon} />{" "}
                         {job.location}
-                      </span>
+                      </span> */}
                       <span className={styles.salary}>
                         <FaDollarSign className={styles.icon} /> {job.salary}
                       </span>
@@ -400,7 +395,7 @@ export default function JobDetail() {
                 <div className={styles.overviewLabel}>Offered Salary</div>
                 <div className={styles.overviewValue}>{job.salary}</div>
               </div>
-              <div className={styles.overviewItem}>
+              {/* <div className={styles.overviewItem}>
                 <div className={styles.overviewLabel}>Location</div>
                 <div className={styles.overviewValue}>{job.location}</div>
               </div>
@@ -410,7 +405,7 @@ export default function JobDetail() {
                   alt="Company location map"
                   className={styles.mapImage}
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className={styles.similarCompanies}>

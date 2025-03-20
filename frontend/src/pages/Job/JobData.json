@@ -2,7 +2,7 @@
     "id": 1,
     "title": "Corporate Solutions Executive",
     "company": "Acme Inc.",
-    "logo": "/placeholder.svg?height=40&width=40",
+    "logo": "/asset/images/topics/undraw_online_ad_re_ol62.png",
     "category": "Commerce",
     "salary": "$60000-$75000",
     "location": "New York, USA",
@@ -35,7 +35,7 @@
         "id": 2,
         "title": "Forward Security Director",
         "company": "Secure, Enterprise and Software Co.",
-        "logo": "/placeholder.svg?height=40&width=40",
+        "logo": "/asset/images/topics/undraw_online_ad_re_ol62.png",
         "category": "Health & Tourism",
         "salary": "$80000-$100000",
         "tags": ["Full Time", "Remote", "Security", "Senior", "B2B"]
@@ -44,7 +44,7 @@
         "id": 3,
         "title": "Forward Security Director",
         "company": "Health, Enterprise and Technology",
-        "logo": "/placeholder.svg?height=40&width=40",
+        "logo": "/asset/images/topics/undraw_online_ad_re_ol62.png",
         "category": "Health & Tourism",
         "salary": "$85000-$110000",
         "tags": ["Full Time", "Remote", "Security", "Senior", "B2B"]
@@ -53,7 +53,7 @@
         "id": 4,
         "title": "Forward Security Director",
         "company": "Secure, Enterprise and Software Co.",
-        "logo": "/placeholder.svg?height=40&width=40",
+        "logo": "/asset/images/topics/undraw_online_ad_re_ol62.png",
         "category": "Health & Tourism",
         "salary": "$90000-$120000",
         "tags": ["Full Time", "Remote", "Security", "Senior", "B2B"]
@@ -63,21 +63,21 @@
       {
         "id": 1,
         "name": "TechCorp Solutions",
-        "logo": "/placeholder.svg?height=40&width=40",
+        "logo": "/asset/images/topics/undraw_online_ad_re_ol62.png",
         "industry": "Technology",
         "openPositions": 5
       },
       {
         "id": 2,
         "name": "Global Innovations",
-        "logo": "/placeholder.svg?height=40&width=40",
+        "logo": "/asset/images/topics/undraw_online_ad_re_ol62.png",
         "industry": "Software",
         "openPositions": 3
       },
       {
         "id": 3,
         "name": "Future Systems",
-        "logo": "/placeholder.svg?height=40&width=40",
+        "logo": "/asset/images/topics/undraw_online_ad_re_ol62.png",
         "industry": "IT Services",
         "openPositions": 7
       }
