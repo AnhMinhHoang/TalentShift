@@ -8,8 +8,6 @@ import TopicDetail from "./pages/TopicDetail.jsx";
 import TopicListing from "./pages/TopicListing.jsx";
 import Contact from "./pages/Contact.jsx";
 import ScrollToAnchor from "./ScrollToAnchor.jsx";
-import UserProfile from './pages/UserProfile/UserProfile.jsx';
-import UserProfileSettings from './pages/UserProfile/UserProfileSettings.jsx';
 import JobApply from './pages/jobApply/jobApplyPage.jsx';
 import JobPost from './pages/jobPost/jobPostPage.jsx';
 import JobTracker from './pages/userProfile/Profile_Page.jsx';
@@ -39,11 +37,9 @@ function App() {
                     <Route path="/topic-detail" element={<TopicDetail />} />
                     <Route path="/topic-listing" element={<TopicListing />} />
                     <Route path="/contact" element={<Contact />} />
-                    <Route path="/user-profile" element={<UserProfile />} />
-                    <Route path="/user-profile-setting" element={<UserProfileSettings />} />
                     <Route path="/job-apply" element={<JobApply />} />
                     <Route path="/job-post" element={<JobPost />} />
-                    <Route path="/profile-page-1" element={<JobTracker />} />
+                    <Route path="/profile-page" element={<JobTracker />} />
                 </Routes>
             </Router>
             <Footer />
