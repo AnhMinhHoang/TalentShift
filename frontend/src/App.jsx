@@ -12,6 +12,7 @@ import UserProfile from './pages/UserProfile/UserProfile.jsx';
 import UserProfileSettings from './pages/UserProfile/UserProfileSettings.jsx';
 import JobApply from './pages/jobApply/jobApplyPage.jsx';
 import JobPost from './pages/jobPost/jobPostPage.jsx';
+import JobTracker from './pages/userProfile/Profile_Page.jsx';
 
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -42,6 +43,7 @@ function App() {
                     <Route path="/user-profile-setting" element={<UserProfileSettings />} />
                     <Route path="/job-apply" element={<JobApply />} />
                     <Route path="/job-post" element={<JobPost />} />
+                    <Route path="/profile-page-1" element={<JobTracker />} />
                 </Routes>
             </Router>
             <Footer />

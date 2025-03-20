@@ -12,6 +12,7 @@ export default function JobPost() {
                 className="bg-half-170 d-table w-100 pt-5"
                 style={{ backgroundImage: `url(${bg1})`, backgroundPosition: "top" }}
             >
+
                 <div className="bg-overlay bg-gradient-overlay"></div>
 
                 <div className="position-relative" style={{ minHeight: '300px' }}>
@@ -27,9 +28,11 @@ export default function JobPost() {
                             justifyContent: "center",
                             alignItems: "center",
                             position: "relative",
-                            paddingBottom: '60px'
+                            paddingBottom: '60px',
+                            //downward curve    
                         }}
                     >
+
                         <div className="container position-relative z-1">
                             <h1 className="display-6 fw-bold mt-5">Create a Job Post</h1>
                         </div>
