@@ -6,6 +6,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+import { AuthProvider } from "./pages/AuthContext.jsx";
 import { App as AntdApp } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import Index from "./pages/index";
@@ -36,22 +37,24 @@ function ScrollToTop() {
 function App() {
   return (
     <Router>
-      <AntdApp>
-        <ScrollToTop />
-        <ScrollToAnchor />
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/job-detail" element={<JobDetail />} />
-          <Route path="/jobs" element={<JobListing />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/register-addition" element={<RegisterAdditional />} />
-          <Route path="/job-posting" element={<JobPost />} />
-          <Route path="/profile-page" element={<JobTracker />} />
-          <Route path="/authentication" element={<LoginRegister />} />
-        </Routes>
-      </AntdApp>
-      <Footer />
+      <AuthProvider>
+        <AntdApp>
+          <ScrollToTop />
+          <ScrollToAnchor />
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/job-detail" element={<JobDetail />} />
+            <Route path="/jobs" element={<JobListing />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/register-addition" element={<RegisterAdditional />} />
+            <Route path="/job-posting" element={<JobPost />} />
+            <Route path="/profile-page" element={<JobTracker />} />
+            <Route path="/authentication" element={<LoginRegister />} />
+          </Routes>
+        </AntdApp>
+        <Footer />
+      </AuthProvider>
     </Router>
   );
 }

@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../pages/AuthContext";
 
 import $ from "jquery";
 
 function Navbar() {
   const location = useLocation();
   const sectionArray = [1, 2, 3, 4, 5];
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     // Check if we're on the homepage
@@ -151,10 +153,40 @@ function Navbar() {
           </ul>
 
           <div className="d-none d-lg-block">
-            <Link
-              to="/authentication"
-              className="navbar-icon bi-person smoothscroll"
-            ></Link>
+            {user ? (
+              <div className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle text-white"
+                  href="#"
+                  id="userDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Welcome, Nguyen Van A {/* Show user's name */}
+                </a>
+                <ul
+                  className="dropdown-menu dropdown-menu-end"
+                  aria-labelledby="userDropdown"
+                >
+                  <li>
+                    <Link to="/profile-page" className="dropdown-item">
+                      Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <button className="dropdown-item" onClick={logout}>
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <Link
+                to="/authentication"
+                className="navbar-icon bi-person smoothscroll"
+              ></Link>
+            )}
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "./AuthContext";
 import styles from "../assets/css/LoginRegister.module.css";
 import axios from "axios";
 import { notification } from "antd";
@@ -6,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 function LoginRegister() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isActive, setIsActive] = useState(false);
   const [user, setUser] = useState({
     firstName: "",
@@ -41,7 +43,13 @@ function LoginRegister() {
     //         alert("Something went wrong. Try again.");
     //     }
     // }
-    openNotification("success", "Login succesfully!", "Redirect to Homepage!");
+    login(user.email);
+    openNotification(
+      "success",
+      "Login succesfully!",
+      "top",
+      "Redirect to Homepage!"
+    );
     navigate("/");
   };
 
@@ -60,15 +68,15 @@ function LoginRegister() {
     //         alert("Something went wrong. Try again.");
     //     }
     // }
-    openNotification("success", "Register succesfully!", "");
+    openNotification("success", "Register succesfully!", "top", "");
     navigate("/register-addition");
   };
 
-  const openNotification = (type, message, description) => {
+  const openNotification = (type, message, placement, description) => {
     notification[type]({
       message,
       description,
-      placement: "topRight",
+      placement,
       duration: 3,
     });
   };
