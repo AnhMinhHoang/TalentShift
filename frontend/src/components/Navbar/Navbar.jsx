@@ -75,7 +75,6 @@ function Navbar() {
                 </div>
 
                 {/*top in the href don't know what is that thing*/}
-
                 <button
                     className="navbar-toggler"
                     type="button"
@@ -89,65 +88,39 @@ function Navbar() {
                 </button>
 
                 <div className="collapse navbar-collapse" id="navbarNav">
+                    {/*Để đó thì đẹp đều sau mình làm nhiều nút để chuyển qua các page khác như tìm việc hay bla bla thì hắn chiếm chỗ phết */}
                     <ul className="navbar-nav ms-lg-5 me-lg-auto">
                         <li className="nav-item">
                             <Link to="/#section_1" className="nav-link click-scroll">
                                 Home
                             </Link>
                         </li>
-
                         <li className="nav-item">
                             <Link to="/#section_2" className="nav-link click-scroll">
-                                Browse Topics
+                                About
                             </Link>
                         </li>
-
                         <li className="nav-item">
                             <Link to="/#section_3" className="nav-link click-scroll">
-                                How it works
+                                Jobs
                             </Link>
                         </li>
-
                         <li className="nav-item">
                             <Link to="/#section_4" className="nav-link click-scroll">
-                                FAQs
+                                Post Job
                             </Link>
                         </li>
-
                         <li className="nav-item">
                             <Link to="/#section_5" className="nav-link click-scroll">
-                                Contact
+                                Blog
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link click-scroll">
+                                Contact Us
                             </Link>
                         </li>
 
-                        <li className="nav-item dropdown">
-                            <a
-                                className="nav-link dropdown-toggle"
-                                href="#"
-                                id="navbarLightDropdownMenuLink"
-                                role="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                Pages
-                            </a>
-
-                            <ul
-                                className="dropdown-menu dropdown-menu-light"
-                                aria-labelledby="navbarLightDropdownMenuLink"
-                            >
-                                <li>
-                                    <Link to="/topic-listing" className="dropdown-item">
-                                        Topics Listing
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link to="/contact" className="dropdown-item">
-                                        Contact Form
-                                    </Link>
-                                </li>
-                            </ul>
-                        </li>
                     </ul>
 
                     <div className="d-none d-lg-block">

@@ -8,7 +8,7 @@ const Footer = () => {
                     <div className="col-lg-3 col-12 mb-4 pb-2">
                         <a className="navbar-brand mb-2" href="/">
                             <i className="bi-back"></i>
-                            <span>Topic</span>
+                            <span>TalentShift</span>
                         </a>
                     </div>
 
@@ -42,12 +42,12 @@ const Footer = () => {
                         <h6 className="site-footer-title mb-3">Information</h6>
                         <p className="text-white d-flex mb-1">
                             <a href="tel:305-240-9671" className="site-footer-link">
-                                305-240-9671
+                                123-456-7890
                             </a>
                         </p>
                         <p className="text-white d-flex">
                             <a href="mailto:info@company.com" className="site-footer-link">
-                                info@company.com
+                                talentshift@gmail.com
                             </a>
                         </p>
                     </div>
@@ -81,19 +81,7 @@ const Footer = () => {
                             </ul>
                         </div>
 
-                        <p className="copyright-text mt-lg-5 mt-4">
-                            Copyright © 2048 Topic Listing Center. All rights reserved.
-                            <br />
-                            <br />
-                            Design:{" "}
-                            <a
-                                rel="nofollow noopener noreferrer"
-                                href="https://templatemo.com"
-                                target="_blank"
-                            >
-                                TemplateMo
-                            </a>
-                        </p>
+
                     </div>
                 </div>
             </div>
