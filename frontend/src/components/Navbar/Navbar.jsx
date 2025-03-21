@@ -183,7 +183,7 @@ function Navbar() {
               </div>
             ) : (
               <Link
-                to="/authentication"
+                to="/login"
                 className="navbar-icon bi-person smoothscroll"
               ></Link>
             )}

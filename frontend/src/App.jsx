@@ -23,6 +23,8 @@ import JobTracker from "./pages/userProfile/Profile_Page.jsx";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import RegisterAdditional from "./pages/Authentication/RegisterAdditional.jsx";
 import JobPost from "./pages/Job/JobPost/JobPost.jsx";
+import Login from "./pages/Authentication/Login.jsx";
+import Register from "./pages/Authentication/Register.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,7 +52,8 @@ function App() {
             <Route path="/register-addition" element={<RegisterAdditional />} />
             <Route path="/job-posting" element={<JobPost />} />
             <Route path="/profile-page" element={<JobTracker />} />
-            <Route path="/authentication" element={<LoginRegister />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </AntdApp>
         <Footer />
