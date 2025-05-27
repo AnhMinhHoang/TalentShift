@@ -1,6 +1,7 @@
 package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.Model.User;
+import com.ts.talentshift.Security.JwtUtil;
 import com.ts.talentshift.Service.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +19,13 @@ import java.util.Map;
 public class AuthController {
     private final IUserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(IUserService userService, PasswordEncoder passwordEncoder)
+    public AuthController(IUserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil)
     {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
@@ -38,9 +41,12 @@ public class AuthController {
 
         Map<String, Object> response = new HashMap<>();
 
+
         if (user != null) { // If user is successfully created
+            String token = jwtUtil.generateJwtToken(user);
             response.put("message", "User registered successfully!");
-            response.put("userId", user.getId());
+            response.put("token", token);
+            response.put("userId", user.getUserId());
             response.put("firstName", user.getFirstName());
             response.put("lastName", user.getLastName());
             response.put("email", user.getEmail());
@@ -62,13 +68,15 @@ public class AuthController {
         return userService.findByEmail(email)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .map(user -> {
+                  String token = jwtUtil.generateJwtToken(user);
                   Map<String, Object> response = new HashMap<>();
                   response.put("message", "login successful");
+                  response.put("token", token);
                   response.put("email", user.getEmail());
                   response.put("firstName", user.getFirstName());
                   response.put("lastName", user.getLastName());
                   response.put("role", user.getRole());
-                  response.put("id", user.getId());
+                  response.put("id", user.getUserId());
                   return ResponseEntity.ok(response);
                 })
                 .orElseGet(() ->{

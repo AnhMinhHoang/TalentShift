@@ -1,447 +1,667 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import Loading from "../../components/Loading/Loading.jsx";
 
-function JobListing() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3; // Number of items per page
-  const [loading, setLoading] = useState(true);
+// Sample job data
+const jobData = [
+  {
+    id: 1,
+    title: "Forward Security Director",
+    company: "Reach, Synapse and Shield Co.",
+    companyInitials: "FS",
+    location: "Remote",
+    salary: "$80000-$90000",
+    tags: ["Full-time", "Remote", "Senior", "Security", "Director"],
+    accentColor: "primary",
+  },
+  {
+    id: 2,
+    title: "Senior Frontend Developer",
+    company: "TechVision Solutions",
+    companyInitials: "TV",
+    location: "San Francisco",
+    salary: "$120000-$150000",
+    tags: ["Full-time", "React", "TypeScript", "Senior"],
+    accentColor: "primary",
+  },
+  {
+    id: 3,
+    title: "Product Manager",
+    company: "Innovate Labs",
+    companyInitials: "IL",
+    location: "New York",
+    salary: "$110000-$130000",
+    tags: ["Full-time", "Product", "Management", "Agile"],
+    accentColor: "primary",
+  },
+  {
+    id: 4,
+    title: "UX/UI Designer",
+    company: "Creative Minds Inc.",
+    companyInitials: "CM",
+    location: "Remote",
+    salary: "$90000-$110000",
+    tags: ["Full-time", "Design", "Figma", "User Experience"],
+    accentColor: "primary",
+  },
+  {
+    id: 5,
+    title: "DevOps Engineer",
+    company: "Cloud Systems Ltd.",
+    companyInitials: "CS",
+    location: "London",
+    salary: "$100000-$120000",
+    tags: ["Full-time", "AWS", "Kubernetes", "CI/CD"],
+    accentColor: "primary",
+  },
+];
 
-  useEffect(() => {
-    // Show loading animation
-    setLoading(true);
-
-    // Simulate an API call with setTimeout
-    setTimeout(() => {
-      setLoading(false);
-    }, 4000);
-  }, []);
-  // Sample data array for main topics
-  const topics = [
-    {
-      id: 1,
-      title: "Web Design",
-      description:
-        "Topic Listing includes home, listing, detail and contact pages...",
-      image: "/asset/images/topics/undraw_Remote_design_team_re_urdx.png",
-      count: 14,
-      skills: ["HTML", "CSS", "JavaScript"],
-    },
-    {
-      id: 2,
-      title: "Advertising",
-      description: "Visit TemplateMo website to download free CSS templates...",
-      image: "/asset/images/topics/undraw_online_ad_re_ol62.png",
-      count: 30,
-      skills: ["Marketing", "SEO", "Analytics"],
-    },
-    {
-      id: 3,
-      title: "Podcast",
-      description:
-        "Lorem ipsum dolor, sit amet consectetur adipisicing elit...",
-      image: "/asset/images/topics/undraw_Podcast_audience_re_4i5q.png",
-      count: 20,
-      skills: ["Audio Editing", "Content Creation"],
-    },
-    {
-      id: 4,
-      title: "Investment",
-      description: "Lorem Ipsum dolor sit amet consectetur",
-      image: "/asset/images/topics/undraw_Finance_re_gnv2.png",
-      count: 30,
-      skills: ["Finance", "Analysis", "Excel"],
-    },
-    {
-      id: 5,
-      title: "Finance",
-      description:
-        "Lorem ipsum dolor, sit amet consectetur adipisicing elit...",
-      image: "/asset/images/businesswoman-using-tablet-analysis.jpg",
-      count: 25,
-      skills: ["Accounting", "Python", "SQL"],
-    },
-  ];
-
-  // Sample data for suggested jobs
-  const suggestedJobs = [
-    {
-      id: 6,
-      title: "Ky Su Phat Trien BackEnd - Khong",
-      company: "MBBANK",
-      skills: ["Oracle", "Java", "SQL"],
-      image: "/asset/images/businesswoman-using-tablet-analysis.jpg", // Replace with actual logo path
-    },
-    {
-      id: 7,
-      title: "Chuyen vien, Chuyen vien cao...",
-      company: "MBBANK",
-      skills: ["SQL", "Python", "IT Security"],
-      image: "/asset/images/businesswoman-using-tablet-analysis.jpg",
-    },
-    {
-      id: 8,
-      title: "IT Infrastructure Engineer",
-      company: "Sunbytes",
-      skills: ["English", "IT Infrastructure"],
-      image: "/asset/images/businesswoman-using-tablet-analysis.jpg", // Replace with actual logo path
-    },
-    {
-      id: 9,
-      title: "Senior API Engineer (English)",
-      company: "Alephon",
-      skills: ["C#", "Restful Api", "API"],
-      image: "/asset/images/businesswoman-using-tablet-analysis.jpg", // Replace with actual logo path
-    },
-    {
-      id: 10,
-      title: "Data Scientist",
-      company: "HEINEKEN Vietnam",
-      skills: ["SQL", "Python", "Data Science"],
-      image: "/asset/images/businesswoman-using-tablet-analysis.jpg", // Replace with actual logo path
-    },
-  ];
-
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentTopics = topics.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(topics.length / itemsPerPage);
+export default function JobListingPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [salaryRange, setSalaryRange] = useState(0);
+  const [sortOption, setSortOption] = useState("newest");
 
   return (
-    <main>
-      <Loading isLoading={loading} />
-      {/* Header */}
-      <header
-        className="site-header"
-        style={{
-          paddingTop: "100px",
-          paddingBottom: "20px",
-        }}
-      >
-        <section className="search-filter py-3">
-          <div className="container">
-            <div className="row mb-3">
-              <div className="col-12">
-                <div
-                  style={{
-                    backgroundColor: "var(--white-color)",
-                    borderRadius: "0.375rem",
-                    padding: "10px 15px",
-                  }}
-                  className="input-group col-8"
-                >
-                  <input
-                    type="text"
-                    className="form-control p-3 border-0"
-                    placeholder="Tìm kiếm theo các Kỹ năng, Vị trí, Công ty..."
-                    aria-label="Search"
-                    style={{
-                      outline: "none",
-                      boxShadow: "none",
-                    }}
-                  />
-                  <button
-                    className="btn text-white col-2"
-                    type="submit"
-                    style={{
-                      backgroundColor: "#80d0c7",
-                      borderRadius: "0.375rem",
-                    }}
-                  >
-                    <i className="bi bi-search me-1"></i> Tìm kiếm
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-3 col-sm-6 mb-2">
-                <div className="dropdown w-100">
-                  <button
-                    className="btn btn-light dropdown-toggle w-100 text-start p-3"
-                    type="button"
-                    id="locationDropdown"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Tất cả địa điểm
-                  </button>
-                  <ul
-                    className="dropdown-menu w-100"
-                    aria-labelledby="locationDropdown"
-                  >
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Hà Nội
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Hồ Chí Minh
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Đà Nẵng
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="col-md-3 col-sm-6 mb-2">
-                <div className="dropdown w-100">
-                  <button
-                    className="btn btn-light dropdown-toggle w-100 text-start p-3"
-                    type="button"
-                    id="levelDropdown"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Tất cả cấp bậc
-                  </button>
-                  <ul
-                    className="dropdown-menu w-100"
-                    aria-labelledby="levelDropdown"
-                  >
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Nhân viên
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Quản lý
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Giám đốc
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="col-md-3 col-sm-6 mb-2">
-                <div className="dropdown w-100">
-                  <button
-                    className="btn btn-light dropdown-toggle w-100 text-start p-3"
-                    type="button"
-                    id="jobTypeDropdown"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Tất cả loại công việc
-                  </button>
-                  <ul
-                    className="dropdown-menu w-100"
-                    aria-labelledby="jobTypeDropdown"
-                  >
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Toàn thời gian
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Bán thời gian
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Freelance
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="col-md-3 col-sm-6 mb-2">
-                <div className="d-flex">
-                  <div className="dropdown flex-grow-1 me-2">
-                    <button
-                      className="btn btn-light dropdown-toggle w-100 text-start p-3"
-                      type="button"
-                      id="contractDropdown"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      Tất cả loại hợp đồng
-                    </button>
-                    <ul
-                      className="dropdown-menu w-100"
-                      aria-labelledby="contractDropdown"
-                    >
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Dài hạn
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Ngắn hạn
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Dự án
-                        </a>
-                      </li>
-                    </ul>
+    <div
+      className="d-flex flex-column min-vh-100"
+      style={{
+        paddingTop: "5rem",
+      }}
+    >
+      <main className="flex-grow-1 bg-light py-4">
+        <div className="container">
+          <div className="row g-4">
+            {/* Sidebar Filters */}
+            <div className="col-md-4 col-lg-3">
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  {/* Search by Job Title */}
+                  <div className="mb-4">
+                    <h3 className="h6 fw-bold mb-3">Search by Job Title</h3>
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-search"></i>
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Job title or company"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
                   </div>
 
-                  <button className="btn btn-secondary" type="button">
-                    <i className="bi bi-x-circle"></i> Xóa bộ lọc
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </header>
+                  {/* Location */}
+                  <div className="mb-4">
+                    <h3 className="h6 fw-bold mb-3">Location</h3>
+                    <select
+                      className="form-select"
+                      value={selectedLocation}
+                      onChange={(e) => setSelectedLocation(e.target.value)}
+                    >
+                      <option value="">Choose city</option>
+                      <option value="new-york">New York</option>
+                      <option value="san-francisco">San Francisco</option>
+                      <option value="london">London</option>
+                      <option value="remote">Remote</option>
+                    </select>
+                  </div>
 
-      <section className="mt-4">
-        <div className="container">
-          {/* Main Content and Suggested Jobs */}
-          <div className="row">
-            {/* Main Content Area */}
-            <div className="col-lg-9 col-12">
-              <div className="row">
-                <div className="col-12 ">
-                  <h3 className="">Jobs</h3>
-                </div>
-                {currentTopics.length > 0 ? (
-                  currentTopics.map((topic) => (
-                    <div key={topic.id} className="col-12 mb-4">
-                      <div className="custom-block custom-block-topics-listing bg-white shadow-lg p-4 d-flex align-items-center">
-                        <img
-                          src={topic.image}
-                          className="custom-block-image img-fluid me-3"
-                          alt={topic.title}
-                          style={{ maxWidth: "100px" }}
-                        />
-                        <div className="flex-grow-1">
-                          <h5 className="mb-2">
-                            {topic.title}{" "}
-                            <span className="badge bg-danger">Hot Job</span>
-                          </h5>
-                          <p className="mb-2">{topic.description}</p>
-                          <div className="mb-2">
-                            {topic.skills.map((skill, index) => (
-                              <span
-                                key={index}
-                                className="badge bg-secondary me-1"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                          <Link
-                            to="/job-detail"
-                            className="btn custom-btn mt-2"
+                  {/* Category Filters */}
+                  <div className="mb-4">
+                    <h3 className="h6 fw-bold mb-3">Category</h3>
+                    {[
+                      "Commerce",
+                      "Telecomunications",
+                      "Design",
+                      "Hotel & Tourism",
+                      "Financial Services",
+                    ].map((category) => (
+                      <div
+                        key={category}
+                        className="d-flex justify-content-between mb-2"
+                      >
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id={`category-${category.toLowerCase()}`}
+                          />
+                          <label
+                            className="form-check-label"
+                            htmlFor={`category-${category.toLowerCase()}`}
                           >
-                            Learn More
-                          </Link>
+                            {category}
+                          </label>
                         </div>
-                        <span className="badge bg-design rounded-pill ms-auto">
-                          {topic.count}
-                        </span>
+                        <span className="text-muted small">5</span>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center">No topics found.</p>
-                )}
-                {/* Pagination */}
-                <div className="col-12">
-                  <nav aria-label="Page navigation">
-                    <ul className="pagination justify-content-center">
-                      <li
-                        className={`page-item ${
-                          currentPage === 1 ? "disabled" : ""
-                        }`}
-                      >
-                        <button
-                          className="page-link"
-                          onClick={() => setCurrentPage(currentPage - 1)}
-                        >
-                          Previous
-                        </button>
-                      </li>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                        (page) => (
-                          <li
-                            key={page}
-                            className={`page-item ${
-                              currentPage === page ? "active" : ""
-                            }`}
-                          >
-                            <button
-                              className="page-link"
-                              onClick={() => setCurrentPage(page)}
-                            >
-                              {page}
-                            </button>
-                          </li>
-                        )
-                      )}
-                      <li
-                        className={`page-item ${
-                          currentPage === totalPages ? "disabled" : ""
-                        }`}
-                      >
-                        <button
-                          className="page-link"
-                          onClick={() => setCurrentPage(currentPage + 1)}
-                        >
-                          Next
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </div>
-            </div>
+                    ))}
+                  </div>
 
-            {/* Suggested Jobs Section */}
-            <div className="col-lg-3 col-12">
-              <div className="suggested-jobs bg-white p-3 rounded shadow-sm mb-5">
-                <h4 className="mb-3">Suggested Jobs</h4>
-                {suggestedJobs.map((job) => (
-                  <div key={job.id} className="mb-3 p-2 border rounded">
-                    <div className="d-flex align-items-center">
-                      <img
-                        src={job.image}
-                        className="me-2"
-                        alt={`${job.company} logo`}
-                        style={{ maxWidth: "50px" }}
-                      />
-                      <div>
-                        <h6 className="mb-1">{job.title}</h6>
-                        <p className="mb-0 text-muted">{job.company}</p>
+                  {/* Date Posted */}
+                  <div className="mb-4">
+                    <h3 className="h6 fw-bold mb-3">Date Posted</h3>
+                    {[
+                      "All",
+                      "Last 24 hours",
+                      "Last 3 days",
+                      "Last 7 days",
+                      "Last 30 days",
+                    ].map((option) => (
+                      <div
+                        key={option}
+                        className="d-flex justify-content-between mb-2"
+                      >
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="datePosted"
+                            id={`date-${option
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")}`}
+                            defaultChecked={option === "All"}
+                          />
+                          <label
+                            className="form-check-label"
+                            htmlFor={`date-${option
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")}`}
+                          >
+                            {option}
+                          </label>
+                        </div>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Salary Range */}
+                  <div className="mb-4">
+                    <h3 className="h6 fw-bold mb-3">Salary</h3>
+                    <input
+                      type="range"
+                      className="form-range mb-3"
+                      min="0"
+                      max="100"
+                      value={salaryRange}
+                      onChange={(e) => setSalaryRange(e.target.value)}
+                    />
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="small fw-medium">
+                        Salary: ${salaryRange * 1000} - $99999
+                      </span>
+                      <button className="btn btn-sm btn-outline-secondary">
+                        Apply
+                      </button>
                     </div>
-                    <div className="mt-2">
-                      {job.skills.map((skill, index) => (
+                  </div>
+
+                  {/* Tags */}
+                  <div className="mb-4">
+                    <h3 className="h6 fw-bold mb-3">Tags</h3>
+                    <div className="d-flex flex-wrap gap-2">
+                      {[
+                        "Full-time",
+                        "Remote",
+                        "Senior",
+                        "Tech",
+                        "Finance",
+                        "Marketing",
+                        "Design",
+                        "Healthcare",
+                      ].map((tag) => (
                         <span
-                          key={index}
-                          className="badge bg-light text-dark me-1"
+                          key={tag}
+                          className="badge bg-info bg-opacity-10 text-info"
                         >
-                          {skill}
+                          {tag}
                         </span>
                       ))}
                     </div>
                   </div>
-                ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Job Listings */}
+            <div className="col-md-8 col-lg-9">
+              <div className="card shadow-sm mb-4">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <p className="text-muted mb-0 small">
+                      Showing 5 of 101 results
+                    </p>
+                    <select
+                      className="form-select form-select-sm"
+                      style={{ width: "180px" }}
+                      value={sortOption}
+                      onChange={(e) => setSortOption(e.target.value)}
+                    >
+                      <option value="newest">Sort by: Newest</option>
+                      <option value="oldest">Sort by: Oldest</option>
+                      <option value="salary-high">
+                        Sort by: Salary (High)
+                      </option>
+                      <option value="salary-low">Sort by: Salary (Low)</option>
+                    </select>
+                  </div>
+
+                  {/* Job Cards - Directly embedded in this component */}
+
+                  {/* Job Card 1 */}
+                  <div className="card mb-3 bg-primary bg-opacity-10 border-primary border-opacity-25">
+                    <Link to="/job-detail" className="text-decoration-none">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between mb-3">
+                          <div className="d-flex gap-3">
+                            <div
+                              className="rounded-circle bg-primary bg-opacity-25 text-primary d-flex align-items-center justify-content-center"
+                              style={{ width: "48px", height: "48px" }}
+                            >
+                              <span className="fw-bold">FS</span>
+                            </div>
+                            <div>
+                              <h5 className="card-title mb-0">
+                                Customer Support Associate
+                              </h5>
+                              <p className="card-text text-muted small">
+                                Fast Support Solutions
+                              </p>
+                            </div>
+                          </div>
+                          <button className="btn btn-link text-muted p-0">
+                            <i className="bi bi-star"></i>
+                          </button>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-primary bg-opacity-10 text-primary rounded p-1 me-1">
+                              <i className="bi bi-geo-alt small"></i>
+                            </span>
+                            Remote
+                          </span>
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-success bg-opacity-10 text-success rounded p-1 me-1">
+                              <i className="bi bi-cash small"></i>
+                            </span>
+                            $280 - $400/month
+                          </span>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          {["Full-time | Customer Support | Remote"].map(
+                            (tag) => (
+                              <span
+                                key={tag}
+                                className="badge bg-warning bg-opacity-10 text-warning"
+                              >
+                                {tag}
+                              </span>
+                            )
+                          )}
+                        </div>
+
+                        <div className="text-end">
+                          <button className="btn btn-warning btn-sm text-white">
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Job Card 2 */}
+                  <div className="card mb-3 bg-primary bg-opacity-10 border-primary border-opacity-25">
+                    <Link to="/job-detail" className="text-decoration-none">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between mb-3">
+                          <div className="d-flex gap-3">
+                            <div
+                              className="rounded-circle bg-primary bg-opacity-25 text-primary d-flex align-items-center justify-content-center"
+                              style={{ width: "48px", height: "48px" }}
+                            >
+                              <span className="fw-bold">TV</span>
+                            </div>
+                            <div>
+                              <h5 className="card-title mb-0">
+                                Digital Marketing Intern
+                              </h5>
+                              <p className="card-text text-muted small">
+                                Digital Growth
+                              </p>
+                            </div>
+                          </div>
+                          <button className="btn btn-link text-muted p-0">
+                            <i className="bi bi-star"></i>
+                          </button>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-primary bg-opacity-10 text-primary rounded p-1 me-1">
+                              <i className="bi bi-geo-alt small"></i>
+                            </span>
+                            Remote
+                          </span>
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-success bg-opacity-10 text-success rounded p-1 me-1">
+                              <i className="bi bi-cash small"></i>
+                            </span>
+                            $200 - $320/month
+                          </span>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          {["Internship | Digital Marketing | Remote"].map(
+                            (tag) => (
+                              <span
+                                key={tag}
+                                className="badge bg-info bg-opacity-10 text-info"
+                              >
+                                {tag}
+                              </span>
+                            )
+                          )}
+                        </div>
+
+                        <div className="text-end">
+                          <button className="btn btn-info btn-sm text-white">
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Job Card 3 */}
+                  <div className="card mb-3 bg-primary bg-opacity-10 border-primary border-opacity-25">
+                    <Link to="/job-detail" className="text-decoration-none">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between mb-3">
+                          <div className="d-flex gap-3">
+                            <div
+                              className="rounded-circle bg-primary bg-opacity-25 text-primary d-flex align-items-center justify-content-center"
+                              style={{ width: "48px", height: "48px" }}
+                            >
+                              <span className="fw-bold">IL</span>
+                            </div>
+                            <div>
+                              <h5 className="card-title mb-0">
+                                Freelance Content Writer
+                              </h5>
+                              <p className="card-text text-muted small">
+                                Content Creators Hub
+                              </p>
+                            </div>
+                          </div>
+                          <button className="btn btn-link text-muted p-0">
+                            <i className="bi bi-star"></i>
+                          </button>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-primary bg-opacity-10 text-primary rounded p-1 me-1">
+                              <i className="bi bi-geo-alt small"></i>
+                            </span>
+                            Remote
+                          </span>
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-success bg-opacity-10 text-success rounded p-1 me-1">
+                              <i className="bi bi-cash small"></i>
+                            </span>
+                            $240 - $360/month
+                          </span>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          {["Freelancer | Content Writing | Remote"].map(
+                            (tag) => (
+                              <span
+                                key={tag}
+                                className="badge bg-success bg-opacity-10 text-success"
+                              >
+                                {tag}
+                              </span>
+                            )
+                          )}
+                        </div>
+
+                        <div className="text-end">
+                          <button className="btn btn-success btn-sm text-white">
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Job Card 4 */}
+                  <div className="card mb-3 bg-primary bg-opacity-10 border-primary border-opacity-25">
+                    <Link to="/job-detail" className="text-decoration-none">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between mb-3">
+                          <div className="d-flex gap-3">
+                            <div
+                              className="rounded-circle bg-primary bg-opacity-25 text-primary d-flex align-items-center justify-content-center"
+                              style={{ width: "48px", height: "48px" }}
+                            >
+                              <span className="fw-bold">CM</span>
+                            </div>
+                            <div>
+                              <h5 className="card-title mb-0">
+                                UX/UI Designer
+                              </h5>
+                              <p className="card-text text-muted small">
+                                Creative Studio.
+                              </p>
+                            </div>
+                          </div>
+                          <button className="btn btn-link text-muted p-0">
+                            <i className="bi bi-star"></i>
+                          </button>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-primary bg-opacity-10 text-primary rounded p-1 me-1">
+                              <i className="bi bi-geo-alt small"></i>
+                            </span>
+                            Remote
+                          </span>
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-success bg-opacity-10 text-success rounded p-1 me-1">
+                              <i className="bi bi-cash small"></i>
+                            </span>
+                            $200 - $320/month
+                          </span>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          {["Internship | UX/UI Design | Figma | Remote"].map(
+                            (tag) => (
+                              <span
+                                key={tag}
+                                className="badge bg-primary bg-opacity-10 text-primary"
+                              >
+                                {tag}
+                              </span>
+                            )
+                          )}
+                        </div>
+
+                        <div className="text-end">
+                          <button className="btn btn-primary btn-sm text-white">
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Job Card 5 */}
+
+                  <div className="card mb-3 bg-primary bg-opacity-10 border-danger border-opacity-25">
+                    <Link to="/job-detail" className="text-decoration-none">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between mb-3">
+                          <div className="d-flex gap-3">
+                            <div
+                              className="rounded-circle bg-danger bg-opacity-25 text-danger d-flex align-items-center justify-content-center"
+                              style={{ width: "48px", height: "48px" }}
+                            >
+                              <span className="fw-bold">CS</span>
+                            </div>
+                            <div>
+                              <h5 className="card-title mb-0">
+                                Freelance Video Editor (YouTube)
+                              </h5>
+                              <p className="card-text text-muted small">
+                                Video Creators
+                              </p>
+                            </div>
+                          </div>
+                          <button className="btn btn-link text-muted p-0">
+                            <i className="bi bi-star"></i>
+                          </button>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-primary bg-opacity-10 text-primary rounded p-1 me-1">
+                              <i className="bi bi-geo-alt small"></i>
+                            </span>
+                            Remote
+                          </span>
+                          <span className="badge bg-light text-dark d-flex align-items-center">
+                            <span className="bg-success bg-opacity-10 text-success rounded p-1 me-1">
+                              <i className="bi bi-cash small"></i>
+                            </span>
+                            $200 - $400/month
+                          </span>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          {[
+                            "Freelancer | Video Editing | YouTube | Remote",
+                          ].map((tag) => (
+                            <span
+                              key={tag}
+                              className="badge bg-danger bg-opacity-10 text-danger"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="text-end">
+                          <button className="btn btn-danger btn-sm text-white">
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                      <ul className="pagination">
+                        <li className="page-item active">
+                          <a className="page-link rounded-circle" href="#">
+                            1
+                          </a>
+                        </li>
+                        <li className="page-item">
+                          <a className="page-link rounded-circle" href="#">
+                            2
+                          </a>
+                        </li>
+                        <li className="page-item">
+                          <a className="page-link rounded-circle" href="#">
+                            <i className="bi bi-chevron-right"></i>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Companies Section */}
+              <div className="mt-5 mb-4">
+                <h2 className="text-center fw-bold mb-2">Top Company</h2>
+                <p className="text-center text-muted mb-4">
+                  Find your dream job at these leading social platforms
+                </p>
+
+                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                  {[
+                    {
+                      name: "Instagram",
+                      logo: "fab fa-linkedin",
+                      color: "#0077B5",
+                      description:
+                        "Explore roles in marketing, design, engineering, and product management.",
+                    },
+                    {
+                      name: "Tesla",
+                      logo: "fab fa-twitter",
+                      color: "#1DA1F2",
+                      description:
+                        "Find roles in engineering, software, and renewable energy.",
+                    },
+                    {
+                      name: "McDonald's",
+                      logo: "fab fa-facebook",
+                      color: "#4267B2",
+                      description:
+                        "Explore roles in customer service, management, and operations.",
+                    },
+                    {
+                      name: "Apple",
+                      logo: "fab fa-youtube",
+                      color: "#FF0000",
+                      description:
+                        "Explore positions in software, hardware, and retail.",
+                    },
+                  ].map((company) => (
+                    <div key={company.name} className="col">
+                      <div className="card h-100 text-center">
+                        <div className="card-body">
+                          <div
+                            className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                            style={{
+                              width: "64px",
+                              height: "64px",
+                              backgroundColor: `${company.color}20`,
+                            }}
+                          >
+                            <i
+                              className={`${company.logo} fa-2x`}
+                              style={{ color: company.color }}
+                            ></i>
+                          </div>
+                          <h5 className="card-title">{company.name}</h5>
+                          <p className="card-text text-muted small mb-3">
+                            {company.description}
+                          </p>
+                          <button className="btn btn-outline-info btn-sm">
+                            View Jobs
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }
-
-export default JobListing;

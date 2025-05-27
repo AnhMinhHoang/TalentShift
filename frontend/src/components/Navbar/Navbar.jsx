@@ -100,23 +100,27 @@ function Navbar() {
 
             <li className="nav-item">
               <Link to="/#section_2" className="nav-link click-scroll">
-                Browse Topics
+                About
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link to="/#section_3" className="nav-link click-scroll">
-                How it works
-              </Link>
+              <div>
+                <Link to="/jobs" className="nav-link">
+                  Jobs
+                </Link>
+              </div>
             </li>
 
             <li className="nav-item">
-              <Link to="/#section_4" className="nav-link click-scroll">
-                FAQs
-              </Link>
+              <div>
+                <Link to="/job-posting" className="nav-link">
+                  Post Job
+                </Link>
+              </div>
             </li>
 
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link to="/#section_5" className="nav-link click-scroll">
                 Contact
               </Link>
@@ -149,7 +153,7 @@ function Navbar() {
                   </Link>
                 </li>
               </ul>
-            </li>
+            </li> */}
           </ul>
 
           <div className="d-none d-lg-block">

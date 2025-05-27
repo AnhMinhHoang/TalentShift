@@ -1,17 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles/Auth.module.css";
+import { useAuth } from "../AuthContext";
 import { notification } from "antd";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
+  const emailRef = useRef(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    userType: "freelancer",
+    userType: 2,
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -60,8 +63,8 @@ export default function Register() {
 
   const nextStep = () => {
     if (step === 1) {
-      if (!formData.firstName || !formData.lastName || !formData.email) {
-        setError("Please fill in all fields");
+      if (!formData.userType) {
+        setError("Please select a role");
         return;
       }
       setError("");
@@ -77,8 +80,18 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if ((formData.userType === 2 && (!formData.firstName || !formData.lastName || !formData.email) || formData.userType === 1 && !formData.email)) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (!emailRef.current.checkValidity()) {
+      emailRef.current.reportValidity();
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Confirm Password must be the same as Password");
       return;
     }
 
@@ -87,13 +100,24 @@ export default function Register() {
       return;
     }
 
+    setError("");
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      await register(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName,
+        formData.userType
+      );
       setIsLoading(false);
-      openNotification("success", "Register succesfully!", "top", "");
-      navigate("/register-addition");
-    }, 1500);
+      openNotification("success", "Register successful!", "top");
+      if (formData.userType === 2) navigate("/register-addition");
+    } catch (err) {
+      setIsLoading(false);
+      setError(err.message || "Something went wrong");
+    }
   };
 
   const handleGoogleRegister = () => {
@@ -141,8 +165,8 @@ export default function Register() {
                         >
                           <div className={styles.stepNumber}>1</div>
                           <div className={styles.stepText}>
-                            <h6>Account Info</h6>
-                            <p>Basic information</p>
+                            <h6>Account Type</h6>
+                            <p>Choose your role</p>
                           </div>
                         </div>
                         <div
@@ -152,8 +176,8 @@ export default function Register() {
                         >
                           <div className={styles.stepNumber}>2</div>
                           <div className={styles.stepText}>
-                            <h6>Account Type</h6>
-                            <p>Choose your role</p>
+                            <h6>Account Info</h6>
+                            <p>Basic information</p>
                           </div>
                         </div>
                       </div>
@@ -191,6 +215,122 @@ export default function Register() {
                       <form onSubmit={handleSubmit}>
                         {step === 1 && (
                           <>
+                            <div className="mb-4">
+                              <label
+                                className={`form-label ${styles.formLabel}`}
+                              >
+                                I am a:
+                              </label>
+                              <div className="row mt-3">
+                                <div className="col-md-6 mb-3 mb-md-0">
+                                  <div
+                                    className={`${styles.userTypeCard} ${
+                                      formData.userType === 2
+                                        ? styles.userTypeCardActive
+                                        : ""
+                                    }`}
+                                    onClick={() => handleUserTypeSelect(2)}
+                                  >
+                                    <div className={styles.userTypeIcon}>
+                                      <i className="bi bi-person-workspace"></i>
+                                    </div>
+                                    <div className={styles.userTypeContent}>
+                                      <h5>Freelancer</h5>
+                                      <p>
+                                        I want to work on projects and offer my
+                                        services
+                                      </p>
+                                      <ul className={styles.userTypeFeatures}>
+                                        <li>
+                                          <i className="bi bi-check-circle-fill"></i>{" "}
+                                          Find projects
+                                        </li>
+                                        <li>
+                                          <i className="bi bi-check-circle-fill"></i>{" "}
+                                          Showcase skills
+                                        </li>
+                                        <li>
+                                          <i className="bi bi-check-circle-fill"></i>{" "}
+                                          Get paid
+                                        </li>
+                                      </ul>
+                                    </div>
+                                    <div className={styles.userTypeRadio}>
+                                      <input
+                                        type="radio"
+                                        name="userType"
+                                        id="freelancer"
+                                        value="freelancer"
+                                        checked={formData.userType === 2}
+                                        onChange={handleChange}
+                                        className="form-check-input"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="col-md-6">
+                                  <div
+                                    className={`${styles.userTypeCard} ${
+                                      formData.userType === 1
+                                        ? styles.userTypeCardActive
+                                        : ""
+                                    }`}
+                                    onClick={() => handleUserTypeSelect(1)}
+                                  >
+                                    <div className={styles.userTypeIcon}>
+                                      <i className="bi bi-briefcase"></i>
+                                    </div>
+                                    <div className={styles.userTypeContent}>
+                                      <h5>Hirer</h5>
+                                      <p>
+                                        I want to hire talent and post projects
+                                      </p>
+                                      <ul className={styles.userTypeFeatures}>
+                                        <li>
+                                          <i className="bi bi-check-circle-fill"></i>{" "}
+                                          Post jobs
+                                        </li>
+                                        <li>
+                                          <i className="bi bi-check-circle-fill"></i>{" "}
+                                          Find talent
+                                        </li>
+                                        <li>
+                                          <i className="bi bi-check-circle-fill"></i>{" "}
+                                          Manage projects
+                                        </li>
+                                      </ul>
+                                    </div>
+                                    <div className={styles.userTypeRadio}>
+                                      <input
+                                        type="radio"
+                                        name="userType"
+                                        id="hirer"
+                                        value="hirer"
+                                        checked={formData.userType === 1}
+                                        onChange={handleChange}
+                                        className="form-check-input"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="d-grid mt-4">
+                              <button
+                                type="button"
+                                className={`btn ${styles.primaryBtn}`}
+                                onClick={nextStep}
+                              >
+                                Continue
+                                <i className="bi bi-arrow-right ms-2"></i>
+                              </button>
+                            </div>
+                          </>
+                        )}
+
+                        {step === 2 && (
+                          <>
+                          {formData.userType === 2 && (
                             <div className="row mb-3">
                               <div className="col-md-6 mb-3 mb-md-0">
                                 <label
@@ -237,6 +377,7 @@ export default function Register() {
                                 </div>
                               </div>
                             </div>
+                            )}
                             <div className="mb-3">
                               <label
                                 htmlFor="email"
@@ -254,6 +395,7 @@ export default function Register() {
                                   placeholder="your@email.com"
                                   value={formData.email}
                                   onChange={handleChange}
+                                  ref={emailRef}
                                   required
                                 />
                                 <span className={styles.inputFocus}></span>
@@ -353,128 +495,6 @@ export default function Register() {
                                 <span className={styles.inputFocus}></span>
                               </div>
                             </div>
-                            <div className="d-grid mt-4">
-                              <button
-                                type="button"
-                                className={`btn ${styles.primaryBtn}`}
-                                onClick={nextStep}
-                              >
-                                Continue
-                                <i className="bi bi-arrow-right ms-2"></i>
-                              </button>
-                            </div>
-                          </>
-                        )}
-
-                        {step === 2 && (
-                          <>
-                            <div className="mb-4">
-                              <label
-                                className={`form-label ${styles.formLabel}`}
-                              >
-                                I am a:
-                              </label>
-                              <div className="row mt-3">
-                                <div className="col-md-6 mb-3 mb-md-0">
-                                  <div
-                                    className={`${styles.userTypeCard} ${
-                                      formData.userType === "freelancer"
-                                        ? styles.userTypeCardActive
-                                        : ""
-                                    }`}
-                                    onClick={() =>
-                                      handleUserTypeSelect("freelancer")
-                                    }
-                                  >
-                                    <div className={styles.userTypeIcon}>
-                                      <i className="bi bi-person-workspace"></i>
-                                    </div>
-                                    <div className={styles.userTypeContent}>
-                                      <h5>Freelancer</h5>
-                                      <p>
-                                        I want to work on projects and offer my
-                                        services
-                                      </p>
-                                      <ul className={styles.userTypeFeatures}>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Find projects
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Showcase skills
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Get paid
-                                        </li>
-                                      </ul>
-                                    </div>
-                                    <div className={styles.userTypeRadio}>
-                                      <input
-                                        type="radio"
-                                        name="userType"
-                                        id="freelancer"
-                                        value="freelancer"
-                                        checked={
-                                          formData.userType === "freelancer"
-                                        }
-                                        onChange={handleChange}
-                                        className="form-check-input"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="col-md-6">
-                                  <div
-                                    className={`${styles.userTypeCard} ${
-                                      formData.userType === "hirer"
-                                        ? styles.userTypeCardActive
-                                        : ""
-                                    }`}
-                                    onClick={() =>
-                                      handleUserTypeSelect("hirer")
-                                    }
-                                  >
-                                    <div className={styles.userTypeIcon}>
-                                      <i className="bi bi-briefcase"></i>
-                                    </div>
-                                    <div className={styles.userTypeContent}>
-                                      <h5>Hirer</h5>
-                                      <p>
-                                        I want to hire talent and post projects
-                                      </p>
-                                      <ul className={styles.userTypeFeatures}>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Post jobs
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Find talent
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Manage projects
-                                        </li>
-                                      </ul>
-                                    </div>
-                                    <div className={styles.userTypeRadio}>
-                                      <input
-                                        type="radio"
-                                        name="userType"
-                                        id="hirer"
-                                        value="hirer"
-                                        checked={formData.userType === "hirer"}
-                                        onChange={handleChange}
-                                        className="form-check-input"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
                             <div className="mb-4">
                               <label className={styles.customCheckbox}>
                                 <input
@@ -495,7 +515,6 @@ export default function Register() {
                                 </a>
                               </label>
                             </div>
-
                             <div className="d-flex gap-3 mt-4">
                               <button
                                 type="button"
@@ -530,7 +549,7 @@ export default function Register() {
                         )}
                       </form>
 
-                      {step === 1 && (
+                      {step === 2 && (
                         <>
                           <div className={styles.divider}>
                             <span>OR</span>

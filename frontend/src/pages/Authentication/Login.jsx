@@ -41,17 +41,22 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      login(formData.email);
+    setError(null);
+
+    try {
+      await login(formData.email, formData.password);
       setIsLoading(false);
       openNotification(
         "success",
-        "Login succesfully!",
+        "Login successful!",
         "top",
-        "Redirect to Homepage!"
+        "Redirecting to Homepage!"
       );
       navigate("/");
-    }, 1500);
+    } catch (err) {
+      setIsLoading(false);
+      setError(err.message || "Invalid email or password");
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -210,7 +215,18 @@ export default function Login() {
                             className={`btn ${styles.primaryBtn}`}
                             disabled={isLoading}
                           >
-                            {isLoading ? "Signing in..." : "Sign In"}
+                            {isLoading ? (
+                              <>
+                                <span
+                                  className={styles.spinnerBorder}
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                                <span className="ms-2">Sign In...</span>
+                              </>
+                            ) : (
+                              "Sign In"
+                            )}
                           </button>
                           <button
                             type="button"

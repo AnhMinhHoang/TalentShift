@@ -32,7 +32,7 @@ public class UserService implements IUserService {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRole(role);
+//        user.setRole(role);
         return userRepository.save(user);
     }
 
