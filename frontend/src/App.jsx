@@ -14,6 +14,8 @@ import JobTracker from './pages/userProfile/Profile_Page.jsx';
 import Plan from './pages/payment/Plan.jsx';
 import Success from './pages/payment/Success.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
+import JobPostPage from './pages/jobPost/jobPostPage.jsx';
+import JobListPage from './pages/jobList/JobListPage.jsx';
 
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -46,6 +48,8 @@ function App() {
                     <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
                     <Route path='/payment' element={<Plan />} />
                     <Route path='/payment-success' element={<Success />} />
+                    <Route path='/job-post' element={<JobPostPage />} />
+                    <Route path='/job-list' element={<JobListPage />} />
                 </Routes>
             </Router>
             <Footer />

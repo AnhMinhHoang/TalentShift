@@ -1,0 +1,63 @@
+.filterBar {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.filterLabel {
+  color: #495057;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.filterInput {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+}
+
+.filterInput:focus {
+  border-color: #428a9b;
+  box-shadow: 0 0 0 0.2rem rgba(66, 138, 155, 0.25);
+  outline: none;
+}
+
+.filterActions {
+  display: flex;
+  align-items: end;
+  height: 100%;
+}
+
+.clearBtn {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.clearBtn:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .filterBar {
+    padding: 1rem;
+  }
+
+  .filterActions {
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .clearBtn {
+    width: 100%;
+  }
+}
