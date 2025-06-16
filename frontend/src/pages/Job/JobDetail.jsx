@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import {
   Container,
   Row,
@@ -28,7 +28,8 @@ import {
 } from "react-icons/fa";
 import { notification } from "antd";
 import styles from "./Styles/JobDetail.module.css";
-import jobData from "./JobData.json";
+import { fetchJobById } from '../../services/jobService';
+import { useParams } from "react-router-dom";
 
 export default function JobDetail() {
   const [showShareModal, setShowShareModal] = useState(false);
@@ -49,6 +50,53 @@ export default function JobDetail() {
 
   // Notification API setup
   const [api, contextHolder] = notification.useNotification();
+  const { id } = useParams();
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const response = await fetchJobById(id);
+        // Transform backend data to frontend format
+        const jobData = transformJobData(response.data);
+        setJob(jobData);
+      } catch (err) {
+        setError(err.message || 'Failed to load job details');
+        console.error('Error fetching job:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJob();
+  }, [id]);
+
+
+  // Transform backend job data to match frontend structure
+  const transformJobData = (backendJob) => {
+    return {
+      id: backendJob.id,
+      title: backendJob.title,
+      company: backendJob.hirer?.companyName || 'Unknown Company',
+      logo: backendJob.hirer?.logo || '/placeholder.svg',
+      category: backendJob.category?.name || 'Uncategorized',
+      salary: `$${backendJob.minBudget}-$${backendJob.maxBudget}`,
+      description: backendJob.description,
+      responsibilities: backendJob.responsibilities || [],
+      skills: backendJob.skills?.map(skill => skill.skillName) || [],
+      tags: [], // Not in backend model
+      relatedJobs: [], // Not in backend model
+      similarCompanies: [], // Not in backend model
+      createdAt: new Date(backendJob.createdAt).toLocaleDateString(),
+      // Add other fields as needed
+    };
+  };
+
+  if (loading) return <div>Loading job details...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!job) return <div>Job not found</div>;
 
   const openNotification = (type, message, description) => {
     api[type]({
@@ -88,8 +136,6 @@ export default function JobDetail() {
     }));
   };
 
-  // Mock data - in a real app, this would come from an API
-  const job = jobData;
 
   const handleShareClick = () => {
     setShowShareModal(true);
@@ -208,25 +254,22 @@ export default function JobDetail() {
           <Col md={8}>
             <div className={styles.tabsContainer}>
               <div
-                className={`${styles.tab} ${
-                  activeTab === "description" ? styles.activeTab : ""
-                }`}
+                className={`${styles.tab} ${activeTab === "description" ? styles.activeTab : ""
+                  }`}
                 onClick={() => setActiveTab("description")}
               >
                 Description
               </div>
               <div
-                className={`${styles.tab} ${
-                  activeTab === "responsibilities" ? styles.activeTab : ""
-                }`}
+                className={`${styles.tab} ${activeTab === "responsibilities" ? styles.activeTab : ""
+                  }`}
                 onClick={() => setActiveTab("responsibilities")}
               >
                 Responsibilities
               </div>
               <div
-                className={`${styles.tab} ${
-                  activeTab === "skills" ? styles.activeTab : ""
-                }`}
+                className={`${styles.tab} ${activeTab === "skills" ? styles.activeTab : ""
+                  }`}
                 onClick={() => setActiveTab("skills")}
               >
                 Skills
@@ -445,9 +488,8 @@ export default function JobDetail() {
               className={styles.shareLinkInput}
             />
             <Button
-              className={`${
-                copySuccess ? styles.copyButtonFalse : styles.copyButton
-              }`}
+              className={`${copySuccess ? styles.copyButtonFalse : styles.copyButton
+                }`}
               variant="primary"
               onClick={handleCopyLink}
             >

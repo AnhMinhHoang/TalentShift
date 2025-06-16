@@ -59,7 +59,7 @@ function App() {
             <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
             <Route path='/payment' element={<Plan />} />
             <Route path='/payment-success' element={<Success />} />
-            <Route path="/job-detail" element={<JobDetail />} />
+            <Route path="/job-detail/:id" element={<JobDetail />} />
             <Route path="/jobs" element={<JobListing />} />
             <Route path="/register-addition" element={<RegisterAdditional />} />
             <Route path="/job-posting" element={<JobPost />} />
