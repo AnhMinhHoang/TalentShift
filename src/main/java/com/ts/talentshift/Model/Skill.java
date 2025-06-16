@@ -1,11 +1,15 @@
-package com.ts.talentshift.Model.Freelancer;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ts.talentshift.Enums.SkillType;
+import com.ts.talentshift.Model.Freelancer.Freelancer;
+import com.ts.talentshift.Model.Job.Job;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,7 +27,11 @@ public class Skill {
     @Enumerated(EnumType.STRING)
     private SkillType skillType;
 
-    @ManyToOne
-    @JoinColumn(name = "freelancerId")
-    private Freelancer freelancer;
+    @ManyToMany(mappedBy = "skills")
+    @JsonBackReference("freelancer-skill")
+    private List<Freelancer> freelancers = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "skills")
+    @JsonBackReference("job-skill")
+    private List<Job> jobs;
 }

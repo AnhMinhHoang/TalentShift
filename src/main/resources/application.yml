@@ -5,7 +5,7 @@ server:
 spring:
   datasource:
     username: root
-    password: GoldCandy562004
+    password: admin
     url: jdbc:mysql://localhost:3306/talentshift
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:

@@ -1,6 +1,7 @@
 package com.ts.talentshift.Model.Freelancer;
 
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ts.talentshift.Model.Skill;
 import com.ts.talentshift.Model.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,7 +33,9 @@ public class Freelancer extends User {
     @OneToMany(mappedBy = "freelancer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Certificate> certificates = new ArrayList<>();
 
-    @OneToMany(mappedBy = "freelancer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(name = "freelancer_skills", joinColumns = @JoinColumn(name = "freelancer_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    @JsonManagedReference("freelancer-skill")
     private List<Skill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "freelancer", cascade = CascadeType.ALL, orphanRemoval = true)
