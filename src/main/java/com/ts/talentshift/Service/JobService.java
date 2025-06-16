@@ -42,6 +42,10 @@ public class JobService {
         return jobRepository.findAll();
     }
 
+    public List<String> findDistinctLocations() {
+        return jobRepository.findDistinctLocations();
+    }
+
     public List<Job> getAllActiveJobs() {
         return jobRepository.findByIsActiveTrue();
     }
@@ -83,11 +87,8 @@ public class JobService {
         return jobRepository.findById(id);
     }
 
-    public Page<Job> searchJobs(Specification<Job> spec, Pageable pageable) {
-        return jobRepository.findAll(spec, pageable);
-    }
-
     public void deleteJob(Long id) {
         jobRepository.deleteById(id);
     }
+
 }

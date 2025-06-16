@@ -15,11 +15,12 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-    private String SECRET_KEY = "bYfFml3KXwYj6t9uXxTz3KQm1aRP+F0T2r+TfQJzrXc=\n";
-    private long EXPIRES_IN = 1000 * 60 * 60;
+    // Ensure the secret key is at least 256 bits (32 bytes) for HS256
+    private String SECRET_KEY = "bYfFml3KXwYj6t9uXxTz3KQm1aRP+F0T2r+TfQJzrXc="; // Base64-encoded key
+    private long EXPIRES_IN = 1000 * 60 * 60; // 1 hour
 
     public String generateJwtToken(User user) {
-        Map<String, Object> claims = new HashMap<String, Object>();
+        Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole());
         claims.put("id", user.getUserId());
 
@@ -30,7 +31,7 @@ public class JwtUtil {
                 .subject(user.getEmail())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusSeconds(EXPIRES_IN)))
-                .signWith(key)
+                .signWith(key, Jwts.SIG.HS256) // Explicitly use HS256
                 .compact();
     }
 

@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ts.talentshift.Model.Hirer;
 import com.ts.talentshift.Model.Skill;
@@ -49,6 +50,7 @@ public class Job {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonBackReference
     private JobCategory category;
 
     @ManyToOne
