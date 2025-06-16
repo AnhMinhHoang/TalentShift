@@ -1,3 +1,5 @@
+package com.ts.talentshift.Model;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ts.talentshift.Enums.SkillType;
 import com.ts.talentshift.Model.Freelancer.Freelancer;
