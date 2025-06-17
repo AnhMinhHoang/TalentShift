@@ -3,7 +3,6 @@ import api from './api';
 // Job API functions
 
 export const fetchJobById = (id) => api.get(`/jobs/${id}`);
-export const fetchAllJobs = () => api.get('/jobs');
 
 export const fetchJobCategories = async () => {
     try {
@@ -39,5 +38,23 @@ export const fetchLocations = async () => {
         return response.data;
     } catch (error) {
         throw new Error(error.message || 'Failed to fetch locations');
+    }
+};
+
+export const fetchAllActiveJobs = async () => {
+    try {
+        const response = await api.get('/jobs/active');
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message || 'Failed to fetch active jobs');
+    }
+};
+
+export const fetchAllJobs = async () => {
+    try {
+        const response = await api.get('/jobs');
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message || 'Failed to fetch all jobs');
     }
 };

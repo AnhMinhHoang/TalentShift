@@ -41,7 +41,8 @@ public class DataSeeder {
 
                 // Seed Categories
                 String[] categories = { "Software Development", "Design", "Marketing", "Finance", "HR", "Sales",
-                        "Customer Service", "Operations", "IT", "Legal" };
+                        "Customer Service", "Operations", "IT", "Legal", "Web Development", "Mobile App Development",
+                        "UI/UX Design" };
                 for (String categoryName : categories) {
                     log.info("Checking category: {}", categoryName);
                     if (!categoryRepo.existsByName(categoryName)) {

@@ -8,109 +8,48 @@ import {
   Paper,
   List,
   ListItem,
+  CircularProgress
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import styles from "../styles/Step2.module.css";
-
-// Sample suggested skills based on categories
-const categorySkills = {
-  "Web Development": [
-    "HTML",
-    "CSS",
-    "JavaScript",
-    "React",
-    "Node.js",
-    "PHP",
-    "WordPress",
-  ],
-  "Mobile App Development": [
-    "React Native",
-    "Flutter",
-    "Swift",
-    "Kotlin",
-    "iOS",
-    "Android",
-  ],
-  "Graphic Design": [
-    "Photoshop",
-    "Illustrator",
-    "InDesign",
-    "UI Design",
-    "Logo Design",
-  ],
-  "Game Development": [
-    "Unity",
-    "Unreal Engine",
-    "Game Design",
-    "3D Modeling",
-    "Animation",
-  ],
-  default: [
-    "Communication",
-    "Project Management",
-    "Time Management",
-    "Problem Solving",
-  ],
-};
-
-// All available skills for search
-const allSkills = [
-  ...new Set([
-    ...categorySkills["Web Development"],
-    ...categorySkills["Mobile App Development"],
-    ...categorySkills["Graphic Design"],
-    ...categorySkills["Game Development"],
-    ...categorySkills["default"],
-    "TypeScript",
-    "Vue.js",
-    "Angular",
-    "Django",
-    "Flask",
-    "Ruby on Rails",
-    "AWS",
-    "Azure",
-    "Google Cloud",
-    "Docker",
-    "Kubernetes",
-    "CI/CD",
-    "Figma",
-    "Sketch",
-    "Adobe XD",
-    "Blender",
-    "Maya",
-    "ZBrush",
-    "SEO",
-    "Content Marketing",
-    "Social Media",
-    "Email Marketing",
-    "Data Analysis",
-    "Machine Learning",
-    "AI",
-    "Python",
-    "R",
-    "SQL",
-  ]),
-];
+import { fetchSkills } from "../../../../services/jobService";
 
 export default function Step2({ formData, onChange, onNext, onBack }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [suggestedSkills, setSuggestedSkills] = useState([]);
+  const [allSkills, setAllSkills] = useState([]);
   const [filteredSkills, setFilteredSkills] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const searchRef = useRef(null);
 
   useEffect(() => {
+    const loadSkills = async () => {
+      try {
+        const data = await fetchSkills();
+        console.log(data);
+        setAllSkills(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+    loadSkills();
+  }, []);
+
+  useEffect(() => {
     // Set suggested skills based on selected category
-    if (formData.category && categorySkills[formData.category]) {
-      setSuggestedSkills(categorySkills[formData.category]);
-    } else {
-      setSuggestedSkills(categorySkills.default);
+    if (formData.category) {
+      const categoryBasedSkills = allSkills
+      setSuggestedSkills(categoryBasedSkills.slice(0, 5));
     }
 
     // Validate form - at least 2 skills required
     setIsValid(formData.skills.length >= 2);
-  }, [formData]);
+  }, [formData, allSkills]);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -127,9 +66,16 @@ export default function Step2({ formData, onChange, onNext, onBack }) {
 
     setFilteredSkills(filtered);
     setShowDropdown(filtered.length > 0);
-  }, [searchTerm, formData.skills]);
+  }, [searchTerm, formData.skills, allSkills]);
 
   const handleAddSkill = (skill) => {
+    // Validate skill format (letters and spaces only)
+    const skillRegex = /^[a-zA-Z\s]{3,30}$/;
+    if (!skillRegex.test(skill)) {
+      alert("Skills should only contain letters and spaces (3-30 characters)");
+      return;
+    }
+
     if (!formData.skills.includes(skill) && skill.trim() !== "") {
       const updatedSkills = [...formData.skills, skill];
       onChange("skills", updatedSkills);

@@ -38,11 +38,6 @@ public class JobController {
         return ResponseEntity.ok(created);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Job>> getAllJobs() {
-        return ResponseEntity.ok(jobService.getAllJobs());
-    }
-
     @GetMapping("/active")
     public ResponseEntity<List<Job>> getAllActiveJobs() {
         return ResponseEntity.ok(jobService.getAllActiveJobs());

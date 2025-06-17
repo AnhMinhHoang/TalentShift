@@ -18,4 +18,6 @@ public class JobRequestDto {
     private String minBudget;
     private String maxBudget;
     private String paymentType;
+    private String status;
+
 }

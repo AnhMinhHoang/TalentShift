@@ -1,7 +1,7 @@
 // src/pages/JobListing/JobListingPage.js
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchJobCategories, fetchLocations, fetchAllJobs } from "../../services/jobService";
+import { fetchJobCategories, fetchLocations, fetchAllJobs, fetchAllActiveJobs } from "../../services/jobService";
 import JobCard from "../../components/JobCard/JobCard";
 
 export default function JobListingPage() {
@@ -22,37 +22,6 @@ export default function JobListingPage() {
   const [totalJobs, setTotalJobs] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Fetch initial data
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch categories and locations
-        const [cats, locs] = await Promise.all([
-          fetchJobCategories(),
-          fetchLocations()
-        ]);
-
-        setCategories(cats);
-        setLocations(locs);
-
-        // Fetch jobs with initial filters
-        const response = await fetchAllJobs(formFilters);
-        console.log(response.data);
-        setJobs(response.data);
-        setTotalJobs(response.data.length);
-
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, []);
-
   // Handle filter changes
   const handleFilterChange = (newFilters) => {
     setFormFilters(prev => ({ ...prev, ...newFilters, page: 0 }));
@@ -63,9 +32,9 @@ export default function JobListingPage() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetchAllJobs(formFilters);
-        setJobs(response.data);
-        setTotalJobs(response.data.length);
+        const response = await fetchAllActiveJobs();
+        setJobs(response);
+        setTotalJobs(response.length);
       } catch (error) {
         console.error('Error fetching jobs:', error);
       } finally {

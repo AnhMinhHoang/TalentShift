@@ -60,7 +60,8 @@ public class JobService {
         job.setPaidType(dto.getPaymentType().equalsIgnoreCase("hourly") ? (byte) 0 : (byte) 1);
         job.setResponsibilities(dto.getKeyResponsibilities());
         job.setIdealSkills(dto.getIdealSkills());
-        job.setActive(true);
+        boolean isActive = "PUBLISHED".equalsIgnoreCase(dto.getStatus());
+        job.setActive(isActive);
 
         // 🔍 Lookup category
         JobCategory category = jobCategoryRepository.findByName(dto.getCategory())

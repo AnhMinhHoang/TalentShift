@@ -7,7 +7,7 @@ import Step3 from "./Components/Step3";
 import Step4 from "./Components/Step4";
 import Step5 from "./Components/Step5";
 import styles from "./styles/JobPost.module.css";
-
+import { createJobPost } from "../../../services/jobService";
 const steps = [
   "Overview",
   "Skills",
@@ -50,32 +50,44 @@ export default function JobPost() {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = (isDraft = false) => {
-    // Here you would typically send the data to your backend
-    console.log("Submitting form data:", formData);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  // In JobPost component
+  const handleSubmit = async (isDraft = false) => {
+    try {
 
-    setAlert({
-      open: true,
-      message: isDraft ? "Job saved as draft." : "Job posted successfully!",
-      severity: isDraft ? "info" : "success",
-    });
-
-    // Reset form after submission if needed
-    if (!isDraft) {
-      setFormData({
-        jobTitle: "",
-        category: "",
-        skills: [],
-        projectName: "",
-        projectDescription: "",
-        keyResponsibilities: "",
-        idealSkills: "",
-        paymentType: "",
-        minBudget: "",
-        maxBudget: "",
+      const response = await createJobPost({
+        ...formData,
+        keyResponsibilities: formData.keyResponsibilities
+          .split('\n')
+          .map(line => line.trim())
+          .filter(Boolean),
+        idealSkills: formData.idealSkills
+          .split('\n')
+          .map(line => line.trim())
+          .filter(Boolean),
+        status: isDraft ? 'DRAFT' : 'PUBLISHED'
       });
-      setActiveStep(0);
+
+      setAlert({
+        open: true,
+        message: isDraft
+          ? "Job saved as draft successfully!"
+          : "Job posted successfully!",
+        severity: "success",
+      });
+
+      if (!isDraft) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+
+    } catch (error) {
+      console.error('Job creation error:', error);
+      setAlert({
+        open: true,
+        message: error.message || "Failed to create job. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -89,9 +101,8 @@ export default function JobPost() {
 
     return (
       <div
-        className={`${styles.stepIconContainer} ${
-          active ? styles.activeStep : ""
-        } ${completed ? styles.completedStep : ""}`}
+        className={`${styles.stepIconContainer} ${active ? styles.activeStep : ""
+          } ${completed ? styles.completedStep : ""}`}
       >
         {completed ? <CheckIcon className={styles.checkIcon} /> : icon}
       </div>

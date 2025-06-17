@@ -1,58 +1,76 @@
 import { useState, useEffect } from "react";
-import {
-  TextField,
-  Button,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-  Autocomplete,
-} from "@mui/material";
+import { TextField, Button, Radio, RadioGroup, FormControlLabel, Autocomplete } from "@mui/material";
 import styles from "../styles/Step1.module.css";
-
-const categories = [
-  "Web Development",
-  "Mobile App Development",
-  "Graphic Design",
-  "Content Writing",
-  "Digital Marketing",
-  "Video Production",
-  "UI/UX Design",
-  "Data Entry",
-  "Virtual Assistant",
-  "SEO",
-  "Social Media Management",
-  "Game Development",
-  "Animation",
-  "Voice Over",
-  "Translation",
-];
+import { fetchJobCategories } from "../../../../services/jobService";
 
 export default function Step1({ formData, onChange, onNext }) {
   const [isValid, setIsValid] = useState(false);
-  const [categoryType, setCategoryType] = useState("categoryA");
+  const [categoryType, setCategoryType] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({
+    jobTitle: "",
+    category: ""
+  });
+
+  // Track touched state for each field
+  const [touched, setTouched] = useState({
+    jobTitle: false,
+    category: false
+  });
 
   useEffect(() => {
-    // Validate form
-    setIsValid(formData.jobTitle.trim() !== "" && formData.category !== "");
+    const loadCategories = async () => {
+      try {
+        const data = await fetchJobCategories();
+        setCategories(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    validateForm();
   }, [formData]);
+
+  const computeErrors = () => {
+    const newErrors = {};
+
+    // Job title validation (minimum 10 characters)
+    if (!formData.jobTitle.trim() || formData.jobTitle.trim().length < 10) {
+      newErrors.jobTitle = "Job title must be at least 10 characters";
+    }
+
+    // Category validation
+    if (!formData.category) {
+      newErrors.category = "Please select a category";
+    }
+
+    return newErrors;
+  };
+
+  const validateForm = () => {
+    const newErrors = computeErrors();
+    setErrors(newErrors);
+    setIsValid(Object.keys(newErrors).length === 0);
+  };
 
   const handleCategoryChange = (event, newValue) => {
     onChange("category", newValue);
+    setTouched(prev => ({ ...prev, category: true }));
   };
 
   const handleRadioChange = (event) => {
-    setCategoryType(event.target.value);
-    onChange(
-      "category",
-      event.target.value === "categoryA"
-        ? "Category A"
-        : event.target.value === "categoryB"
-        ? "Category B"
-        : "Category C"
-    );
+    const value = event.target.value;
+    setCategoryType(value);
+    onChange("category", value);
+    setTouched(prev => ({ ...prev, category: true }));
     setShowDropdown(false);
   };
 
@@ -63,19 +81,41 @@ export default function Step1({ formData, onChange, onNext }) {
     }
   };
 
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const handleNext = () => {
+    // Mark all fields as touched when attempting to proceed
+    const allTouched = {
+      jobTitle: true,
+      category: true
+    };
+    setTouched(allTouched);
+
+    const newErrors = computeErrors();
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      onNext();
+    }
+  };
+
+  // Helper to determine if an error should be shown
+  const shouldShowError = (field) => {
+    return touched[field] && errors[field];
+  };
+
   return (
     <div className="row g-0">
       {/* Left column - Step description */}
       <div className="col-md-4">
         <div className={styles.stepInfo}>
           <h5>Step 1</h5>
-          <h2>
-            Most important step! This is the first thing candidate see and make
-            their decision base on this
-          </h2>
+          <h2>Most important step! This is the first thing candidates see</h2>
           <p>
             Tell us about your job and we can suggest you the right category,
-            but feel free to change it for your liking
+            but feel free to change it
           </p>
         </div>
       </div>
@@ -83,81 +123,61 @@ export default function Step1({ formData, onChange, onNext }) {
       {/* Right column - Form content */}
       <div className="col-md-8">
         <div className={styles.formSection}>
+          {error && (
+            <div className={styles.errorAlert}>
+              {error} <button onClick={() => window.location.reload()}>Retry</button>
+            </div>
+          )}
+
           <div className={styles.formGroup}>
             <label htmlFor="jobTitle">
-              What is you job title? or maybe description?
+              What is your job title?*
             </label>
             <TextField
               id="jobTitle"
-              placeholder="Title or description..."
+              placeholder="e.g., Senior React Developer"
               multiline
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#80d0c7",
-                  },
-                },
-              }}
               rows={4}
               fullWidth
               value={formData.jobTitle}
-              onChange={(e) => onChange("jobTitle", e.target.value)}
+              onChange={(e) => {
+                onChange("jobTitle", e.target.value);
+                setErrors(prev => ({ ...prev, jobTitle: "" }));
+              }}
+              onBlur={() => handleBlur("jobTitle")}
+              error={shouldShowError("jobTitle")}
+              helperText={shouldShowError("jobTitle") ? errors.jobTitle : ""}
               className={styles.textField}
             />
+            <p className={styles.hint}>Minimum 10 characters</p>
           </div>
 
           <div className={styles.formGroup}>
-            <FormControl component="fieldset">
-              <label>Job Category</label>
-              <RadioGroup
-                name="category-type"
-                value={categoryType}
-                onChange={handleRadioChange}
-              >
-                <FormControlLabel
-                  value="categoryA"
-                  control={
-                    <Radio
-                      sx={{
-                        "&.Mui-checked": {
-                          color: "#80d0c7",
-                        },
-                      }}
-                      className={styles.radioButton}
-                    />
-                  }
-                  label="Category A"
-                />
-                <FormControlLabel
-                  value="categoryB"
-                  control={
-                    <Radio
-                      sx={{
-                        "&.Mui-checked": {
-                          color: "#80d0c7",
-                        },
-                      }}
-                      className={styles.radioButton}
-                    />
-                  }
-                  label="Category B"
-                />
-                <FormControlLabel
-                  value="categoryC"
-                  control={
-                    <Radio
-                      sx={{
-                        "&.Mui-checked": {
-                          color: "#80d0c7",
-                        },
-                      }}
-                      className={styles.radioButton}
-                    />
-                  }
-                  label="Category C"
-                />
-              </RadioGroup>
-            </FormControl>
+            <label>Job Category*</label>
+            <RadioGroup
+              name="category-type"
+              value={categoryType}
+              onChange={handleRadioChange}
+            >
+              <FormControlLabel
+                value="Web Development"
+                control={<Radio className={styles.radioButton} />}
+                label="Web Development"
+              />
+              <FormControlLabel
+                value="Mobile App Development"
+                control={<Radio className={styles.radioButton} />}
+                label="Mobile App Development"
+              />
+              <FormControlLabel
+                value="UI/UX Design"
+                control={<Radio className={styles.radioButton} />}
+                label="UI/UX Design"
+              />
+            </RadioGroup>
+            {shouldShowError("category") && (
+              <p className={styles.errorText}>{errors.category}</p>
+            )}
           </div>
 
           <div className={styles.showAllLink}>
@@ -166,35 +186,38 @@ export default function Step1({ formData, onChange, onNext }) {
               onClick={toggleDropdown}
               className={styles.showAllButton}
             >
-              {showDropdown ? "Hide Categories" : "Show All Category"}
+              {showDropdown ? "Hide Categories" : "Show All Categories"}
             </Button>
           </div>
 
           {showDropdown && (
             <div className={styles.formGroup}>
-              <Autocomplete
-                id="category-select"
-                options={categories}
-                value={formData.category}
-                onChange={handleCategoryChange}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#80d0c7",
-                    },
-                  },
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} placeholder="Select a category" />
-                )}
-              />
+              {loading ? (
+                <p>Loading categories...</p>
+              ) : (
+                <Autocomplete
+                  id="category-select"
+                  options={categories}
+                  value={formData.category}
+                  onChange={handleCategoryChange}
+                  onBlur={() => handleBlur("category")}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Select a category"
+                      error={shouldShowError("category")}
+                      helperText={shouldShowError("category") ? errors.category : ""}
+                    />
+                  )}
+                />
+              )}
             </div>
           )}
 
           <div className={styles.buttonContainer}>
             <Button
               variant="contained"
-              onClick={onNext}
+              onClick={handleNext}
               disabled={!isValid}
               className={styles.nextButton}
             >
