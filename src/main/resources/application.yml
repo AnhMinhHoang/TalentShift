@@ -1,0 +1,17 @@
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+spring:
+  datasource:
+    username: root
+    password: admin
+    url: jdbc:mysql://localhost:3306/talentshift
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
