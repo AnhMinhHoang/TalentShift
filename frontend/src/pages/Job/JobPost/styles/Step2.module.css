@@ -1,0 +1,198 @@
+.stepContainer {
+  padding: 0;
+}
+
+.stepInfo {
+  background-color: #f5f7f9;
+  padding: 2.5rem;
+  height: 100%;
+  border-right: 1px solid #eaeaea;
+}
+
+.stepInfo h5 {
+  color: #13547a;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+
+.stepInfo h5:after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(to right, #13547a, #80d0c7);
+}
+
+.stepInfo h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.stepInfo p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.formSection {
+  padding: 2.5rem;
+  position: relative;
+}
+
+.searchContainer {
+  margin-bottom: 1.8rem;
+  position: relative;
+}
+
+.searchDropdown {
+  /* width: inherit;
+  max-width: max-content; */
+  width: 100%;
+  z-index: 1000;
+}
+
+.dropdownPaper {
+  border-radius: 8px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.dropdownItem {
+  padding: 10px 15px;
+  transition: background-color 0.2s ease;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(128, 208, 199, 0.1);
+  color: #80d0c7;
+}
+
+.formGroup {
+  margin-bottom: 1.8rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.skillsHint {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.selectedSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.8rem;
+}
+
+.selectedSkills .skillChip {
+  background: linear-gradient(15deg, #13547a, #80d0c7);
+  color: white;
+  font-weight: 500;
+  border-radius: 20px;
+  padding: 0 12px;
+  height: 32px;
+  transition: all 0.3s ease;
+}
+
+.selectedSkills .skillChip:hover {
+  box-shadow: 0 4px 8px rgba(19, 84, 122, 0.2);
+  transform: translateY(-2px);
+}
+
+.suggestedSkillsSection h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+  display: inline-block;
+}
+
+.suggestedSkillsSection h6:after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(to right, #13547a, #80d0c7);
+}
+
+.suggestedSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.suggestedSkills .skillButton {
+  border: 1px solid #13547a;
+  color: #13547a;
+  text-transform: none;
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.skillButton:hover {
+  background-color: rgba(19, 84, 122, 0.1);
+  transform: translateY(-2px);
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+}
+
+.buttonContainer .backButton {
+  border: 1px solid #13547a;
+  color: #13547a;
+  padding: 0.6rem 2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: none;
+  transition: all 0.3s ease;
+}
+
+.buttonContainer .backButton:hover {
+  background-color: rgba(19, 84, 122, 0.1);
+}
+
+.buttonContainer .nextButton {
+  background: linear-gradient(15deg, #13547a, #80d0c7);
+  color: white;
+  padding: 0.6rem 2.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: 0 4px 10px rgba(19, 84, 122, 0.2);
+  transition: all 0.3s ease;
+}
+
+.buttonContainer .nextButton:hover {
+  box-shadow: 0 6px 15px rgba(19, 84, 122, 0.3);
+  transform: translateY(-2px);
+}
+
+.buttonContainer .nextButton:disabled {
+  background: #e0e0e0;
+  color: #999;
+  box-shadow: none;
+  transform: none;
+}
+

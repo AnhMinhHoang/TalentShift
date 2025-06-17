@@ -1,104 +1,124 @@
-import React from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import { Link } from "react-router-dom"; // Import from react-router-dom
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
+import styles from "./Footer.module.css";
 
-const Footer = () => {
-    return (
-        <footer className="site-footer section-padding">
-            <div className="container">
-                <div className="row">
-                    <div className="col-lg-3 col-12 mb-4 pb-2">
-                        <a className="navbar-brand mb-2" href="/">
-                            <i className="bi-back"></i>
-                            <span>Topic</span>
-                        </a>
-                    </div>
-
-                    <div className="col-lg-3 col-md-4 col-6">
-                        <h6 className="site-footer-title mb-3">Resources</h6>
-                        <ul className="site-footer-links">
-                            <li className="site-footer-link-item">
-                                <a href="#" className="site-footer-link">
-                                    Home
-                                </a>
-                            </li>
-                            <li className="site-footer-link-item">
-                                <a href="#" className="site-footer-link">
-                                    How it works
-                                </a>
-                            </li>
-                            <li className="site-footer-link-item">
-                                <a href="#" className="site-footer-link">
-                                    FAQs
-                                </a>
-                            </li>
-                            <li className="site-footer-link-item">
-                                <a href="#" className="site-footer-link">
-                                    Contact
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="col-lg-3 col-md-4 col-6 mb-4 mb-lg-0">
-                        <h6 className="site-footer-title mb-3">Information</h6>
-                        <p className="text-white d-flex mb-1">
-                            <a href="tel:305-240-9671" className="site-footer-link">
-                                305-240-9671
-                            </a>
-                        </p>
-                        <p className="text-white d-flex">
-                            <a href="mailto:info@company.com" className="site-footer-link">
-                                info@company.com
-                            </a>
-                        </p>
-                    </div>
-
-                    <div className="col-lg-3 col-md-4 col-12 mt-4 mt-lg-0 ms-auto">
-                        <div className="dropdown">
-                            <button
-                                className="btn btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                English
-                            </button>
-                            <ul className="dropdown-menu">
-                                <li>
-                                    <button className="dropdown-item" type="button">
-                                        Thai
-                                    </button>
-                                </li>
-                                <li>
-                                    <button className="dropdown-item" type="button">
-                                        Myanmar
-                                    </button>
-                                </li>
-                                <li>
-                                    <button className="dropdown-item" type="button">
-                                        Arabic
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <p className="copyright-text mt-lg-5 mt-4">
-                            Copyright © 2048 Topic Listing Center. All rights reserved.
-                            <br />
-                            <br />
-                            Design:{" "}
-                            <a
-                                rel="nofollow noopener noreferrer"
-                                href="https://templatemo.com"
-                                target="_blank"
-                            >
-                                TemplateMo
-                            </a>
-                        </p>
-                    </div>
-                </div>
+export default function Footer({ pageIcon }) {
+  return (
+    <footer className={styles.footer}>
+      <Container>
+        <Row className="py-5">
+          <Col md={4} className="mb-4 mb-md-0">
+            <div className="d-flex align-items-center mb-3">
+              {pageIcon && (
+                <div className={styles.iconContainer}>{pageIcon}</div>
+              )}
+              <h5 className="mb-0 ms-2 text-white">Company Name</h5>
             </div>
-        </footer>
-    );
-};
+            <p className="text-white-50">
+              We provide high-quality services and solutions for your business
+              needs. Our team of experts is ready to help you achieve your
+              goals.
+            </p>
+            <div className={styles.socialIcons}>
+              <Link to="#" className={styles.socialIcon}>
+                <Facebook size={18} />
+              </Link>
+              <Link to="#" className={styles.socialIcon}>
+                <Twitter size={18} />
+              </Link>
+              <Link to="#" className={styles.socialIcon}>
+                <Instagram size={18} />
+              </Link>
+            </div>
+          </Col>
 
-export default Footer;
+          <Col md={2} sm={6} className="mb-4 mb-md-0">
+            <h6 className="text-white mb-3">Quick Links</h6>
+            <ul className={styles.footerLinks}>
+              <li>
+                <Link to="/">Home</Link>
+              </li>
+              <li>
+                <Link to="/about">About</Link>
+              </li>
+              <li>
+                <Link to="/services">Services</Link>
+              </li>
+              <li>
+                <Link to="/portfolio">Portfolio</Link>
+              </li>
+              <li>
+                <Link to="/contact">Contact</Link>
+              </li>
+            </ul>
+          </Col>
+
+          <Col md={2} sm={6} className="mb-4 mb-md-0">
+            <h6 className="text-white mb-3">Resources</h6>
+            <ul className={styles.footerLinks}>
+              <li>
+                <Link to="/blog">Blog</Link>
+              </li>
+              <li>
+                <Link to="/faq">FAQ</Link>
+              </li>
+              <li>
+                <Link to="/support">Support</Link>
+              </li>
+              <li>
+                <Link to="/careers">Careers</Link>
+              </li>
+            </ul>
+          </Col>
+
+          <Col md={4}>
+            <h6 className="text-white mb-3">Contact Us</h6>
+            <ul className={styles.contactInfo}>
+              <li>
+                <Mail size={16} className="me-2" />
+                <span>info@companyname.com</span>
+              </li>
+              <li>
+                <Phone size={16} className="me-2" />
+                <span>+1 (555) 123-4567</span>
+              </li>
+              <li>
+                <MapPin size={16} className="me-2" />
+                <span>123 Business Street, Suite 100, City, Country</span>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+
+        <hr className={styles.divider} />
+
+        <Row className="py-3">
+          <Col md={6} className="text-center text-md-start">
+            <p className="mb-0 text-white-50">
+              &copy; {new Date().getFullYear()} Company Name. All rights
+              reserved.
+            </p>
+          </Col>
+          <Col md={6} className="text-center text-md-end">
+            <ul className={styles.legalLinks}>
+              <li>
+                <Link to="/privacy">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link to="/terms">Terms of Service</Link>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+      </Container>
+    </footer>
+  );
+}
