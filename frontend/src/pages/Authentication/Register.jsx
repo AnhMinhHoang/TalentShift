@@ -14,7 +14,7 @@ export default function Register() {
     email: "",
     password: "",
     confirmPassword: "",
-    userType: 2,
+    userType: "FREELANCER",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +80,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if ((formData.userType === 2 && (!formData.firstName || !formData.lastName || !formData.email) || formData.userType === 1 && !formData.email)) {
+    if ((formData.userType === "FREELANCER" && (!formData.firstName || !formData.lastName || !formData.email) || formData.userType === "HIRER" && !formData.email)) {
       setError("Please fill in all fields");
       return;
     }
@@ -113,7 +113,13 @@ export default function Register() {
       );
       setIsLoading(false);
       openNotification("success", "Register successful!", "top");
-      if (formData.userType === 2) navigate("/register-addition");
+      
+      // Navigate based on user type
+      if (formData.userType === "FREELANCER") {
+        navigate("/register-additional"); // For freelancers
+      } else if (formData.userType === "HIRER") {
+        navigate("/hirer-additional"); // For hirers
+      }
     } catch (err) {
       setIsLoading(false);
       setError(err.message || "Something went wrong");
@@ -225,11 +231,11 @@ export default function Register() {
                                 <div className="col-md-6 mb-3 mb-md-0">
                                   <div
                                     className={`${styles.userTypeCard} ${
-                                      formData.userType === 2
+                                      formData.userType === "FREELANCER"
                                         ? styles.userTypeCardActive
                                         : ""
                                     }`}
-                                    onClick={() => handleUserTypeSelect(2)}
+                                    onClick={() => handleUserTypeSelect("FREELANCER")}
                                   >
                                     <div className={styles.userTypeIcon}>
                                       <i className="bi bi-person-workspace"></i>
@@ -260,8 +266,8 @@ export default function Register() {
                                         type="radio"
                                         name="userType"
                                         id="freelancer"
-                                        value="freelancer"
-                                        checked={formData.userType === 2}
+                                        value="FREELANCER"
+                                        checked={formData.userType === "FREELANCER"}
                                         onChange={handleChange}
                                         className="form-check-input"
                                       />
@@ -271,11 +277,11 @@ export default function Register() {
                                 <div className="col-md-6">
                                   <div
                                     className={`${styles.userTypeCard} ${
-                                      formData.userType === 1
+                                      formData.userType === "HIRER"
                                         ? styles.userTypeCardActive
                                         : ""
                                     }`}
-                                    onClick={() => handleUserTypeSelect(1)}
+                                    onClick={() => handleUserTypeSelect("HIRER")}
                                   >
                                     <div className={styles.userTypeIcon}>
                                       <i className="bi bi-briefcase"></i>
@@ -305,8 +311,8 @@ export default function Register() {
                                         type="radio"
                                         name="userType"
                                         id="hirer"
-                                        value="hirer"
-                                        checked={formData.userType === 1}
+                                        value="HIRER"
+                                        checked={formData.userType === "HIRER"}
                                         onChange={handleChange}
                                         className="form-check-input"
                                       />
@@ -330,7 +336,7 @@ export default function Register() {
 
                         {step === 2 && (
                           <>
-                          {formData.userType === 2 && (
+                          {formData.userType === "FREELANCER" && (
                             <div className="row mb-3">
                               <div className="col-md-6 mb-3 mb-md-0">
                                 <label

@@ -14,6 +14,8 @@ import EducationStep from "./components/EducationStep";
 import OverviewStep from "./components/OverviewStep";
 import ProfileStep from "./components/ProfileStep";
 import styles from "./styles/RegisterAdditional.module.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const steps = ["Skills", "Experience", "Education", "Overview", "Profile"];
 
@@ -95,9 +97,7 @@ const RegisterAdditional = () => {
   const [city, setCity] = useState("");
   const [birthday, setBirthday] = useState(null);
   const [phone, setPhone] = useState("");
-  const [socialLinks, setSocialLinks] = useState([
-    { platform: "LinkedIn", url: "" },
-  ]);
+  const [links, setLinks] = useState([{ url: "" }]);
 
   // Validation functions
   const isStep1Valid = () => mainSkill !== "";
@@ -146,16 +146,94 @@ const RegisterAdditional = () => {
     });
   };
 
-  // Navigation handlers
-  const handleNext = () => {
+  const navigate = useNavigate();
+
+  const handleNext = async () => {
     if (activeStep === steps.length - 1) {
-      // Final step - submit form
-      // Form submission logic would go here
-      openNotification(
-        "success",
-        "Profile Completed",
-        "Your profile has been successfully completed!"
-      );
+      try {
+        const email = localStorage.getItem('userEmail');
+        if (!email) {
+          openNotification("error", "Registration Failed", "User email not found.");
+          navigate("/login");
+          return;
+        }
+
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          openNotification("error", "Registration Failed", "User ID not found.");
+          navigate("/login");
+          return;
+        }
+
+        const skillsData = [
+          { skillName: mainSkill, skillType: "MAIN" },
+          ...additionalSkills.map(skill => ({ skillName: skill, skillType: "ADDITIONAL" }))
+        ];
+        const experiencesData = experiences.map(exp => ({
+          jobPosition: exp.jobTitle,
+          companyName: exp.companyName,
+          startDate: exp.startDate ? exp.startDate.format('YYYY-MM-DD') : null,
+          endDate: exp.endDate ? exp.endDate.format('YYYY-MM-DD') : null,
+          currentlyWork: exp.isPresent,
+          jobDescription: exp.description,
+          projects: exp.projects.map(proj => ({
+            projectName: proj.name,
+            projectDescription: proj.description,
+            projectTime: proj.time
+          }))
+        }));
+        const educationData = educations.map(edu => ({
+          schoolName: edu.institution,
+          majorName: edu.degree,
+          startDate: edu.startDate ? edu.startDate.format('YYYY-MM-DD') : null,
+          endDate: edu.endDate ? edu.endDate.format('YYYY-MM-DD') : null,
+          currentlyStudy: edu.isPresent,
+          description: edu.description
+        }));
+        const linksData = links.filter(link => link.url.trim() !== "").map(link => ({ url: link.url }));
+
+        // Convert avatar to Base64 if present
+        let avatarBase64 = null;
+        if (avatar) {
+          avatarBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(avatar);
+          });
+        }
+
+        const payload = {
+          email,
+          bio: overview,
+          location: city,
+          birthDate: birthday ? birthday.format('YYYY-MM-DD') : null,
+          phone,
+          avatar: avatarBase64,
+          skills: skillsData,
+          experiences: experiencesData,
+          educations: educationData,
+          certificates: [],
+          links: linksData
+        };
+
+        const response = await axios.put(
+            `http://localhost:8080/api/users/${userId}/freelancer`,
+            payload,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+        );
+
+        if (response.status === 200) {
+          openNotification("success", "Profile Completed", "Your profile has been successfully completed!");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error('Registration error:', error.response?.data);
+        openNotification("error", "Registration Failed", error.response?.data?.message || "Something went wrong");
+      }
     } else {
       setActiveStep((prevStep) => prevStep + 1);
       setProgress(calculateProgress());
@@ -179,6 +257,38 @@ const RegisterAdditional = () => {
       "Draft Saved",
       "Your progress has been saved as a draft."
     );
+  };
+
+  const handleAvatarClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setAvatar(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setAvatarPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    input.click();
+  };
+
+  const addLink = () => {
+    setLinks([...links, { url: "" }]);
+  };
+
+  const removeLink = (index) => {
+    setLinks(links.filter((_, i) => i !== index));
+  };
+
+  const updateLink = (index, value) => {
+    const newLinks = [...links];
+    newLinks[index].url = value;
+    setLinks(newLinks);
   };
 
   // Render step content
@@ -254,8 +364,8 @@ const RegisterAdditional = () => {
             setBirthday={setBirthday}
             phone={phone}
             setPhone={setPhone}
-            socialLinks={socialLinks}
-            setSocialLinks={setSocialLinks}
+            links={links}
+            setLinks={setLinks}
             socialPlatforms={socialPlatforms}
           />
         );

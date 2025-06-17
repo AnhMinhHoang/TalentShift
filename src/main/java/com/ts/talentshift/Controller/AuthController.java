@@ -3,11 +3,11 @@ package com.ts.talentshift.Controller;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Security.JwtUtil;
 import com.ts.talentshift.Service.IUserService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class AuthController {
         String lastName = request.get("lastName");
         String email = request.get("email");
         String password = request.get("password");
-        short role = Short.parseShort(request.get("role"));
+        String role = request.get("role");
 
         User user = userService.registerUser(email, password, firstName, lastName, role);
 

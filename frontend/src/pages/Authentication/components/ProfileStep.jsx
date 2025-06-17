@@ -32,9 +32,8 @@ const ProfileStep = ({
   setBirthday,
   phone,
   setPhone,
-  socialLinks,
-  setSocialLinks,
-  socialPlatforms,
+  links,
+  setLinks,
 }) => {
   // Avatar handler
   const handleAvatarChange = (e) => {
@@ -49,35 +48,21 @@ const ProfileStep = ({
     }
   };
 
-  // Social links handlers
-  const handleAddSocialLink = () => {
-    setSocialLinks([...socialLinks, { platform: "GitHub", url: "" }]);
+  // Links handlers
+  const handleAddLink = () => {
+    setLinks([...links, { url: "" }]);
   };
 
-  const handleRemoveSocialLink = (index) => {
-    const updatedLinks = [...socialLinks];
+  const handleRemoveLink = (index) => {
+    const updatedLinks = [...links];
     updatedLinks.splice(index, 1);
-    setSocialLinks(updatedLinks);
+    setLinks(updatedLinks);
   };
 
-  const handleSocialLinkChange = (index, field, value) => {
-    const updatedLinks = [...socialLinks];
-    updatedLinks[index] = { ...updatedLinks[index], [field]: value };
-    setSocialLinks(updatedLinks);
-  };
-
-  // Get social icon based on platform
-  const getSocialIcon = (platform) => {
-    switch (platform) {
-      case "GitHub":
-        return <GitHubIcon />;
-      case "LinkedIn":
-        return <LinkedInIcon />;
-      case "Twitter":
-        return <TwitterIcon />;
-      default:
-        return <LinkIcon />;
-    }
+  const handleLinkChange = (index, value) => {
+    const updatedLinks = [...links];
+    updatedLinks[index] = { url: value };
+    setLinks(updatedLinks);
   };
 
   return (
@@ -160,14 +145,13 @@ const ProfileStep = ({
                 <DatePicker
                   value={birthday}
                   onChange={(date) => setBirthday(date)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      margin="normal"
-                      className={styles.dateInput}
-                    />
-                  )}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      margin: "normal",
+                      className: styles.dateInput
+                    }
+                  }}
                 />
               </LocalizationProvider>
             </div>
@@ -189,47 +173,28 @@ const ProfileStep = ({
             <div className={styles.socialLinksSection}>
               <h5 className={styles.sectionTitle}>
                 <LinkIcon className="me-2" />
-                Social Links (Optional)
+                Links (Optional)
               </h5>
               <p className={styles.sectionDescription}>
                 Add links to your professional profiles to showcase your work
                 and build credibility.
               </p>
 
-              {socialLinks.map((link, index) => (
+              {links && links.map((link, index) => (
                 <div key={index} className={styles.socialLinkRow}>
-                  <div className={styles.socialLinkIcon}>
-                    {getSocialIcon(link.platform)}
-                  </div>
-                  <Form.Select
-                    value={link.platform}
-                    onChange={(e) =>
-                      handleSocialLinkChange(index, "platform", e.target.value)
-                    }
-                    className={styles.socialPlatformSelect}
-                  >
-                    {socialPlatforms.map((platform) => (
-                      <option key={platform} value={platform}>
-                        {platform}
-                      </option>
-                    ))}
-                  </Form.Select>
-
                   <Form.Control
                     type="url"
                     placeholder="https://..."
                     value={link.url}
-                    onChange={(e) =>
-                      handleSocialLinkChange(index, "url", e.target.value)
-                    }
+                    onChange={(e) => handleLinkChange(index, e.target.value)}
                     className={styles.socialUrlInput}
                   />
 
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    onClick={() => handleRemoveSocialLink(index)}
-                    disabled={socialLinks.length === 1}
+                    onClick={() => handleRemoveLink(index)}
+                    disabled={links.length === 1}
                     className={styles.removeSocialButton}
                   >
                     <CloseIcon fontSize="small" />
@@ -240,7 +205,7 @@ const ProfileStep = ({
               <Button
                 variant="outline-primary"
                 className={`${styles.addSocialButton} d-flex align-items-center gap-2 mt-3`}
-                onClick={handleAddSocialLink}
+                onClick={handleAddLink}
               >
                 <AddIcon fontSize="small" /> Add Another Link
               </Button>

@@ -1,10 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { userAPI } from "../../services/api";
 import OverviewTab from "./OverviewTab";
 // Import icons (assuming you're using a library like react-icons)
 // If you're not using a library, you can create custom icon components
 
-const JobTracker = () => {
+const ProfilePage = () => {
+  const { userId } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await userAPI.getProfile(userId);
+        setUser(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [userId]);
+
+  const handleBasicProfileUpdate = async (data) => {
+    try {
+      const response = await userAPI.updateBasicProfile(userId, data);
+      setUser(response.data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleFreelancerProfileUpdate = async (data) => {
+    try {
+      const response = await userAPI.updateFreelancerProfile(userId, data);
+      setUser(response.data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleHirerProfileUpdate = async (data) => {
+    try {
+      const response = await userAPI.updateHirerProfile(userId, data);
+      setUser(response.data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!user) return <div>User not found</div>;
 
   return (
     <div className="bg-light py-4 mt-5 pt-5">
@@ -64,60 +116,76 @@ const JobTracker = () => {
                     background:
                       "linear-gradient(to bottom right, #428A9B, #266987)",
                   }}
-                ></div>
-                <h5 className="mt-3 mb-0">Nguyen Van A</h5>
-                <p className="text-muted small">nguyen@gmail.com</p>
+                >
+                  {user.avatar && (
+                    <img
+                      src={user.avatar}
+                      alt="Profile"
+                      className="rounded-circle w-100 h-100"
+                      style={{ objectFit: "cover" }}
+                    />
+                  )}
+                </div>
+                <h5 className="mt-3 mb-0">{`${user.firstName} ${user.lastName}`}</h5>
+                <p className="text-muted small">{user.email}</p>
 
                 <div className="text-start mt-3 small">
-                  <p className="text-muted">
-                    Description Description: Just a normal guy here...Just a
-                    normal guy here...Just a normal guy here...Just a normal guy
-                    here...Just a normal guy here...Just a normal guy here...
-                  </p>
+                  <p className="text-muted">{user.bio || "No bio available"}</p>
 
                   <button
                     className="btn w-100 mt-2"
                     style={{ backgroundColor: "#428A9B", color: "white" }}
+                    onClick={() => setActiveTab("overview")}
                   >
                     <i className="bi bi-pencil me-1"></i> Edit Profile
                   </button>
 
                   <div className="mt-3">
-                    <div className="d-flex align-items-center mb-2">
-                      <i
-                        className="bi bi-calendar me-2"
-                        style={{ color: "#428A9B" }}
-                      ></i>
-                      <span>05-06-2024</span>
-                    </div>
-                    <div className="d-flex align-items-center mb-2">
-                      <i
-                        className="bi bi-geo-alt me-2"
-                        style={{ color: "#428A9B" }}
-                      ></i>
-                      <span>Hanoi, Vietnam</span>
-                    </div>
-                    <div className="d-flex align-items-center mb-2">
-                      <i
-                        className="bi bi-telephone me-2"
-                        style={{ color: "#428A9B" }}
-                      ></i>
-                      <span>123.456.7678</span>
-                    </div>
-                    <div className="d-flex align-items-center mb-2">
-                      <i
-                        className="bi bi-envelope me-2"
-                        style={{ color: "#428A9B" }}
-                      ></i>
-                      <span>gmail.com/ABC</span>
-                    </div>
-                    <div className="d-flex align-items-center mb-2">
-                      <i
-                        className="bi bi-facebook me-2"
-                        style={{ color: "#428A9B" }}
-                      ></i>
-                      <span>facebook.com/ABC</span>
-                    </div>
+                    {user.birthDate && (
+                      <div className="d-flex align-items-center mb-2">
+                        <i
+                          className="bi bi-calendar me-2"
+                          style={{ color: "#428A9B" }}
+                        ></i>
+                        <span>{new Date(user.birthDate).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                    {user.location && (
+                      <div className="d-flex align-items-center mb-2">
+                        <i
+                          className="bi bi-geo-alt me-2"
+                          style={{ color: "#428A9B" }}
+                        ></i>
+                        <span>{user.location}</span>
+                      </div>
+                    )}
+                    {user.phone && (
+                      <div className="d-flex align-items-center mb-2">
+                        <i
+                          className="bi bi-telephone me-2"
+                          style={{ color: "#428A9B" }}
+                        ></i>
+                        <span>{user.phone}</span>
+                      </div>
+                    )}
+                    {user.email && (
+                      <div className="d-flex align-items-center mb-2">
+                        <i
+                          className="bi bi-envelope me-2"
+                          style={{ color: "#428A9B" }}
+                        ></i>
+                        <span>{user.email}</span>
+                      </div>
+                    )}
+                    {user.contactLink && (
+                      <div className="d-flex align-items-center mb-2">
+                        <i
+                          className="bi bi-link-45deg me-2"
+                          style={{ color: "#428A9B" }}
+                        ></i>
+                        <span>{user.contactLink}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -129,7 +197,14 @@ const JobTracker = () => {
                 {activeTab === "applied" && <AppliedJobsTab />}
                 {activeTab === "cv" && <CVManagementTab />}
                 {activeTab === "followed" && <FollowedJobsTab />}
-                {activeTab === "overview" && <OverviewTab />}
+                {activeTab === "overview" && (
+                  <OverviewTab
+                    user={user}
+                    onBasicProfileUpdate={handleBasicProfileUpdate}
+                    onFreelancerProfileUpdate={handleFreelancerProfileUpdate}
+                    onHirerProfileUpdate={handleHirerProfileUpdate}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -477,4 +552,4 @@ const FollowedJobsTab = () => {
   );
 };
 
-export default JobTracker;
+export default ProfilePage;

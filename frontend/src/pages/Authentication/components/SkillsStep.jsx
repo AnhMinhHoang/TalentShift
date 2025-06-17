@@ -52,14 +52,17 @@ const SkillsStep = ({
               setAdditionalSkills(newValue);
             }}
             renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip
-                  key={index}
-                  label={option}
-                  {...getTagProps({ index })}
-                  className={styles.skillChip}
-                />
-              ))
+              value.map((option, index) => {
+                const { key, ...chipProps } = getTagProps({ index });
+                return (
+                  <Chip
+                    key={key}
+                    label={option}
+                    {...chipProps}
+                    className={styles.skillChip}
+                  />
+                );
+              })
             }
             renderInput={(params) => (
               <TextField

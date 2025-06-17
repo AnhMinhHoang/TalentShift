@@ -25,6 +25,7 @@ import RegisterAdditional from "./pages/Authentication/RegisterAdditional.jsx";
 import JobPost from "./pages/Job/JobPost/JobPost.jsx";
 import Login from "./pages/Authentication/Login.jsx";
 import Register from "./pages/Authentication/Register.jsx";
+import HirerAdditionalRegistration from "./pages/Authentication/HirerAdditionalRegistration.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -49,8 +50,9 @@ function App() {
             <Route path="/job-detail" element={<JobDetail />} />
             <Route path="/jobs" element={<JobListing />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/register-addition" element={<RegisterAdditional />} />
+            <Route path="/register-additional" element={<RegisterAdditional />} />
             <Route path="/job-posting" element={<JobPost />} />
+            <Route path="/hirer-additional" element={<HirerAdditionalRegistration />}/>
             <Route path="/profile-page" element={<JobTracker />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

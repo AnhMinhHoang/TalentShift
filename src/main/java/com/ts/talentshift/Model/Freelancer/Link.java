@@ -1,5 +1,6 @@
 package com.ts.talentshift.Model.Freelancer;
 
+import com.ts.talentshift.Model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,6 @@ public class Link {
     private String url;
 
     @ManyToOne
-    @JoinColumn(name = "freelancerId")
-    private Freelancer freelancer;
+    @JoinColumn(name = "user_id")
+    private User user;
 }

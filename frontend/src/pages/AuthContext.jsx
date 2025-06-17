@@ -68,30 +68,34 @@ export const AuthProvider = ({ children }) => {
 
       const {
         token,
-        email: userEmail,
+        userId,
         firstName: userFirstName,
         lastName: userLastName,
+        email: userEmail,
         role: userRole,
-        userId,
       } = response.data;
 
-      //store user and token
+      // Store user data and token
       const userData = {
         token,
         email: userEmail,
         firstName: userFirstName,
         lastName: userLastName,
         role: userRole,
-        userId,
+        id: userId,
       };
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", token);
+      localStorage.setItem("userEmail", userEmail);
+      localStorage.setItem("userId", userId);
 
-      //set axios default header for future requests
+      // Set axios default header for future requests
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      
+      return response.data;
     } catch (error) {
-      const errorMsg = error.response?.data?.error || "Something went wrong";
+      const errorMsg = error.response?.data?.error || "Registration failed";
       throw new Error(errorMsg);
     }
   };
@@ -100,6 +104,9 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userId");
+    delete axios.defaults.headers.common["Authorization"];
     navigate("/login");
   };
 
@@ -111,5 +118,9 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
