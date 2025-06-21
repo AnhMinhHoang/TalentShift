@@ -27,15 +27,15 @@ public class JobController {
         this.jobService = jobService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<Job>> getJobs() {
+        return ResponseEntity.ok(jobService.getAllJobs());
+    }
+
     @PostMapping
     public ResponseEntity<?> createJob(@RequestBody JobRequestDto jobDto) {
         Job created = jobService.createJobFromDto(jobDto);
         return ResponseEntity.ok(created);
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<Job>> getAllJobs() {
-        return ResponseEntity.ok(jobService.getAllJobs());
     }
 
     @GetMapping("/active")
@@ -50,34 +50,10 @@ public class JobController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping
-    public ResponseEntity<Page<Job>> searchJobs(
-            @RequestParam(required = false) String searchTerm,
-            @RequestParam(required = false) String location,
-            @RequestParam(defaultValue = "0") int salaryRange,
-            @RequestParam(defaultValue = "newest") String sort,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Specification<Job> spec = Specification.where(JobSpecifications.withTitle(searchTerm))
-                .and(JobSpecifications.withLocation(location))
-                .and(JobSpecifications.withSalaryRange(salaryRange));
-
-        Sort sortOption = sort.equals("salary-high") ? Sort.by(Sort.Direction.DESC, "salary")
-                : sort.equals("salary-low") ? Sort.by(Sort.Direction.ASC, "salary")
-                        : Sort.by(Sort.Direction.DESC, "createdAt");
-
-        Pageable pageable = PageRequest.of(page, size, sortOption);
-
-        Page<Job> jobs = jobService.searchJobs(spec, pageable);
-        return ResponseEntity.ok(jobs);
-    }
-
     @GetMapping("/locations")
     public ResponseEntity<List<String>> getJobLocations() {
-        List<String> locations = jobService.getJobLocations();
+        List<String> locations = jobService.findDistinctLocations();
         return ResponseEntity.ok(locations);
     }
-
 
 }

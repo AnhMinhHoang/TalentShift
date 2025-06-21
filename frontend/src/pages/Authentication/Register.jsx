@@ -9,8 +9,6 @@ export default function Register() {
   const { register } = useAuth();
   const emailRef = useRef(null);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -34,6 +32,8 @@ export default function Register() {
       description,
       placement,
       duration: 3,
+      showProgress: true,
+      pauseOnHover: true,
     });
   };
 
@@ -80,7 +80,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if ((formData.userType === "FREELANCER" && (!formData.firstName || !formData.lastName || !formData.email) || formData.userType === "HIRER" && !formData.email)) {
+    if ((formData.userType === "FREELANCER" && !formData.email) || formData.userType === "HIRER" && !formData.email) {
       setError("Please fill in all fields");
       return;
     }
@@ -107,8 +107,6 @@ export default function Register() {
       await register(
         formData.email,
         formData.password,
-        formData.firstName,
-        formData.lastName,
         formData.userType
       );
       setIsLoading(false);
@@ -338,45 +336,24 @@ export default function Register() {
                           <>
                           {formData.userType === "FREELANCER" && (
                             <div className="row mb-3">
-                              <div className="col-md-6 mb-3 mb-md-0">
+                              <div className="col-12">
                                 <label
-                                  htmlFor="firstName"
+                                  htmlFor="email"
                                   className={`form-label ${styles.formLabel}`}
                                 >
-                                  First Name
+                                  Email
                                 </label>
                                 <div className={styles.inputWrapper}>
-                                  <i className="bi bi-person"></i>
+                                  <i className="bi bi-envelope"></i>
                                   <input
-                                    type="text"
+                                    type="email"
                                     className={`form-control ${styles.formInput}`}
-                                    id="firstName"
-                                    name="firstName"
-                                    placeholder="John"
-                                    value={formData.firstName}
+                                    id="email"
+                                    name="email"
+                                    placeholder="your@email.com"
+                                    value={formData.email}
                                     onChange={handleChange}
-                                    required
-                                  />
-                                  <span className={styles.inputFocus}></span>
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <label
-                                  htmlFor="lastName"
-                                  className={`form-label ${styles.formLabel}`}
-                                >
-                                  Last Name
-                                </label>
-                                <div className={styles.inputWrapper}>
-                                  <i className="bi bi-person"></i>
-                                  <input
-                                    type="text"
-                                    className={`form-control ${styles.formInput}`}
-                                    id="lastName"
-                                    name="lastName"
-                                    placeholder="Doe"
-                                    value={formData.lastName}
-                                    onChange={handleChange}
+                                    ref={emailRef}
                                     required
                                   />
                                   <span className={styles.inputFocus}></span>
@@ -384,29 +361,6 @@ export default function Register() {
                               </div>
                             </div>
                             )}
-                            <div className="mb-3">
-                              <label
-                                htmlFor="email"
-                                className={`form-label ${styles.formLabel}`}
-                              >
-                                Email
-                              </label>
-                              <div className={styles.inputWrapper}>
-                                <i className="bi bi-envelope"></i>
-                                <input
-                                  type="email"
-                                  className={`form-control ${styles.formInput}`}
-                                  id="email"
-                                  name="email"
-                                  placeholder="your@email.com"
-                                  value={formData.email}
-                                  onChange={handleChange}
-                                  ref={emailRef}
-                                  required
-                                />
-                                <span className={styles.inputFocus}></span>
-                              </div>
-                            </div>
                             <div className="mb-3">
                               <label
                                 htmlFor="password"

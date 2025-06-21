@@ -8,13 +8,11 @@ import {
   Paper,
   List,
   ListItem,
+  CircularProgress
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import styles from "../styles/Step2.module.css";
 import { fetchSkills } from "../../../../services/jobService";
-
-
-// Sample suggested skills based on categories
 
 export default function Step2({ formData, onChange, onNext, onBack }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +29,7 @@ export default function Step2({ formData, onChange, onNext, onBack }) {
     const loadSkills = async () => {
       try {
         const data = await fetchSkills();
+        console.log(data);
         setAllSkills(data);
         setLoading(false);
       } catch (err) {
@@ -45,7 +44,7 @@ export default function Step2({ formData, onChange, onNext, onBack }) {
     // Set suggested skills based on selected category
     if (formData.category) {
       const categoryBasedSkills = allSkills
-      setSuggestedSkills(categoryBasedSkills.slice(0, 3));
+      setSuggestedSkills(categoryBasedSkills.slice(0, 5));
     }
 
     // Validate form - at least 2 skills required

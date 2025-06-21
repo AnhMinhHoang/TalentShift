@@ -28,9 +28,8 @@ import {
 } from "react-icons/fa";
 import { notification } from "antd";
 import styles from "./Styles/JobDetail.module.css";
-import jobData from "./JobData.json";
-import { useParams } from 'react-router-dom';
 import { fetchJobById } from '../../services/jobService';
+import { useParams } from "react-router-dom";
 
 export default function JobDetail() {
   const [showShareModal, setShowShareModal] = useState(false);
@@ -46,12 +45,15 @@ export default function JobDetail() {
     resume: null,
     coverLetter: "",
   });
+
+  const jobLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+  // Notification API setup
+  const [api, contextHolder] = notification.useNotification();
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Notification API setup
-  const [api, contextHolder] = notification.useNotification();
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -70,6 +72,7 @@ export default function JobDetail() {
 
     fetchJob();
   }, [id]);
+
 
   // Transform backend job data to match frontend structure
   const transformJobData = (backendJob) => {
@@ -94,9 +97,6 @@ export default function JobDetail() {
   if (loading) return <div>Loading job details...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!job) return <div>Job not found</div>;
-
-  const jobLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-
 
   const openNotification = (type, message, description) => {
     api[type]({
@@ -136,8 +136,6 @@ export default function JobDetail() {
     }));
   };
 
-  // Mock data - in a real app, this would come from an API
-  // const job = jobData;
 
   const handleShareClick = () => {
     setShowShareModal(true);

@@ -1,6 +1,6 @@
 package com.ts.talentshift.Service;
 
-import com.ts.talentshift.Model.Skill;
+import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Repository.SkillRepository;
 import org.springframework.stereotype.Service;
 

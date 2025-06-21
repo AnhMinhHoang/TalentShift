@@ -8,7 +8,6 @@ import Step4 from "./Components/Step4";
 import Step5 from "./Components/Step5";
 import styles from "./styles/JobPost.module.css";
 import { createJobPost } from "../../../services/jobService";
-
 const steps = [
   "Overview",
   "Skills",
@@ -54,17 +53,6 @@ export default function JobPost() {
   // In JobPost component
   const handleSubmit = async (isDraft = false) => {
     try {
-      // Validate all steps before submitting
-      // if (!isDraft && !validateAllSteps()) {
-      //   setAlert({
-      //     open: true,
-      //     message: "Please fix all errors before submitting",
-      //     severity: "error",
-      //   });
-      //   return;
-      // }
-
-      console.log("Form Data:", formData);
 
       const response = await createJobPost({
         ...formData,
@@ -87,21 +75,10 @@ export default function JobPost() {
         severity: "success",
       });
 
-      // Reset form after successful submission
       if (!isDraft) {
-        setFormData({
-          jobTitle: "",
-          category: "",
-          skills: [],
-          projectName: "",
-          projectDescription: "",
-          keyResponsibilities: "",
-          idealSkills: "",
-          paymentType: "",
-          minBudget: "",
-          maxBudget: "",
-        });
-        setActiveStep(0);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
 
     } catch (error) {
@@ -113,29 +90,6 @@ export default function JobPost() {
       });
     }
   };
-
-  const validateAllSteps = () => {
-    // Comprehensive validation for all steps
-    const validations = [
-      // Step 1 validations
-      formData.jobTitle.length >= 10,
-      !!formData.category,
-
-      // Step 2 validations
-      formData.skills.length >= 2,
-
-      // Step 3 validations
-      formData.projectName.length >= 5,
-      formData.projectDescription.length >= 50,
-
-      // Step 4 validations
-      !!formData.paymentType,
-      parseInt(formData.minBudget) > 0,
-      parseInt(formData.maxBudget) > parseInt(formData.minBudget)
-    ];
-
-    return validations.every(valid => valid);
-  }
 
   const handleCloseAlert = () => {
     setAlert({ ...alert, open: false });

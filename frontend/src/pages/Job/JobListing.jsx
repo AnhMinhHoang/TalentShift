@@ -1,6 +1,7 @@
+// src/pages/JobListing/JobListingPage.js
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchAllJobs, fetchJobCategories, fetchLocations } from "../../services/jobService";
+import { fetchJobCategories, fetchLocations, fetchAllJobs, fetchAllActiveJobs } from "../../services/jobService";
 import JobCard from "../../components/JobCard/JobCard";
 
 export default function JobListingPage() {
@@ -12,7 +13,7 @@ export default function JobListingPage() {
     salaryRange: 0,
     sort: "newest",
     page: 0,
-    size: 10,
+    size: 10
   });
 
   const [jobs, setJobs] = useState([]);
@@ -21,47 +22,21 @@ export default function JobListingPage() {
   const [totalJobs, setTotalJobs] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Fetch initial data
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch categories and locations
-        const [cats, locs] = await Promise.all([fetchJobCategories(), fetchLocations()]);
-        setCategories(cats);
-        setLocations(locs);
-
-        // Fetch jobs with initial filters
-        const response = await fetchAllJobs(formFilters);
-        // Assuming response.data has { content: [...], totalElements: ... }
-        setJobs(response.data.content || response.data); // Fallback to response.data if content is undefined
-        setTotalJobs(response.data.totalElements || response.data.length || 0);
-
-      } catch (error) {
-        console.error("Error fetching initial data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, []);
+  // Handle filter changes
+  const handleFilterChange = (newFilters) => {
+    setFormFilters(prev => ({ ...prev, ...newFilters, page: 0 }));
+  };
 
   // Fetch jobs when filters change
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetchAllJobs(formFilters);
-        console.log("Response data:", response.data);
-        // Handle both paginated and array responses
-        const jobData = response.data.content || response.data; // Use content if available, else use data directly
-        setJobs(jobData);
-        setTotalJobs(response.data.totalElements || response.data.length || 0);
-        console.log("Jobs set to state:", jobData); // Log the data being set
+        const response = await fetchAllActiveJobs();
+        setJobs(response);
+        setTotalJobs(response.length);
       } catch (error) {
-        console.error("Error fetching jobs:", error);
+        console.error('Error fetching jobs:', error);
       } finally {
         setLoading(false);
       }
@@ -70,20 +45,11 @@ export default function JobListingPage() {
     fetchJobs();
   }, [formFilters]);
 
-  // Log jobs state after it updates
-  useEffect(() => {
-    console.log("Updated jobs state:", jobs);
-  }, [jobs]);
-
-  // Handle filter changes
-  const handleFilterChange = (newFilters) => {
-    setFormFilters((prev) => ({ ...prev, ...newFilters, page: 0 }));
-  };
-
   // Handle pagination
   const handlePageChange = (newPage) => {
-    setFormFilters((prev) => ({ ...prev, page: newPage }));
+    setFormFilters(prev => ({ ...prev, page: newPage }));
   };
+
   // Render loading state
   if (loading) {
     return (
@@ -212,9 +178,6 @@ export default function JobListingPage() {
                     </select>
                   </div>
 
-                  {/* Job Cards - Directly embedded in this component */}
-
-
                   {/* Job Cards */}
                   {jobs.length === 0 ? (
                     <div className="text-center py-5">
@@ -251,6 +214,7 @@ export default function JobListingPage() {
                   )}
                 </div>
               </div>
+
 
               {/* Top Companies Section */}
               <div className="mt-5 mb-4">

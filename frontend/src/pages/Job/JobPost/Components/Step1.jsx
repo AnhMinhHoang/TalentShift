@@ -1,14 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  TextField,
-  Button,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-  Autocomplete,
-} from "@mui/material";
+import { TextField, Button, Radio, RadioGroup, FormControlLabel, Autocomplete } from "@mui/material";
 import styles from "../styles/Step1.module.css";
 import { fetchJobCategories } from "../../../../services/jobService";
 
@@ -22,6 +13,12 @@ export default function Step1({ formData, onChange, onNext }) {
   const [errors, setErrors] = useState({
     jobTitle: "",
     category: ""
+  });
+
+  // Track touched state for each field
+  const [touched, setTouched] = useState({
+    jobTitle: false,
+    category: false
   });
 
   useEffect(() => {
@@ -42,8 +39,7 @@ export default function Step1({ formData, onChange, onNext }) {
     validateForm();
   }, [formData]);
 
-
-  const validateForm = () => {
+  const computeErrors = () => {
     const newErrors = {};
 
     // Job title validation (minimum 10 characters)
@@ -56,22 +52,25 @@ export default function Step1({ formData, onChange, onNext }) {
       newErrors.category = "Please select a category";
     }
 
+    return newErrors;
+  };
+
+  const validateForm = () => {
+    const newErrors = computeErrors();
     setErrors(newErrors);
     setIsValid(Object.keys(newErrors).length === 0);
   };
 
-
   const handleCategoryChange = (event, newValue) => {
     onChange("category", newValue);
-    setErrors({ ...errors, category: "" });
+    setTouched(prev => ({ ...prev, category: true }));
   };
-
 
   const handleRadioChange = (event) => {
     const value = event.target.value;
     setCategoryType(value);
     onChange("category", value);
-    setErrors({ ...errors, category: "" });
+    setTouched(prev => ({ ...prev, category: true }));
     setShowDropdown(false);
   };
 
@@ -81,6 +80,32 @@ export default function Step1({ formData, onChange, onNext }) {
       setCategoryType("");
     }
   };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const handleNext = () => {
+    // Mark all fields as touched when attempting to proceed
+    const allTouched = {
+      jobTitle: true,
+      category: true
+    };
+    setTouched(allTouched);
+
+    const newErrors = computeErrors();
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      onNext();
+    }
+  };
+
+  // Helper to determine if an error should be shown
+  const shouldShowError = (field) => {
+    return touched[field] && errors[field];
+  };
+
   return (
     <div className="row g-0">
       {/* Left column - Step description */}
@@ -117,10 +142,11 @@ export default function Step1({ formData, onChange, onNext }) {
               value={formData.jobTitle}
               onChange={(e) => {
                 onChange("jobTitle", e.target.value);
-                setErrors({ ...errors, jobTitle: "" });
+                setErrors(prev => ({ ...prev, jobTitle: "" }));
               }}
-              error={!!errors.jobTitle}
-              helperText={errors.jobTitle}
+              onBlur={() => handleBlur("jobTitle")}
+              error={shouldShowError("jobTitle")}
+              helperText={shouldShowError("jobTitle") ? errors.jobTitle : ""}
               className={styles.textField}
             />
             <p className={styles.hint}>Minimum 10 characters</p>
@@ -149,7 +175,7 @@ export default function Step1({ formData, onChange, onNext }) {
                 label="UI/UX Design"
               />
             </RadioGroup>
-            {errors.category && (
+            {shouldShowError("category") && (
               <p className={styles.errorText}>{errors.category}</p>
             )}
           </div>
@@ -174,12 +200,13 @@ export default function Step1({ formData, onChange, onNext }) {
                   options={categories}
                   value={formData.category}
                   onChange={handleCategoryChange}
+                  onBlur={() => handleBlur("category")}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       placeholder="Select a category"
-                      error={!!errors.category}
-                      helperText={errors.category}
+                      error={shouldShowError("category")}
+                      helperText={shouldShowError("category") ? errors.category : ""}
                     />
                   )}
                 />
@@ -190,7 +217,7 @@ export default function Step1({ formData, onChange, onNext }) {
           <div className={styles.buttonContainer}>
             <Button
               variant="contained"
-              onClick={onNext}
+              onClick={handleNext}
               disabled={!isValid}
               className={styles.nextButton}
             >
