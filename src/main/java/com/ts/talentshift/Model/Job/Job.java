@@ -1,9 +1,8 @@
 package com.ts.talentshift.Model.Job;
 
+import com.ts.talentshift.Model.Freelancer.Skill;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -11,8 +10,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.ts.talentshift.Model.Hirer;
-import com.ts.talentshift.Model.Skill;
+import com.ts.talentshift.Model.User;
 
 @Entity
 @Table(name = "jobs")
@@ -54,6 +52,6 @@ public class Job {
     private JobCategory category;
 
     @ManyToOne
-    @JoinColumn(name = "hirer_id")
-    private Hirer hirer;
+    @JoinColumn(name = "userId")
+    private User user;
 }

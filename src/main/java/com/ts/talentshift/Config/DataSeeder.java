@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
+import com.ts.talentshift.Model.Freelancer.Skill;
+import com.ts.talentshift.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -11,11 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.ts.talentshift.Enums.SkillType;
-import com.ts.talentshift.Model.Hirer;
-import com.ts.talentshift.Model.Skill;
 import com.ts.talentshift.Model.Job.Job;
 import com.ts.talentshift.Model.Job.JobCategory;
-import com.ts.talentshift.Repository.HirerRepository;
 import com.ts.talentshift.Repository.JobCategoryRepository;
 import com.ts.talentshift.Repository.JobRepository;
 import com.ts.talentshift.Repository.SkillRepository;
@@ -66,7 +65,7 @@ public class DataSeeder {
             JobRepository jobRepo,
             SkillRepository skillRepo,
             JobCategoryRepository categoryRepo,
-            HirerRepository hirerRepo) {
+            UserRepository userRepository) {
 
         return args -> {
             if (jobRepo.count() > 0) {
@@ -76,7 +75,7 @@ public class DataSeeder {
 
             List<Skill> allSkills = skillRepo.findAll();
             List<JobCategory> allCategories = categoryRepo.findAll();
-            // List<Hirer> allHirers = hirerRepo.findAll();
+            // List<Hirer> allHirers = userRepository.findAll();
 
             if (allSkills.isEmpty() || allCategories.isEmpty()
             // || allHirers.isEmpty()

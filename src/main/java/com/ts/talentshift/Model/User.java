@@ -1,5 +1,6 @@
 package com.ts.talentshift.Model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ts.talentshift.Enums.Role;
 import com.ts.talentshift.Model.Freelancer.*;
 import jakarta.persistence.*;
@@ -41,7 +42,8 @@ public class User {
     private String location;
     private LocalDate birthDate;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "users", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JsonManagedReference("skills")
     private List<Skill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -72,12 +74,16 @@ public class User {
     // Helper methods to manage bidirectional relationships
     public void addSkill(Skill skill) {
         skills.add(skill);
-        skill.setUser(this);
+        if (!skill.getUsers().contains(this)) { // Prevent infinite recursion
+            skill.getUsers().add(this); // Add this User to the Skill's users list
+        }
     }
 
     public void removeSkill(Skill skill) {
         skills.remove(skill);
-        skill.setUser(null);
+        if (skill.getUsers().contains(this)) {
+            skill.getUsers().remove(this);
+        }
     }
 
     public void addExperience(Experience experience) {

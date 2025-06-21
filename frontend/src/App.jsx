@@ -17,18 +17,16 @@ import JobListing from "./pages/Job/JobListing.jsx";
 import Contact from "./pages/Contact.jsx";
 import "antd/dist/reset.css";
 import ScrollToAnchor from "./ScrollToAnchor.jsx";
+import RegisterAdditional from "./pages/Authentication/RegisterAdditional.jsx";
+import Login from "./pages/Authentication/Login.jsx";
+import Register from "./pages/Authentication/Register.jsx";
+import HirerAdditionalRegistration from "./pages/Authentication/HirerAdditionalRegistration.jsx";
 import JobApply from './pages/jobApply/jobApplyPage.jsx';
 import JobPost from './pages/Job/JobPost/JobPost.jsx';
 import JobTracker from './pages/userProfile/Profile_Page.jsx';
 import Plan from './pages/payment/Plan.jsx';
 import Success from './pages/payment/Success.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
-import Login from "./pages/Authentication/Login.jsx";
-import Register from "./pages/Authentication/Register.jsx";[]
-import RegisterAdditional from "./pages/Authentication/RegisterAdditional.jsx";
-import Login from "./pages/Authentication/Login.jsx";
-import Register from "./pages/Authentication/Register.jsx";
-import HirerAdditionalRegistration from "./pages/Authentication/HirerAdditionalRegistration.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,19 +48,19 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
-            {/* <Route path="/topic-detail" element={<TopicDetail />} />
-            <Route path="/topic-listing" element={<TopicListing />} /> */}
+            <Route path="/job-detail" element={<JobDetail />} />
+            <Route path="/jobs" element={<JobListing />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/register-additional" element={<RegisterAdditional />} />
+            <Route path="/job-posting" element={<JobPost />} />
+            <Route path="/hirer-additional" element={<HirerAdditionalRegistration />}/>
+            <Route path="/profile-page" element={<JobTracker />} />
             <Route path="/job-apply" element={<JobApply />} />
             <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
             <Route path='/payment' element={<Plan />} />
             <Route path='/payment-success' element={<Success />} />
             <Route path="/job-detail/:id" element={<JobDetail />} />
             <Route path="/jobs" element={<JobListing />} />
-            <Route path="/job-posting" element={<JobPost />} />
-            <Route path="/register-additional" element={<RegisterAdditional />} />
-            <Route path="/hirer-additional" element={<HirerAdditionalRegistration />}/>
-            <Route path="/profile-page" element={<JobTracker />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>

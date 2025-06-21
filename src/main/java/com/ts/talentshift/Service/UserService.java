@@ -92,8 +92,14 @@ public class UserService implements IUserService {
                     // Add new items using helper methods to maintain bidirectional relationships
                     if (updatedUser.getSkills() != null) {
                         updatedUser.getSkills().forEach(skill -> {
-                            skill.setUser(existingUser);
-                            existingUser.getSkills().add(skill);
+                            // Add existingUser to the skill's users list
+                            if (!skill.getUsers().contains(existingUser)) {
+                                skill.getUsers().add(existingUser);
+                            }
+                            // Add skill to existingUser's skills list
+                            if (!existingUser.getSkills().contains(skill)) {
+                                existingUser.getSkills().add(skill);
+                            }
                         });
                     }
                     
