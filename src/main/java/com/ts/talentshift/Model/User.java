@@ -1,6 +1,8 @@
 package com.ts.talentshift.Model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.Role;
 import com.ts.talentshift.Model.Freelancer.*;
 import jakarta.persistence.*;
@@ -17,6 +19,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "userId"     // or "userId" for User, "id" for Skill/Job
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +32,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String gender;
     private String avatar;
     private String password;
@@ -43,7 +48,7 @@ public class User {
     private LocalDate birthDate;
 
     @ManyToMany(mappedBy = "users", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JsonManagedReference("skills")
+//    @JsonManagedReference("skills")
     private List<Skill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

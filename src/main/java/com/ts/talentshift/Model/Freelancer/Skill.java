@@ -1,6 +1,8 @@
 package com.ts.talentshift.Model.Freelancer;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.SkillType;
 import com.ts.talentshift.Model.Job.Job;
 import com.ts.talentshift.Model.User;
@@ -19,6 +21,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "skills")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"     // or "userId" for User, "id" for Skill/Job
+)
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +43,10 @@ public class Skill {
             joinColumns = @JoinColumn(name = "skill_id"), // Foreign key for Skill
             inverseJoinColumns = @JoinColumn(name = "userId") // Foreign key for User
     )
-    @JsonBackReference("skills")
+//    @JsonBackReference("skills")
     private List<User> users = new ArrayList<>();
 
     @ManyToMany(mappedBy = "skills")
-    @JsonBackReference("job-skill")
+//    @JsonBackReference("job-skill")
     private List<Job> jobs;
 }

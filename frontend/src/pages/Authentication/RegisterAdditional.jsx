@@ -135,14 +135,14 @@ const RegisterAdditional = () => {
     return (completedSteps / 5) * 100;
   };
 
-  const [api, contextHolder] = notification.useNotification();
-
   const openNotification = (type, message, description) => {
-    api[type]({
+    notification[type]({
       message,
       description,
       placement: "topRight",
       duration: 3,
+      showProgress: true,
+      pauseOnHover: true,
     });
   };
 
@@ -228,7 +228,7 @@ const RegisterAdditional = () => {
 
         if (response.status === 200) {
           openNotification("success", "Profile Completed", "Your profile has been successfully completed!");
-          navigate("/login");
+          navigate("/");
         }
       } catch (error) {
         console.error('Registration error:', error.response?.data);
@@ -378,7 +378,6 @@ const RegisterAdditional = () => {
     <Container
       className={`${styles.container} mt-5 ${styles.registerAdditional}`}
     >
-      {contextHolder} {/* Ant Design notification container */}
       <Row className="justify-content-center">
         <Col>
           <div className={styles.registerForm}>

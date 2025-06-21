@@ -30,7 +30,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User registerUser(String email, String password, String firstName, String lastName, String role) {
+    public User registerUser(String email, String password, String fullName, String role) {
         if (userRepository.existsByEmail(email)) {
             return null;
         }
@@ -38,8 +38,7 @@ public class UserService implements IUserService {
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+        user.setFullName(fullName);
         user.setRole(Role.valueOf(role.toUpperCase()));
 
         return userRepository.save(user);
@@ -59,8 +58,7 @@ public class UserService implements IUserService {
     public User updateBasicProfile(Long userId, User updatedUser) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
-                    existingUser.setFirstName(updatedUser.getFirstName());
-                    existingUser.setLastName(updatedUser.getLastName());
+                    existingUser.setFullName(updatedUser.getFullName());
                     existingUser.setPhone(updatedUser.getPhone());
                     existingUser.setGender(updatedUser.getGender());
                     existingUser.setAvatar(updatedUser.getAvatar());
@@ -190,8 +188,7 @@ public class UserService implements IUserService {
     public User updateUserProfile(Long userId, User updatedUser) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
-                    existingUser.setFirstName(updatedUser.getFirstName());
-                    existingUser.setLastName(updatedUser.getLastName());
+                    existingUser.setFullName(updatedUser.getFullName());
                     existingUser.setPhone(updatedUser.getPhone());
                     existingUser.setGender(updatedUser.getGender());
                     existingUser.setAvatar(updatedUser.getAvatar());

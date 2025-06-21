@@ -31,13 +31,17 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request)
     {
-        String firstName = request.get("firstName");
-        String lastName = request.get("lastName");
+        String fullName = request.get("fullName");
         String email = request.get("email");
         String password = request.get("password");
         String role = request.get("role");
 
-        User user = userService.registerUser(email, password, firstName, lastName, role);
+        // Set default fullName if empty
+        if (fullName == null || fullName.trim().isEmpty()) {
+            fullName = "User"; // Default name that can be updated later
+        }
+
+        User user = userService.registerUser(email, password, fullName, role);
 
         Map<String, Object> response = new HashMap<>();
 
@@ -47,8 +51,7 @@ public class AuthController {
             response.put("message", "User registered successfully!");
             response.put("token", token);
             response.put("userId", user.getUserId());
-            response.put("firstName", user.getFirstName());
-            response.put("lastName", user.getLastName());
+            response.put("fullName", user.getFullName());
             response.put("email", user.getEmail());
             response.put("role", user.getRole());
 
@@ -73,8 +76,7 @@ public class AuthController {
                   response.put("message", "login successful");
                   response.put("token", token);
                   response.put("email", user.getEmail());
-                  response.put("firstName", user.getFirstName());
-                  response.put("lastName", user.getLastName());
+                  response.put("fullName", user.getFullName());
                   response.put("role", user.getRole());
                   response.put("id", user.getUserId());
                   return ResponseEntity.ok(response);

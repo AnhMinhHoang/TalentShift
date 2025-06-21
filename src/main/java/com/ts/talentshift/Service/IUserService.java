@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserService {
-    User registerUser(String email, String password, String firstName, String lastName, String role);
+    User registerUser(String email, String password, String fullName, String role);
 
     List<User> getAllUser();
 

@@ -11,8 +11,6 @@ export default function JobApply() {
     const jobData = location.state?.job;
 
     const [eid, setEid] = useState("10"); // Default eid to 9 if not in URL
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [fullName, setFullName] = useState("");

@@ -28,8 +28,7 @@ export const AuthProvider = ({ children }) => {
       const {
         token,
         email: userEmail,
-        firstName,
-        lastName,
+        fullName,
         role,
         id,
       } = response.data;
@@ -38,8 +37,7 @@ export const AuthProvider = ({ children }) => {
       const userData = {
         token,
         email: userEmail,
-        firstName,
-        lastName,
+        fullName,
         role,
         id,
       };
@@ -56,11 +54,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password, firstName, lastName, role) => {
+  const register = async (email, password, role) => {
     try {
       const response = await axios.post("http://localhost:8080/auth/register", {
-        firstName,
-        lastName,
+        fullName: "", // Empty fullName since it will be set in RegisterAdditional
         email,
         password,
         role,
@@ -69,8 +66,7 @@ export const AuthProvider = ({ children }) => {
       const {
         token,
         userId,
-        firstName: userFirstName,
-        lastName: userLastName,
+        fullName: userFullName,
         email: userEmail,
         role: userRole,
       } = response.data;
@@ -79,8 +75,7 @@ export const AuthProvider = ({ children }) => {
       const userData = {
         token,
         email: userEmail,
-        firstName: userFirstName,
-        lastName: userLastName,
+        fullName: userFullName,
         role: userRole,
         id: userId,
       };
