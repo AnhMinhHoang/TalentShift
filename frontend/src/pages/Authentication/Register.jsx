@@ -4,12 +4,13 @@ import styles from "./styles/Auth.module.css";
 import { useAuth } from "../AuthContext";
 import { notification } from "antd";
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import jwt_decode from 'jwt-decode';
-import { Modal, Radio } from 'antd';
+import { jwtDecode } from 'jwt-decode';
+import { Modal } from 'antd';
 
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { login } = useAuth();
   const emailRef = useRef(null);
   const [formData, setFormData] = useState({
     email: "",
@@ -132,7 +133,7 @@ export default function Register() {
 
   const handleGoogleRegisterSuccess = async (credentialResponse) => {
     try {
-      const decoded = jwt_decode(credentialResponse.credential);
+      const decoded = jwtDecode(credentialResponse.credential);
       const email = decoded.email;
       // Check if user exists in backend
       const response = await fetch('http://localhost:8080/auth/google-check', {
@@ -142,8 +143,9 @@ export default function Register() {
       });
       const data = await response.json();
       if (data.exists) {
-        openNotification('info', 'Account already exists!', 'top', 'Please login.');
-        navigate('/login');
+        await login(email, null, true);
+        openNotification('success', 'Login successful!', 'top', 'Redirecting to Homepage!');
+        navigate('/');
       } else {
         setGoogleUser(decoded);
         setRoleModalVisible(true);
@@ -157,8 +159,7 @@ export default function Register() {
     // Register the user with Google info and selected role
     try {
       const payload = {
-        firstName: googleUser.given_name || '',
-        lastName: googleUser.family_name || '',
+        fullName: `${googleUser.given_name || ''} ${googleUser.family_name || ''}`.trim(),
         email: googleUser.email,
         password: null, // No password for Google
         role: selectedRole,
@@ -174,8 +175,10 @@ export default function Register() {
       localStorage.setItem('userId', data.userId);
       setRoleModalVisible(false);
       if (selectedRole === 'FREELANCER') {
+        openNotification("success", "Register successful!", "top");
         navigate('/register-additional');
       } else {
+        openNotification("success", "Register successful!", "top");
         navigate('/hirer-additional');
       }
     } catch (error) {
@@ -602,14 +605,101 @@ export default function Register() {
           onOk={handleRoleSelect}
           onCancel={() => setRoleModalVisible(false)}
           okText="Continue"
+          width={600}
         >
-          <Radio.Group
-            onChange={e => setSelectedRole(e.target.value)}
-            value={selectedRole}
-          >
-            <Radio value="FREELANCER">Freelancer</Radio>
-            <Radio value="HIRER">Hirer</Radio>
-          </Radio.Group>
+          <div className="row mt-3">
+            <div className="col-md-6 mb-3 mb-md-0">
+              <div
+                className={`${styles.userTypeCard} ${
+                  selectedRole === "FREELANCER"
+                    ? styles.userTypeCardActive
+                    : ""
+                }`}
+                onClick={() => setSelectedRole("FREELANCER")}
+              >
+                <div className={styles.userTypeIcon}>
+                  <i className="bi bi-person-workspace"></i>
+                </div>
+                <div className={styles.userTypeContent}>
+                  <h5>Freelancer</h5>
+                  <p>
+                    I want to work on projects and offer my
+                    services
+                  </p>
+                  <ul className={styles.userTypeFeatures}>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Find projects
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Showcase skills
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Get paid
+                    </li>
+                  </ul>
+                </div>
+                <div className={styles.userTypeRadio}>
+                  <input
+                    type="radio"
+                    name="userType"
+                    id="freelancer"
+                    value="FREELANCER"
+                    checked={selectedRole === "FREELANCER"}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="form-check-input"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div
+                className={`${styles.userTypeCard} ${
+                  selectedRole === "HIRER"
+                    ? styles.userTypeCardActive
+                    : ""
+                }`}
+                onClick={() => setSelectedRole("HIRER")}
+              >
+                <div className={styles.userTypeIcon}>
+                  <i className="bi bi-briefcase"></i>
+                </div>
+                <div className={styles.userTypeContent}>
+                  <h5>Hirer</h5>
+                  <p>
+                    I want to hire talent and post projects
+                  </p>
+                  <ul className={styles.userTypeFeatures}>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Post jobs
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Find talent
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Manage projects
+                    </li>
+                  </ul>
+                </div>
+                <div className={styles.userTypeRadio}>
+                  <input
+                    type="radio"
+                    name="userType"
+                    id="hirer"
+                    value="HIRER"
+                    checked={selectedRole === "HIRER"}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="form-check-input"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </Modal>
       </div>
     </GoogleOAuthProvider>
