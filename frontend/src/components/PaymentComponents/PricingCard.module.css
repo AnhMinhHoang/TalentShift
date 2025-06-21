@@ -1,0 +1,173 @@
+.pricingCard {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.3s ease;
+    border-top: 5px solid var(--plan-color, #428a9b);
+    overflow: hidden;
+  }
+  
+  .pricingCard:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .popularPlan {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid #266987;
+    border-top-width: 5px;
+  }
+  
+  .popularPlan:hover {
+    transform: translateY(-10px) scale(1.05);
+  }
+  
+  .popularBadge {
+    position: absolute;
+    top: 12px;
+    right: -30px;
+    background-color: #266987;
+    color: white;
+    padding: 0.25rem 2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transform: rotate(45deg);
+    width: 150px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .cardHeader {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .planName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0.5rem;
+  }
+  
+  .pricingSection {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+  }
+  
+  .currencySymbol {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-right: 0.25rem;
+    align-self: flex-start;
+    margin-top: 0.5rem;
+  }
+  
+  .priceAmount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #266987;
+    line-height: 1;
+  }
+  
+  .pricePeriod {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+  
+  .featuresList {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+  }
+  
+  .featuresList ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .featuresList li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    color: #444;
+  }
+  
+  .checkIcon {
+    color: #28a745;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+  
+  .subscribeButton {
+    background-color: var(--plan-color, #428a9b);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: auto;
+  }
+  
+  .subscribeButton:hover {
+    background-color: #266987;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .popularButton {
+    background-color: #266987;
+  }
+  
+  .popularButton:hover {
+    background-color: #1d5269;
+  }
+  
+  .guaranteeText,
+  .cancelText {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 1rem;
+  }
+  
+  .originalPrice {
+    color: #888;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+  }
+  
+  .priceSection {
+    position: relative;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 992px) {
+    .popularPlan {
+      transform: scale(1);
+    }
+  
+    .popularPlan:hover {
+      transform: translateY(-10px);
+    }
+  }
+  

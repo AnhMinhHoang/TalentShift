@@ -1,0 +1,64 @@
+.profileContainer {
+    background-color: #fff;
+  }
+  
+  .skillBadge {
+    background-color: #f8f9fa;
+    color: #212529;
+    font-weight: normal;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+  }
+  
+  .primaryBtn {
+    background-color: #428A9B;
+    border-color: #428A9B;
+    color: white;
+  }
+  
+  .primaryBtn:hover {
+    background-color: #266987;
+    border-color: #266987;
+    color: white;
+  }
+  
+  .secondaryBtn {
+    background-color: #266987;
+    border-color: #266987;
+    color: white;
+  }
+  
+  .secondaryBtn:hover {
+    background-color: #1d5266;
+    border-color: #1d5266;
+    color: white;
+  }
+  
+  .formControl:focus {
+    border-color: #428A9B;
+    box-shadow: 0 0 0 0.25rem rgba(66, 138, 155, 0.25);
+  }
+  
+  .modalHeader {
+    background-color: #428A9B;
+    color: white;
+  }
+  
+  .editButton {
+    color: #428A9B;
+  }
+  
+  .editButton:hover {
+    color: #266987;
+  }
+  
+  .alert {
+    margin-top: 1rem;
+  }
+  
+  .validationError {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
