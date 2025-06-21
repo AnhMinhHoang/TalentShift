@@ -93,4 +93,42 @@ public class AuthController {
     {
         return new ResponseEntity<>(userService.getAllUser(), HttpStatus.OK);
     }
+
+    @PostMapping("/google-check")
+    public ResponseEntity<Map<String, Object>> googleCheck(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        Map<String, Object> response = new HashMap<>();
+        if (email == null) {
+            response.put("exists", false);
+            response.put("error", "Email required");
+            return ResponseEntity.badRequest().body(response);
+        }
+        boolean exists = userService.findByEmail(email).isPresent();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/google-login")
+    public ResponseEntity<Map<String, Object>> googleLogin(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        Map<String, Object> response = new HashMap<>();
+        if (email == null) {
+            response.put("error", "Email required");
+            return ResponseEntity.badRequest().body(response);
+        }
+        return userService.findByEmail(email)
+                .map(user -> {
+                    String token = jwtUtil.generateJwtToken(user);
+                    response.put("token", token);
+                    response.put("email", user.getEmail());
+                    response.put("fullName", user.getFullName());
+                    response.put("role", user.getRole());
+                    response.put("id", user.getUserId());
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> {
+                    response.put("error", "User not found");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
+    }
 }

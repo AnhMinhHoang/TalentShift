@@ -18,13 +18,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, google = false) => {
     try {
-      const response = await axios.post("http://localhost:8080/auth/login", {
-        email,
-        password,
-      });
-
+      let response;
+      if (google) {
+        // Google login: fetch user by email
+        response = await axios.post("http://localhost:8080/auth/google-login", { email });
+      } else {
+        response = await axios.post("http://localhost:8080/auth/login", {
+          email,
+          password,
+        });
+      }
       const {
         token,
         email: userEmail,
@@ -32,7 +37,6 @@ export const AuthProvider = ({ children }) => {
         role,
         id,
       } = response.data;
-
       //store user and token
       const userData = {
         token,
@@ -44,8 +48,8 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", token);
-
-      //set axios default header for future requests
+      localStorage.setItem("userEmail", userEmail);
+      localStorage.setItem("userId", id);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } catch (error) {
       const errorMsg =

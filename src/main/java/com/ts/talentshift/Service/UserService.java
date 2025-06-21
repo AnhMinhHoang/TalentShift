@@ -37,7 +37,11 @@ public class UserService implements IUserService {
 
         User user = new User();
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(passwordEncoder.encode(password));
+        } else {
+            user.setPassword(null); // Google user, no password
+        }
         user.setFullName(fullName);
         user.setRole(Role.valueOf(role.toUpperCase()));
 

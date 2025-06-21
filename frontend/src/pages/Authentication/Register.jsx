@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles/Auth.module.css";
 import { useAuth } from "../AuthContext";
 import { notification } from "antd";
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import jwt_decode from 'jwt-decode';
+import { Modal, Radio } from 'antd';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -19,6 +22,9 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('FREELANCER');
+  const [googleUser, setGoogleUser] = useState(null);
 
   useEffect(() => {
     document
@@ -124,213 +130,258 @@ export default function Register() {
     }
   };
 
-  const handleGoogleRegister = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      console.log("Google register clicked");
-      setIsLoading(false);
-      navigate("/login");
-    }, 1500);
+  const handleGoogleRegisterSuccess = async (credentialResponse) => {
+    try {
+      const decoded = jwt_decode(credentialResponse.credential);
+      const email = decoded.email;
+      // Check if user exists in backend
+      const response = await fetch('http://localhost:8080/auth/google-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      if (data.exists) {
+        openNotification('info', 'Account already exists!', 'top', 'Please login.');
+        navigate('/login');
+      } else {
+        setGoogleUser(decoded);
+        setRoleModalVisible(true);
+      }
+    } catch (error) {
+      openNotification('error', 'Google Register Failed', 'top', error.message || 'Something went wrong');
+    }
+  };
+
+  const handleRoleSelect = async () => {
+    // Register the user with Google info and selected role
+    try {
+      const payload = {
+        firstName: googleUser.given_name || '',
+        lastName: googleUser.family_name || '',
+        email: googleUser.email,
+        password: null, // No password for Google
+        role: selectedRole,
+        google: true
+      };
+      const response = await fetch('http://localhost:8080/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      localStorage.setItem('userEmail', googleUser.email);
+      localStorage.setItem('userId', data.userId);
+      setRoleModalVisible(false);
+      if (selectedRole === 'FREELANCER') {
+        navigate('/register-additional');
+      } else {
+        navigate('/hirer-additional');
+      }
+    } catch (error) {
+      openNotification('error', 'Registration Failed', 'top', error.message || 'Something went wrong');
+    }
   };
 
   return (
-    <div className={styles.authContainer}>
-      <div className={styles.shapesContainer}>
-        <div className={`${styles.shape} ${styles.shape1}`}></div>
-        <div className={`${styles.shape} ${styles.shape2}`}></div>
-        <div className={`${styles.shape} ${styles.shape3}`}></div>
-      </div>
+    <GoogleOAuthProvider clientId="153366497643-q63021a9hd62pecvhphkdsmptd9k9h51.apps.googleusercontent.com">
+      <div className={styles.authContainer}>
+        <div className={styles.shapesContainer}>
+          <div className={`${styles.shape} ${styles.shape1}`}></div>
+          <div className={`${styles.shape} ${styles.shape2}`}></div>
+          <div className={`${styles.shape} ${styles.shape3}`}></div>
+        </div>
 
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-md-10 col-lg-8">
-            <div className={styles.brandLogo}>
-              <div className={styles.logoCircle}>
-                <span>WF</span>
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-10 col-lg-8">
+              <div className={styles.brandLogo}>
+                <div className={styles.logoCircle}>
+                  <span>WF</span>
+                </div>
+                <h3>Talent Shift</h3>
               </div>
-              <h3>Talent Shift</h3>
-            </div>
 
-            <div className={`card ${styles.authCard}`}>
-              <div className="row g-0">
-                <div className="col-lg-4 d-none d-lg-block">
-                  <div className={styles.authSidebar}>
-                    <div className={styles.sidebarContent}>
-                      <h2>Join Talent Shift</h2>
-                      <p>
-                        Create an account to connect with clients and
-                        freelancers worldwide.
-                      </p>
-                      <div className={styles.registerSteps}>
-                        <div
-                          className={`${styles.stepItem} ${
-                            step >= 1 ? styles.stepActive : ""
-                          }`}
-                        >
-                          <div className={styles.stepNumber}>1</div>
-                          <div className={styles.stepText}>
-                            <h6>Account Type</h6>
-                            <p>Choose your role</p>
+              <div className={`card ${styles.authCard}`}>
+                <div className="row g-0">
+                  <div className="col-lg-4 d-none d-lg-block">
+                    <div className={styles.authSidebar}>
+                      <div className={styles.sidebarContent}>
+                        <h2>Join Talent Shift</h2>
+                        <p>
+                          Create an account to connect with clients and
+                          freelancers worldwide.
+                        </p>
+                        <div className={styles.registerSteps}>
+                          <div
+                            className={`${styles.stepItem} ${
+                              step >= 1 ? styles.stepActive : ""
+                            }`}
+                          >
+                            <div className={styles.stepNumber}>1</div>
+                            <div className={styles.stepText}>
+                              <h6>Account Type</h6>
+                              <p>Choose your role</p>
+                            </div>
+                          </div>
+                          <div
+                            className={`${styles.stepItem} ${
+                              step >= 2 ? styles.stepActive : ""
+                            }`}
+                          >
+                            <div className={styles.stepNumber}>2</div>
+                            <div className={styles.stepText}>
+                              <h6>Account Info</h6>
+                              <p>Basic information</p>
+                            </div>
                           </div>
                         </div>
-                        <div
-                          className={`${styles.stepItem} ${
-                            step >= 2 ? styles.stepActive : ""
-                          }`}
-                        >
-                          <div className={styles.stepNumber}>2</div>
-                          <div className={styles.stepText}>
-                            <h6>Account Info</h6>
-                            <p>Basic information</p>
-                          </div>
+                        <div className={styles.sidebarIllustration}>
+                          <i className="bi bi-people-fill"></i>
                         </div>
-                      </div>
-                      <div className={styles.sidebarIllustration}>
-                        <i className="bi bi-people-fill"></i>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="col-lg-8">
-                  <div className={styles.authContent}>
-                    <div className={styles.authHeader}>
-                      <h2>Create Account</h2>
-                      <p className="text-muted">Join our community today</p>
+                  <div className="col-lg-8">
+                    <div className={styles.authContent}>
+                      <div className={styles.authHeader}>
+                        <h2>Create Account</h2>
+                        <p className="text-muted">Join our community today</p>
 
-                      <div className={styles.progressContainer}>
-                        <div
-                          className={styles.progressBar}
-                          style={{ width: step === 1 ? "50%" : "100%" }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    <div className="card-body p-4">
-                      {error && (
-                        <div
-                          className={`alert alert-danger ${styles.customAlert}`}
-                        >
-                          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                          {error}
+                        <div className={styles.progressContainer}>
+                          <div
+                            className={styles.progressBar}
+                            style={{ width: step === 1 ? "50%" : "100%" }}
+                          ></div>
                         </div>
-                      )}
+                      </div>
 
-                      <form onSubmit={handleSubmit}>
-                        {step === 1 && (
-                          <>
-                            <div className="mb-4">
-                              <label
-                                className={`form-label ${styles.formLabel}`}
-                              >
-                                I am a:
-                              </label>
-                              <div className="row mt-3">
-                                <div className="col-md-6 mb-3 mb-md-0">
-                                  <div
-                                    className={`${styles.userTypeCard} ${
-                                      formData.userType === "FREELANCER"
-                                        ? styles.userTypeCardActive
-                                        : ""
-                                    }`}
-                                    onClick={() => handleUserTypeSelect("FREELANCER")}
-                                  >
-                                    <div className={styles.userTypeIcon}>
-                                      <i className="bi bi-person-workspace"></i>
-                                    </div>
-                                    <div className={styles.userTypeContent}>
-                                      <h5>Freelancer</h5>
-                                      <p>
-                                        I want to work on projects and offer my
-                                        services
-                                      </p>
-                                      <ul className={styles.userTypeFeatures}>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Find projects
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Showcase skills
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Get paid
-                                        </li>
-                                      </ul>
-                                    </div>
-                                    <div className={styles.userTypeRadio}>
-                                      <input
-                                        type="radio"
-                                        name="userType"
-                                        id="freelancer"
-                                        value="FREELANCER"
-                                        checked={formData.userType === "FREELANCER"}
-                                        onChange={handleChange}
-                                        className="form-check-input"
-                                      />
+                      <div className="card-body p-4">
+                        {error && (
+                          <div
+                            className={`alert alert-danger ${styles.customAlert}`}
+                          >
+                            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                            {error}
+                          </div>
+                        )}
+
+                        <form onSubmit={handleSubmit}>
+                          {step === 1 && (
+                            <>
+                              <div className="mb-4">
+                                <label
+                                  className={`form-label ${styles.formLabel}`}
+                                >
+                                  I am a:
+                                </label>
+                                <div className="row mt-3">
+                                  <div className="col-md-6 mb-3 mb-md-0">
+                                    <div
+                                      className={`${styles.userTypeCard} ${
+                                        formData.userType === "FREELANCER"
+                                          ? styles.userTypeCardActive
+                                          : ""
+                                      }`}
+                                      onClick={() => handleUserTypeSelect("FREELANCER")}
+                                    >
+                                      <div className={styles.userTypeIcon}>
+                                        <i className="bi bi-person-workspace"></i>
+                                      </div>
+                                      <div className={styles.userTypeContent}>
+                                        <h5>Freelancer</h5>
+                                        <p>
+                                          I want to work on projects and offer my
+                                          services
+                                        </p>
+                                        <ul className={styles.userTypeFeatures}>
+                                          <li>
+                                            <i className="bi bi-check-circle-fill"></i>{" "}
+                                            Find projects
+                                          </li>
+                                          <li>
+                                            <i className="bi bi-check-circle-fill"></i>{" "}
+                                            Showcase skills
+                                          </li>
+                                          <li>
+                                            <i className="bi bi-check-circle-fill"></i>{" "}
+                                            Get paid
+                                          </li>
+                                        </ul>
+                                      </div>
+                                      <div className={styles.userTypeRadio}>
+                                        <input
+                                          type="radio"
+                                          name="userType"
+                                          id="freelancer"
+                                          value="FREELANCER"
+                                          checked={formData.userType === "FREELANCER"}
+                                          onChange={handleChange}
+                                          className="form-check-input"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                                <div className="col-md-6">
-                                  <div
-                                    className={`${styles.userTypeCard} ${
-                                      formData.userType === "HIRER"
-                                        ? styles.userTypeCardActive
-                                        : ""
-                                    }`}
-                                    onClick={() => handleUserTypeSelect("HIRER")}
-                                  >
-                                    <div className={styles.userTypeIcon}>
-                                      <i className="bi bi-briefcase"></i>
-                                    </div>
-                                    <div className={styles.userTypeContent}>
-                                      <h5>Hirer</h5>
-                                      <p>
-                                        I want to hire talent and post projects
-                                      </p>
-                                      <ul className={styles.userTypeFeatures}>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Post jobs
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Find talent
-                                        </li>
-                                        <li>
-                                          <i className="bi bi-check-circle-fill"></i>{" "}
-                                          Manage projects
-                                        </li>
-                                      </ul>
-                                    </div>
-                                    <div className={styles.userTypeRadio}>
-                                      <input
-                                        type="radio"
-                                        name="userType"
-                                        id="hirer"
-                                        value="HIRER"
-                                        checked={formData.userType === "HIRER"}
-                                        onChange={handleChange}
-                                        className="form-check-input"
-                                      />
+                                  <div className="col-md-6">
+                                    <div
+                                      className={`${styles.userTypeCard} ${
+                                        formData.userType === "HIRER"
+                                          ? styles.userTypeCardActive
+                                          : ""
+                                      }`}
+                                      onClick={() => handleUserTypeSelect("HIRER")}
+                                    >
+                                      <div className={styles.userTypeIcon}>
+                                        <i className="bi bi-briefcase"></i>
+                                      </div>
+                                      <div className={styles.userTypeContent}>
+                                        <h5>Hirer</h5>
+                                        <p>
+                                          I want to hire talent and post projects
+                                        </p>
+                                        <ul className={styles.userTypeFeatures}>
+                                          <li>
+                                            <i className="bi bi-check-circle-fill"></i>{" "}
+                                            Post jobs
+                                          </li>
+                                          <li>
+                                            <i className="bi bi-check-circle-fill"></i>{" "}
+                                            Find talent
+                                          </li>
+                                          <li>
+                                            <i className="bi bi-check-circle-fill"></i>{" "}
+                                            Manage projects
+                                          </li>
+                                        </ul>
+                                      </div>
+                                      <div className={styles.userTypeRadio}>
+                                        <input
+                                          type="radio"
+                                          name="userType"
+                                          id="hirer"
+                                          value="HIRER"
+                                          checked={formData.userType === "HIRER"}
+                                          onChange={handleChange}
+                                          className="form-check-input"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                            <div className="d-grid mt-4">
-                              <button
-                                type="button"
-                                className={`btn ${styles.primaryBtn}`}
-                                onClick={nextStep}
-                              >
-                                Continue
-                                <i className="bi bi-arrow-right ms-2"></i>
-                              </button>
-                            </div>
-                          </>
-                        )}
+                              <div className="d-grid mt-4">
+                                <button
+                                  type="button"
+                                  className={`btn ${styles.primaryBtn}`}
+                                  onClick={nextStep}
+                                >
+                                  Continue
+                                  <i className="bi bi-arrow-right ms-2"></i>
+                                </button>
+                              </div>
+                            </>
+                          )}
 
                         {step === 2 && (
                           <>
@@ -509,47 +560,58 @@ export default function Register() {
                         )}
                       </form>
 
-                      {step === 2 && (
-                        <>
-                          <div className={styles.divider}>
-                            <span>OR</span>
-                          </div>
+                        {step === 2 && (
+                          <>
+                            <div className={styles.divider}>
+                              <span>OR</span>
+                            </div>
+                            <div className="d-grid">
+                              <GoogleLogin
+                                onSuccess={handleGoogleRegisterSuccess}
+                                onError={() => openNotification('error', 'Google Register Failed', 'top', '')}
+                                width="100%"
+                              />
+                            </div>
+                          </>
+                        )}
 
-                          <div className="d-grid">
-                            <button
-                              type="button"
-                              className={`btn ${styles.googleBtn}`}
-                              onClick={handleGoogleRegister}
-                              disabled={isLoading}
-                            >
-                              <i className="bi bi-google me-2"></i>
-                              Sign up with Google
-                            </button>
-                          </div>
-                        </>
-                      )}
-
-                      <div className={`${styles.authFooter} mt-4`}>
-                        <p className="text-center mb-0">
-                          Already have an account?{" "}
-                          <Link to="/login" className={styles.authLink}>
-                            Sign In
-                          </Link>
-                        </p>
+                        <div className={`${styles.authFooter} mt-4`}>
+                          <p className="text-center mb-0">
+                            Already have an account?{" "}
+                            <Link to="/login" className={styles.authLink}>
+                              Sign In
+                            </Link>
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className={styles.securityNote}>
-              <i className="bi bi-shield-lock me-2"></i>
-              <span>Your data is protected with enterprise-grade security</span>
+              <div className={styles.securityNote}>
+                <i className="bi bi-shield-lock me-2"></i>
+                <span>Your data is protected with enterprise-grade security</span>
+              </div>
             </div>
           </div>
         </div>
+        <Modal
+          title="Select Your Role"
+          open={roleModalVisible}
+          onOk={handleRoleSelect}
+          onCancel={() => setRoleModalVisible(false)}
+          okText="Continue"
+        >
+          <Radio.Group
+            onChange={e => setSelectedRole(e.target.value)}
+            value={selectedRole}
+          >
+            <Radio value="FREELANCER">Freelancer</Radio>
+            <Radio value="HIRER">Hirer</Radio>
+          </Radio.Group>
+        </Modal>
       </div>
-    </div>
+    </GoogleOAuthProvider>
   );
 }
