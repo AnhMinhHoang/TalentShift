@@ -30,7 +30,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User registerUser(String email, String password, String firstName, String lastName, String role) {
+    public User registerUser(String email, String password, String fullName, String role) {
         if (userRepository.existsByEmail(email)) {
             return null;
         }
@@ -38,8 +38,7 @@ public class UserService implements IUserService {
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+        user.setFullName(fullName);
         user.setRole(Role.valueOf(role.toUpperCase()));
 
         return userRepository.save(user);
@@ -59,8 +58,7 @@ public class UserService implements IUserService {
     public User updateBasicProfile(Long userId, User updatedUser) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
-                    existingUser.setFirstName(updatedUser.getFirstName());
-                    existingUser.setLastName(updatedUser.getLastName());
+                    existingUser.setFullName(updatedUser.getFullName());
                     existingUser.setPhone(updatedUser.getPhone());
                     existingUser.setGender(updatedUser.getGender());
                     existingUser.setAvatar(updatedUser.getAvatar());
@@ -76,27 +74,33 @@ public class UserService implements IUserService {
                     if (existingUser.getRole() != Role.FREELANCER) {
                         return null;
                     }
-                    
+
                     // Update basic freelancer fields
                     existingUser.setBio(updatedUser.getBio());
                     existingUser.setLocation(updatedUser.getLocation());
                     existingUser.setBirthDate(updatedUser.getBirthDate());
-                    
+
                     // Clear existing collections
                     existingUser.getSkills().clear();
                     existingUser.getExperiences().clear();
                     existingUser.getEducations().clear();
                     existingUser.getCertificates().clear();
                     existingUser.getLinks().clear();
-                    
+
                     // Add new items using helper methods to maintain bidirectional relationships
                     if (updatedUser.getSkills() != null) {
                         updatedUser.getSkills().forEach(skill -> {
-                            skill.setUser(existingUser);
-                            existingUser.getSkills().add(skill);
+                            // Add existingUser to the skill's users list
+                            if (!skill.getUsers().contains(existingUser)) {
+                                skill.getUsers().add(existingUser);
+                            }
+                            // Add skill to existingUser's skills list
+                            if (!existingUser.getSkills().contains(skill)) {
+                                existingUser.getSkills().add(skill);
+                            }
                         });
                     }
-                    
+
                     if (updatedUser.getExperiences() != null) {
                         updatedUser.getExperiences().forEach(experience -> {
                             // Clear and update projects for each experience
@@ -109,28 +113,28 @@ public class UserService implements IUserService {
                             existingUser.getExperiences().add(experience);
                         });
                     }
-                    
+
                     if (updatedUser.getEducations() != null) {
                         updatedUser.getEducations().forEach(education -> {
                             education.setUser(existingUser);
                             existingUser.getEducations().add(education);
                         });
                     }
-                    
+
                     if (updatedUser.getCertificates() != null) {
                         updatedUser.getCertificates().forEach(certificate -> {
                             certificate.setUser(existingUser);
                             existingUser.getCertificates().add(certificate);
                         });
                     }
-                    
+
                     if (updatedUser.getLinks() != null) {
                         updatedUser.getLinks().forEach(link -> {
                             link.setUser(existingUser);
                             existingUser.getLinks().add(link);
                         });
                     }
-                    
+
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);
@@ -166,7 +170,8 @@ public class UserService implements IUserService {
 
                         // Handle registration file upload
                         if (registrationFile != null && !registrationFile.isEmpty()) {
-                            String regFileName = UUID.randomUUID().toString() + "_" + registrationFile.getOriginalFilename();
+                            String regFileName = UUID.randomUUID().toString() + "_"
+                                    + registrationFile.getOriginalFilename();
                             Path regFilePath = uploadPath.resolve(regFileName);
                             Files.copy(registrationFile.getInputStream(), regFilePath);
                             existingUser.setRegistrationFilePath(regFileName);
@@ -184,8 +189,7 @@ public class UserService implements IUserService {
     public User updateUserProfile(Long userId, User updatedUser) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
-                    existingUser.setFirstName(updatedUser.getFirstName());
-                    existingUser.setLastName(updatedUser.getLastName());
+                    existingUser.setFullName(updatedUser.getFullName());
                     existingUser.setPhone(updatedUser.getPhone());
                     existingUser.setGender(updatedUser.getGender());
                     existingUser.setAvatar(updatedUser.getAvatar());

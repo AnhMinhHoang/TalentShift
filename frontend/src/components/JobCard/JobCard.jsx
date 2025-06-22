@@ -1,4 +1,3 @@
-// src/components/JobCard.js
 import { Link } from "react-router-dom";
 
 const JobCard = ({ job }) => {
@@ -19,8 +18,6 @@ const JobCard = ({ job }) => {
         };
         return colors[category] || "secondary";
     };
-
-    console.log(job)
 
     return (
         <div className="card mb-3 bg-primary bg-opacity-10 border-primary border-opacity-25">

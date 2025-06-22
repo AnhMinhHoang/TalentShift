@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserService {
-    User registerUser(String email, String password, String firstName, String lastName, String role);
+    User registerUser(String email, String password, String fullName, String role);
 
     List<User> getAllUser();
 
@@ -17,6 +17,8 @@ public interface IUserService {
 
     // Profile update methods
     User updateBasicProfile(Long userId, User updatedUser);
+
     User updateFreelancerProfile(Long userId, User updatedUser);
+
     User updateHirerProfile(Long userId, User updatedUser, MultipartFile logo, MultipartFile registrationFile);
 }

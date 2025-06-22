@@ -1,19 +1,15 @@
 package com.ts.talentshift.Service;
 
 import com.ts.talentshift.Dto.Job.JobRequestDto;
-import com.ts.talentshift.Model.Hirer;
-import com.ts.talentshift.Model.Skill;
+import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Model.Job.Job;
 import com.ts.talentshift.Model.Job.JobCategory;
-import com.ts.talentshift.Repository.HirerRepository;
 import com.ts.talentshift.Repository.JobCategoryRepository;
 import com.ts.talentshift.Repository.JobRepository;
 import com.ts.talentshift.Repository.SkillRepository;
 
+import com.ts.talentshift.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,21 +21,25 @@ public class JobService {
     private final JobRepository jobRepository;
     private final SkillRepository skillRepository;
     private final JobCategoryRepository jobCategoryRepository;
-    private final HirerRepository hirerRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public JobService(JobRepository jobRepository,
             SkillRepository skillRepository,
             JobCategoryRepository jobCategoryRepository,
-            HirerRepository hirerRepository) {
+            UserRepository userRepository) {
         this.jobRepository = jobRepository;
         this.skillRepository = skillRepository;
         this.jobCategoryRepository = jobCategoryRepository;
-        this.hirerRepository = hirerRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
+    }
+
+    public List<String> findDistinctLocations() {
+        return jobRepository.findDistinctLocations();
     }
 
     public List<Job> getAllActiveJobs() {
@@ -56,7 +56,8 @@ public class JobService {
         job.setPaidType(dto.getPaymentType().equalsIgnoreCase("hourly") ? (byte) 0 : (byte) 1);
         job.setResponsibilities(dto.getKeyResponsibilities());
         job.setIdealSkills(dto.getIdealSkills());
-        job.setActive(true);
+        boolean isActive = "PUBLISHED".equalsIgnoreCase(dto.getStatus());
+        job.setActive(isActive);
 
         // 🔍 Lookup category
         JobCategory category = jobCategoryRepository.findByName(dto.getCategory())
@@ -83,15 +84,8 @@ public class JobService {
         return jobRepository.findById(id);
     }
 
-    public Page<Job> searchJobs(Specification<Job> spec, Pageable pageable) {
-        return jobRepository.findAll(spec, pageable);
-    }
-
     public void deleteJob(Long id) {
         jobRepository.deleteById(id);
     }
 
-    public List<String> getJobLocations() {
-        return jobRepository.findDistinctLocations();
-    }
 }

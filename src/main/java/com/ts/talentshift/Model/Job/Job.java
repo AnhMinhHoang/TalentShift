@@ -1,23 +1,26 @@
 package com.ts.talentshift.Model.Job;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.ts.talentshift.Model.Freelancer.Skill;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.ts.talentshift.Enums.EmploymentType;
-import com.ts.talentshift.Model.Hirer;
-import com.ts.talentshift.Model.Skill;
+import com.ts.talentshift.Model.User;
 
 @Entity
 @Table(name = "jobs")
 @Getter
 @Setter
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id" // or "userId" for User, "id"
+                                                                                          // for Skill/Job
+)
 public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,22 +47,16 @@ public class Job {
     private List<String> idealSkills;
 
     @ManyToMany
-    @JsonManagedReference("job-skill")
+    // @JsonManagedReference("job-skill")
     @JoinTable(name = "job_skills", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    @JsonManagedReference("job-category")
+    // @JsonBackReference
     private JobCategory category;
 
     @ManyToOne
-    @JoinColumn(name = "hirer_id")
-    private Hirer hirer;
-
-    @Enumerated(EnumType.STRING)
-    private EmploymentType employmentType;
-
-    private String jobType;
-
+    @JoinColumn(name = "userId")
+    private User user;
 }

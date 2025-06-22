@@ -1,92 +1,34 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { userAPI } from "../../services/api";
-import OverviewTab from "./OverviewTab";
+import React from "react"
+import { useState } from "react"
+import OverviewTab from "./OverviewTab"
 // Import icons (assuming you're using a library like react-icons)
 // If you're not using a library, you can create custom icon components
 
-const ProfilePage = () => {
-  const { userId } = useParams();
-  const [activeTab, setActiveTab] = useState("overview");
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await userAPI.getProfile(userId);
-        setUser(response.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, [userId]);
-
-  const handleBasicProfileUpdate = async (data) => {
-    try {
-      const response = await userAPI.updateBasicProfile(userId, data);
-      setUser(response.data);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleFreelancerProfileUpdate = async (data) => {
-    try {
-      const response = await userAPI.updateFreelancerProfile(userId, data);
-      setUser(response.data);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleHirerProfileUpdate = async (data) => {
-    try {
-      const response = await userAPI.updateHirerProfile(userId, data);
-      setUser(response.data);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!user) return <div>User not found</div>;
+const JobTracker = () => {
+  const [activeTab, setActiveTab] = useState("overview")
 
   return (
-    <div className="bg-light py-4 mt-5 pt-5">
+    <div className="bg-light py-4 mt-5">
       <div className="container">
         <div className="card shadow-sm">
           {/* Navigation Tabs */}
           <ul className="nav nav-tabs px-3">
             <li className="nav-item">
               <button
-                className={`nav-link ${
-                  activeTab === "overview" ? "active" : ""
-                }`}
+                className={`nav-link ${activeTab === "overview" ? "active" : ""}`}
                 onClick={() => setActiveTab("overview")}
               >
                 Overview
               </button>
             </li>
             <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === "cv" ? "active" : ""}`}
-                onClick={() => setActiveTab("cv")}
-              >
+              <button className={`nav-link ${activeTab === "cv" ? "active" : ""}`} onClick={() => setActiveTab("cv")}>
                 CV Management
               </button>
             </li>
             <li className="nav-item">
               <button
-                className={`nav-link ${
-                  activeTab === "applied" ? "active" : ""
-                }`}
+                className={`nav-link ${activeTab === "applied" ? "active" : ""}`}
                 onClick={() => setActiveTab("applied")}
               >
                 Applied Job
@@ -94,9 +36,7 @@ const ProfilePage = () => {
             </li>
             <li className="nav-item">
               <button
-                className={`nav-link ${
-                  activeTab === "followed" ? "active" : ""
-                }`}
+                className={`nav-link ${activeTab === "followed" ? "active" : ""}`}
                 onClick={() => setActiveTab("followed")}
               >
                 Followed Job
@@ -113,79 +53,43 @@ const ProfilePage = () => {
                   style={{
                     width: "128px",
                     height: "128px",
-                    background:
-                      "linear-gradient(to bottom right, #428A9B, #266987)",
+                    background: "linear-gradient(to bottom right, #428A9B, #266987)",
                   }}
-                >
-                  {user.avatar && (
-                    <img
-                      src={user.avatar}
-                      alt="Profile"
-                      className="rounded-circle w-100 h-100"
-                      style={{ objectFit: "cover" }}
-                    />
-                  )}
-                </div>
-                <h5 className="mt-3 mb-0">{`${user.firstName} ${user.lastName}`}</h5>
-                <p className="text-muted small">{user.email}</p>
+                ></div>
+                <h5 className="mt-3 mb-0">Nguyen Van A</h5>
+                <p className="text-muted small">nguyen@gmail.com</p>
 
                 <div className="text-start mt-3 small">
-                  <p className="text-muted">{user.bio || "No bio available"}</p>
+                  <p className="text-muted">
+                    Description Description: Just a normal guy here...Just a normal guy here...Just a normal guy
+                    here...Just a normal guy here...Just a normal guy here...Just a normal guy here...
+                  </p>
 
-                  <button
-                    className="btn w-100 mt-2"
-                    style={{ backgroundColor: "#428A9B", color: "white" }}
-                    onClick={() => setActiveTab("overview")}
-                  >
+                  <button className="btn w-100 mt-2" style={{ backgroundColor: "#428A9B", color: "white" }}>
                     <i className="bi bi-pencil me-1"></i> Edit Profile
                   </button>
 
                   <div className="mt-3">
-                    {user.birthDate && (
-                      <div className="d-flex align-items-center mb-2">
-                        <i
-                          className="bi bi-calendar me-2"
-                          style={{ color: "#428A9B" }}
-                        ></i>
-                        <span>{new Date(user.birthDate).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {user.location && (
-                      <div className="d-flex align-items-center mb-2">
-                        <i
-                          className="bi bi-geo-alt me-2"
-                          style={{ color: "#428A9B" }}
-                        ></i>
-                        <span>{user.location}</span>
-                      </div>
-                    )}
-                    {user.phone && (
-                      <div className="d-flex align-items-center mb-2">
-                        <i
-                          className="bi bi-telephone me-2"
-                          style={{ color: "#428A9B" }}
-                        ></i>
-                        <span>{user.phone}</span>
-                      </div>
-                    )}
-                    {user.email && (
-                      <div className="d-flex align-items-center mb-2">
-                        <i
-                          className="bi bi-envelope me-2"
-                          style={{ color: "#428A9B" }}
-                        ></i>
-                        <span>{user.email}</span>
-                      </div>
-                    )}
-                    {user.contactLink && (
-                      <div className="d-flex align-items-center mb-2">
-                        <i
-                          className="bi bi-link-45deg me-2"
-                          style={{ color: "#428A9B" }}
-                        ></i>
-                        <span>{user.contactLink}</span>
-                      </div>
-                    )}
+                    <div className="d-flex align-items-center mb-2">
+                      <i className="bi bi-calendar me-2" style={{ color: "#428A9B" }}></i>
+                      <span>05-06-2024</span>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                      <i className="bi bi-geo-alt me-2" style={{ color: "#428A9B" }}></i>
+                      <span>Hanoi, Vietnam</span>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                      <i className="bi bi-telephone me-2" style={{ color: "#428A9B" }}></i>
+                      <span>123.456.7678</span>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                      <i className="bi bi-envelope me-2" style={{ color: "#428A9B" }}></i>
+                      <span>gmail.com/ABC</span>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                      <i className="bi bi-facebook me-2" style={{ color: "#428A9B" }}></i>
+                      <span>facebook.com/ABC</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -197,22 +101,15 @@ const ProfilePage = () => {
                 {activeTab === "applied" && <AppliedJobsTab />}
                 {activeTab === "cv" && <CVManagementTab />}
                 {activeTab === "followed" && <FollowedJobsTab />}
-                {activeTab === "overview" && (
-                  <OverviewTab
-                    user={user}
-                    onBasicProfileUpdate={handleBasicProfileUpdate}
-                    onFreelancerProfileUpdate={handleFreelancerProfileUpdate}
-                    onHirerProfileUpdate={handleHirerProfileUpdate}
-                  />
-                )}
+                {activeTab === "overview" && <OverviewTab />}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const AppliedJobsTab = () => {
   return (
@@ -226,11 +123,7 @@ const AppliedJobsTab = () => {
             <span className="input-group-text bg-white">
               <i className="bi bi-search"></i>
             </span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search..."
-            />
+            <input type="text" className="form-control" placeholder="Search..." />
           </div>
         </div>
         <div className="col-md-4">
@@ -261,10 +154,7 @@ const AppliedJobsTab = () => {
               <td>FPT Software</td>
               <td>23-09-2024</td>
               <td>
-                <span
-                  className="badge"
-                  style={{ backgroundColor: "#fff3cd", color: "#856404" }}
-                >
+                <span className="badge" style={{ backgroundColor: "#fff3cd", color: "#856404" }}>
                   Waiting
                 </span>
               </td>
@@ -274,10 +164,7 @@ const AppliedJobsTab = () => {
               <td>FPT Software</td>
               <td>23-09-2024</td>
               <td>
-                <span
-                  className="badge"
-                  style={{ backgroundColor: "#f8d7da", color: "#721c24" }}
-                >
+                <span className="badge" style={{ backgroundColor: "#f8d7da", color: "#721c24" }}>
                   Rejected
                 </span>
               </td>
@@ -287,10 +174,7 @@ const AppliedJobsTab = () => {
               <td>FPT Software</td>
               <td>23-09-2024</td>
               <td>
-                <span
-                  className="badge"
-                  style={{ backgroundColor: "#d4edda", color: "#155724" }}
-                >
+                <span className="badge" style={{ backgroundColor: "#d4edda", color: "#155724" }}>
                   Completed
                 </span>
               </td>
@@ -300,10 +184,7 @@ const AppliedJobsTab = () => {
               <td>FPT Software</td>
               <td>23-09-2024</td>
               <td>
-                <span
-                  className="badge"
-                  style={{ backgroundColor: "#cce5ff", color: "#004085" }}
-                >
+                <span className="badge" style={{ backgroundColor: "#cce5ff", color: "#004085" }}>
                   In Progress
                 </span>
               </td>
@@ -313,10 +194,7 @@ const AppliedJobsTab = () => {
               <td>FPT Software</td>
               <td>23-09-2024</td>
               <td>
-                <span
-                  className="badge"
-                  style={{ backgroundColor: "#fff3cd", color: "#856404" }}
-                >
+                <span className="badge" style={{ backgroundColor: "#fff3cd", color: "#856404" }}>
                   Waiting
                 </span>
               </td>
@@ -326,10 +204,7 @@ const AppliedJobsTab = () => {
               <td>FPT Software</td>
               <td>23-09-2024</td>
               <td>
-                <span
-                  className="badge"
-                  style={{ backgroundColor: "#fff3cd", color: "#856404" }}
-                >
+                <span className="badge" style={{ backgroundColor: "#fff3cd", color: "#856404" }}>
                   Waiting
                 </span>
               </td>
@@ -346,11 +221,7 @@ const AppliedJobsTab = () => {
 
         <ul className="pagination mb-0">
           <li className="page-item active">
-            <a
-              className="page-link"
-              href="#"
-              style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-            >
+            <a className="page-link" href="#" style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}>
               1
             </a>
           </li>
@@ -366,8 +237,8 @@ const AppliedJobsTab = () => {
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const CVManagementTab = () => {
   return (
@@ -381,11 +252,7 @@ const CVManagementTab = () => {
             <span className="input-group-text bg-white">
               <i className="bi bi-search"></i>
             </span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search..."
-            />
+            <input type="text" className="form-control" placeholder="Search..." />
           </div>
         </div>
         <div className="col-md-4">
@@ -401,19 +268,13 @@ const CVManagementTab = () => {
       {/* CV List */}
       <div className="list-group">
         {[1, 2, 3, 4, 5, 6].map((item) => (
-          <div
-            key={item}
-            className="list-group-item d-flex justify-content-between align-items-center"
-          >
+          <div key={item} className="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <h6 className="mb-1">VanA Back-End Developer</h6>
               <small className="text-muted">Created at 06/2022</small>
             </div>
             <div className="d-flex gap-2">
-              <button
-                className="btn btn-sm"
-                style={{ backgroundColor: "#428A9B", color: "white" }}
-              >
+              <button className="btn btn-sm" style={{ backgroundColor: "#428A9B", color: "white" }}>
                 Download CV
               </button>
               <button className="btn btn-danger btn-sm">Delete CV</button>
@@ -430,11 +291,7 @@ const CVManagementTab = () => {
 
         <ul className="pagination mb-0">
           <li className="page-item active">
-            <a
-              className="page-link"
-              href="#"
-              style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-            >
+            <a className="page-link" href="#" style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}>
               1
             </a>
           </li>
@@ -450,8 +307,8 @@ const CVManagementTab = () => {
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const FollowedJobsTab = () => {
   return (
@@ -470,30 +327,19 @@ const FollowedJobsTab = () => {
                     style={{
                       width: "48px",
                       height: "48px",
-                      background:
-                        "linear-gradient(to bottom right, #ff6b6b, #6b66ff)",
+                      background: "linear-gradient(to bottom right, #ff6b6b, #6b66ff)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    <div
-                      className="rounded-circle bg-white"
-                      style={{ width: "32px", height: "32px" }}
-                    ></div>
+                    <div className="rounded-circle bg-white" style={{ width: "32px", height: "32px" }}></div>
                   </div>
                   <div>
-                    <h6 className="card-title mb-1">
-                      Forward Security Director
-                    </h6>
-                    <p className="card-text small text-muted">
-                      Bosch, Singapore and Shinjuku Co
-                    </p>
+                    <h6 className="card-title mb-1">Forward Security Director</h6>
+                    <p className="card-text small text-muted">Bosch, Singapore and Shinjuku Co</p>
                   </div>
-                  <button
-                    className="btn btn-link p-0 ms-auto"
-                    style={{ color: "#428A9B" }}
-                  >
+                  <button className="btn btn-link p-0 ms-auto" style={{ color: "#428A9B" }}>
                     <i className="bi bi-bookmark"></i>
                   </button>
                 </div>
@@ -509,10 +355,7 @@ const FollowedJobsTab = () => {
                   </div>
                 </div>
 
-                <button
-                  className="btn w-100"
-                  style={{ backgroundColor: "#428A9B", color: "white" }}
-                >
+                <button className="btn w-100" style={{ backgroundColor: "#428A9B", color: "white" }}>
                   Apply Now
                 </button>
               </div>
@@ -529,11 +372,7 @@ const FollowedJobsTab = () => {
 
         <ul className="pagination mb-0">
           <li className="page-item active">
-            <a
-              className="page-link"
-              href="#"
-              style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-            >
+            <a className="page-link" href="#" style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}>
               1
             </a>
           </li>
@@ -549,7 +388,10 @@ const FollowedJobsTab = () => {
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProfilePage;
+
+
+export default JobTracker
+

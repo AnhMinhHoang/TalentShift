@@ -1,17 +1,29 @@
 package com.ts.talentshift.Model.Freelancer;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.SkillType;
+import com.ts.talentshift.Model.Job.Job;
 import com.ts.talentshift.Model.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "skills")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id" // or "userId" for User, "id"
+                                                                                          // for Skill/Job
+)
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +34,17 @@ public class Skill {
     @Enumerated(EnumType.STRING)
     private SkillType skillType;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Setter
+    @Getter
+    @ManyToMany
+    @JoinTable(name = "user_skill", // Name of the join table
+            joinColumns = @JoinColumn(name = "skill_id"), // Foreign key for Skill
+            inverseJoinColumns = @JoinColumn(name = "userId") // Foreign key for User
+    )
+    // @JsonBackReference("skills")
+    private List<User> users = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "skills")
+    // @JsonBackReference("job-skill")
+    private List<Job> jobs;
 }

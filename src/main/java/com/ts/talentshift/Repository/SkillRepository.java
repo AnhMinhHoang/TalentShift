@@ -1,6 +1,6 @@
 package com.ts.talentshift.Repository;
 
-import com.ts.talentshift.Model.Skill;
+import com.ts.talentshift.Model.Freelancer.Skill;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

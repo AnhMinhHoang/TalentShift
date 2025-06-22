@@ -2,6 +2,8 @@ package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.Model.Job.JobCategory;
 import com.ts.talentshift.Service.JobCategoryService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

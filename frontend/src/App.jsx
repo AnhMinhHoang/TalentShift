@@ -15,7 +15,6 @@ import Footer from "./components/Footer/Footer";
 import JobDetail from "./pages/Job/JobDetail.jsx";
 import JobListing from "./pages/Job/JobListing.jsx";
 import Contact from "./pages/Contact.jsx";
-import LoginRegister from "./pages/LoginRegister.jsx";
 import "antd/dist/reset.css";
 import ScrollToAnchor from "./ScrollToAnchor.jsx";
 import RegisterAdditional from "./pages/Authentication/RegisterAdditional.jsx";
@@ -28,8 +27,6 @@ import JobTracker from './pages/userProfile/Profile_Page.jsx';
 import Plan from './pages/payment/Plan.jsx';
 import Success from './pages/payment/Success.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
-import JobPostPage from './pages/jobPost/jobPostPage.jsx';
-import JobListPage from './pages/jobList/JobListPage.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -56,8 +53,14 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/register-additional" element={<RegisterAdditional />} />
             <Route path="/job-posting" element={<JobPost />} />
-            <Route path="/hirer-additional" element={<HirerAdditionalRegistration />}/>
+            <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
             <Route path="/profile-page" element={<JobTracker />} />
+            <Route path="/job-apply" element={<JobApply />} />
+            <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
+            <Route path='/payment' element={<Plan />} />
+            <Route path='/payment-success' element={<Success />} />
+            <Route path="/job-detail/:id" element={<JobDetail />} />
+            <Route path="/jobs" element={<JobListing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>

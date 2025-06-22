@@ -27,6 +27,8 @@ export default function Login() {
       description,
       placement,
       duration: 3,
+      showProgress: true,
+      pauseOnHover: true,
     });
   };
 

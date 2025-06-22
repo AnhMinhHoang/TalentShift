@@ -1,6 +1,6 @@
 package com.ts.talentshift.Controller;
 
-import com.ts.talentshift.Model.Skill;
+import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Service.SkillService;
 import org.springframework.web.bind.annotation.*;
 

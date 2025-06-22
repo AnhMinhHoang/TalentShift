@@ -1,273 +1,308 @@
-import { useState } from "react"
-import { X, Calendar, Plus, Edit, Trash, ChevronLeft } from "lucide-react"
+import React from "react"
+import { useState } from "react";
+import styles from "./style/UserProfile.module.css";
+import { SummaryModal } from "../../components/ProfileModal/SummaryModal";
+import { SkillsModal } from "../../components/ProfileModal/SkillsModal";
+import { ExperienceModal } from "../../components/ProfileModal/ExperienceModal";
+import { EducationModal } from "../../components/ProfileModal/EducationModal";
+import { CertificateModal } from "../../components/ProfileModal/CertificateModal";
+import { CustomSection } from "../../components/Section/CustomSection";
 
-const OverviewTab = ({ user, onBasicProfileUpdate, onFreelancerProfileUpdate, onHirerProfileUpdate }) => {
-    const [isEditing, setIsEditing] = useState(false)
-    const [formData, setFormData] = useState({
-        // Basic profile
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        phone: user.phone || "",
-        gender: user.gender || "",
-        avatar: user.avatar || "",
-        
-        // Freelancer profile
-        bio: user.bio || "",
-        location: user.location || "",
-        birthDate: user.birthDate || "",
-        skills: user.skills || [],
-        experiences: user.experiences || [],
-        educations: user.educations || [],
-        certificates: user.certificates || [],
-        links: user.links || [],
-        
-        // Hirer profile
-        companyName: user.companyName || "",
-        description: user.description || "",
-        contactLink: user.contactLink || "",
-        logoPath: user.logoPath || "",
-        registrationFilePath: user.registrationFilePath || "",
-        verified: user.verified || false
-    })
+const UserProfile = () => {
+    // State to track which modal is open
+    const [activeModal, setActiveModal] = useState(null);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }))
-    }
+    // Sample data states
+    const [summary, setSummary] = useState(
+        "Just a normal guy here...Just a normal guy here...Just a normal guy here...Just a normal guy here...Just a normal guy here...Just a normal guy here...Just a normal guy here...Just a normal guy here..."
+    );
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        
-        // Update basic profile
-        await onBasicProfileUpdate({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            phone: formData.phone,
-            gender: formData.gender,
-            avatar: formData.avatar
-        })
+    const [mainSkills, setMainSkills] = useState([
+        "Full Stack Developer",
+        "Game Developer",
+        "React Developer",
+        "Node.js Developer",
+        "UI/UX Designer",
+        "Database Administrator",
+        "DevOps Engineer",
+    ]);
 
-        // Update role-specific profile
-        if (user.role === "FREELANCER") {
-            await onFreelancerProfileUpdate({
-                bio: formData.bio,
-                location: formData.location,
-                birthDate: formData.birthDate,
-                skills: formData.skills,
-                experiences: formData.experiences,
-                educations: formData.educations,
-                certificates: formData.certificates,
-                links: formData.links
-            })
-        } else if (user.role === "HIRER") {
-            await onHirerProfileUpdate({
-                companyName: formData.companyName,
-                description: formData.description,
-                contactLink: formData.contactLink,
-                logoPath: formData.logoPath,
-                registrationFilePath: formData.registrationFilePath,
-                verified: formData.verified
-            })
-        }
+    const [otherSkills, setOtherSkills] = useState([
+        "Project Management",
+        "Agile Methodology",
+        "Technical Writing"
+    ]);
 
-        setIsEditing(false)
-    }
+    const [workExperiences, setWorkExperiences] = useState([
+        {
+            id: 1,
+            position: "Designer",
+            company: "Limbus Company",
+            startDate: "07-25",
+            endDate: "04-26",
+            description:
+                "Led the design and user experience strategy for Limbus Company's flagship product, ensuring a seamless and visually compelling interface.",
+            projects: [
+                {
+                    id: 101,
+                    name: "Community Management App",
+                    position: "Designer",
+                    time: "12-25 - 3-26",
+                    description:
+                        "Led the design and user experience strategy for Limbus Company's flagship product, ensuring a seamless and visually compelling interface.",
+                },
+                {
+                    id: 102,
+                    name: "Community Management App",
+                    position: "Designer",
+                    time: "12-25 - 3-26",
+                    description:
+                        "Led the design and user experience strategy for Limbus Company's flagship product, ensuring a seamless and visually compelling interface.",
+                },
+            ],
+        },
+        {
+            id: 2,
+            position: "Designer",
+            company: "Limbus Company",
+            startDate: "07-25",
+            endDate: "Now",
+            description:
+                "Led the design and user experience strategy for Limbus Company's flagship product, ensuring a seamless and visually compelling interface.",
+            projects: [],
+        },
+    ]);
+
+    const [educations, setEducations] = useState([
+        {
+            id: 1,
+            school: "FPT University",
+            major: "Information technology",
+            startDate: "09-2022",
+            endDate: "Now",
+            description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatum.",
+        },
+        {
+            id: 2,
+            school: "ABC High School",
+            major: "",
+            startDate: "09-2019",
+            endDate: "06-2022",
+            description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatum.",
+        },
+    ]);
+
+    const [certificates, setCertificates] = useState([
+        {
+            id: 1,
+            name: "IELTS",
+            issuer: "British Council",
+            issueDate: "12-2024",
+            score: "8.5",
+            verifiedBy: "IDP",
+            description: "8.5 IDP",
+        },
+        {
+            id: 2,
+            name: "Lorem Ipsum",
+            issuer: "Certificate",
+            issueDate: "12-2024",
+            score: "4.5",
+            verifiedBy: "IDP",
+            description: "",
+        },
+    ]);
+
+    // Open modal with data
+    const openModal = (modalName) => {
+        setActiveModal(modalName);
+    };
+
+    // Close modal
+    const closeModal = () => {
+        setActiveModal(null);
+    };
+
+    // Update summary
+    const updateSummary = (newSummary) => {
+        setSummary(newSummary);
+        closeModal();
+    };
+
+    // Update skills
+    const updateSkills = (newMainSkills, newOtherSkills) => {
+        setMainSkills(newMainSkills);
+        setOtherSkills(newOtherSkills);
+        closeModal();
+    };
+
+    // Update experiences
+    const updateExperiences = (newExperiences) => {
+        setWorkExperiences(newExperiences);
+        closeModal();
+    };
+
+    // Update educations
+    const updateEducations = (newEducations) => {
+        setEducations(newEducations);
+        closeModal();
+    };
+
+    // Update certificates
+    const updateCertificates = (newCertificates) => {
+        setCertificates(newCertificates);
+        closeModal();
+    };
 
     return (
-        <div>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4>Profile Overview</h4>
-                        <button
-                            className="btn"
-                            style={{ backgroundColor: "#428A9B", color: "white" }}
-                    onClick={() => setIsEditing(!isEditing)}
-                >
-                    {isEditing ? "Cancel" : "Edit Profile"}
-                </button>
-                    </div>
+        <div className={`container ${styles.profileContainer}`}>
+            <div className="row">
+                <div className="col-12">
+                    {/* Summary Section */}
+                    <CustomSection title="Summary" onEdit={() => openModal("summary")}>
+                        <p className="text-muted small">{summary}</p>
+                    </CustomSection>
 
-            {isEditing ? (
-                <form onSubmit={handleSubmit}>
-                    {/* Basic Profile Fields */}
-                    <div className="mb-4">
-                        <h5>Basic Information</h5>
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">First Name</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                                    name="firstName"
-                                    value={formData.firstName}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Last Name</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    name="lastName"
-                                    value={formData.lastName}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Phone</label>
-                                <input
-                                    type="tel"
-                                    className="form-control"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Gender</label>
-                                <select
-                                    className="form-select"
-                                    name="gender"
-                                    value={formData.gender}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="">Select Gender</option>
-                                    <option value="MALE">Male</option>
-                                    <option value="FEMALE">Female</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Role-specific Fields */}
-                    {user.role === "FREELANCER" && (
-                        <div className="mb-4">
-                            <h5>Freelancer Information</h5>
-                    <div className="mb-3">
-                                <label className="form-label">Bio</label>
-                        <textarea
-                            className="form-control"
-                                    name="bio"
-                                    value={formData.bio}
-                                    onChange={handleInputChange}
-                            rows="3"
-                                />
-                    </div>
-                            <div className="row">
-                                <div className="col-md-6 mb-3">
-                                    <label className="form-label">Location</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        name="location"
-                                        value={formData.location}
-                                        onChange={handleInputChange}
-                                    />
-                                </div>
-                                <div className="col-md-6 mb-3">
-                                    <label className="form-label">Birth Date</label>
-                                    <input
-                                        type="date"
-                                        className="form-control"
-                                        name="birthDate"
-                                        value={formData.birthDate}
-                                        onChange={handleInputChange}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {user.role === "HIRER" && (
-                        <div className="mb-4">
-                            <h5>Company Information</h5>
+                    {/* Skills Section */}
+                    <CustomSection title="Skills" onEdit={() => openModal("skills")}>
                         <div className="mb-3">
-                                <label className="form-label">Company Name</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                    name="companyName"
-                                    value={formData.companyName}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                            <div className="mb-3">
-                                <label className="form-label">Description</label>
-                                <textarea
-                                        className="form-control"
-                                    name="description"
-                                    value={formData.description}
-                                        onChange={handleInputChange}
-                                    rows="3"
-                                    />
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Contact Link</label>
-                                    <input
-                                    type="url"
-                                        className="form-control"
-                                    name="contactLink"
-                                    value={formData.contactLink}
-                                        onChange={handleInputChange}
-                                    />
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="text-end">
-                        <button
-                            type="submit"
-                            className="btn"
-                            style={{ backgroundColor: "#428A9B", color: "white" }}
-                        >
-                            Save Changes
-                        </button>
-                    </div>
-                </form>
-            ) : (
-                                <div>
-                    {/* Display current profile information */}
-                    <div className="mb-4">
-                        <h5>Basic Information</h5>
-                        <div className="row">
-                            <div className="col-md-6">
-                                <p><strong>Name:</strong> {`${user.firstName} ${user.lastName}`}</p>
-                                <p><strong>Phone:</strong> {user.phone || "Not provided"}</p>
-                            </div>
-                            <div className="col-md-6">
-                                <p><strong>Gender:</strong> {user.gender || "Not provided"}</p>
-                                <p><strong>Email:</strong> {user.email}</p>
-                            </div>
+                            <h6 className="mb-2">Main Skills</h6>
+                            <div className="d-flex flex-wrap gap-2">
+                                {mainSkills.map((skill, index) => (
+                                    <span key={index} className={`badge ${styles.skillBadge}`}>
+                                        {skill}
+                                    </span>
+                                ))}
                             </div>
                         </div>
 
-                    {user.role === "FREELANCER" && (
-                        <div className="mb-4">
-                            <h5>Freelancer Information</h5>
-                            <p><strong>Bio:</strong> {user.bio || "Not provided"}</p>
-                            <p><strong>Location:</strong> {user.location || "Not provided"}</p>
-                            <p><strong>Birth Date:</strong> {user.birthDate ? new Date(user.birthDate).toLocaleDateString() : "Not provided"}</p>
+                        <div>
+                            <h6 className="mb-2">Other Skills</h6>
+                            <div className="d-flex flex-wrap gap-2">
+                                {otherSkills.map((skill, index) => (
+                                    <span key={index} className={`badge ${styles.skillBadge}`}>
+                                        {skill}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                    )}
+                    </CustomSection>
 
-                    {user.role === "HIRER" && (
-                        <div className="mb-4">
-                            <h5>Company Information</h5>
-                            <p><strong>Company Name:</strong> {user.companyName || "Not provided"}</p>
-                            <p><strong>Description:</strong> {user.description || "Not provided"}</p>
-                            <p><strong>Contact Link:</strong> {user.contactLink || "Not provided"}</p>
-                        </div>
-                    )}
-                    </div>
+                    {/* Work Experience Section */}
+                    <CustomSection title="Work Experience" onEdit={() => openModal("experience")}>
+                        {workExperiences.map((experience) => (
+                            <div className="mb-4" key={experience.id}>
+                                <div className="row">
+                                    <div className="col-md-3">
+                                        <p className="mb-1">
+                                            {experience.startDate} - {experience.endDate}
+                                        </p>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <h6 className="mb-1">
+                                            {experience.position} at {experience.company}
+                                        </h6>
+                                        <p className="text-muted small mb-2">{experience.description}</p>
+                                        {experience.projects && experience.projects.length > 0 && (
+                                            <div className="mt-2 mb-2">
+                                                <h6 className="small">Projects:</h6>
+                                                <ul className="list-unstyled ps-3">
+                                                    {experience.projects.map((project) => (
+                                                        <li key={project.id} className="small text-muted">
+                                                            {project.name} ({project.time})
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </CustomSection>
+
+                    {/* Education Section */}
+                    <CustomSection title="Education" onEdit={() => openModal("education")}>
+                        {educations.map((education) => (
+                            <div className="mb-4" key={education.id}>
+                                <div className="row">
+                                    <div className="col-md-3">
+                                        <p className="mb-1">
+                                            {education.startDate} - {education.endDate}
+                                        </p>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <h6 className="mb-1">{education.school}</h6>
+                                        {education.major && <p className="text-muted mb-1">{education.major}</p>}
+                                        <p className="text-muted small">{education.description}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </CustomSection>
+
+                    {/* Certificate Section */}
+                    <CustomSection title="Certificate" onEdit={() => openModal("certificate")}>
+                        {certificates.map((certificate) => (
+                            <div className="mb-3" key={certificate.id}>
+                                <div className="row">
+                                    <div className="col-md-3">
+                                        <p className="mb-1">{certificate.issueDate}</p>
+                                    </div>
+                                    <div className="col-md-9">
+                                        <h6 className="mb-1">{certificate.name}</h6>
+                                        <p>{certificate.score}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </CustomSection>
+                </div>
+            </div>
+
+            {/* Modals */}
+            {activeModal === "summary" && (
+                <SummaryModal
+                    onClose={closeModal}
+                    summary={summary}
+                    onSave={updateSummary}
+                />
+            )}
+
+            {activeModal === "skills" && (
+                <SkillsModal
+                    onClose={closeModal}
+                    mainSkills={mainSkills}
+                    otherSkills={otherSkills}
+                    onSave={updateSkills}
+                />
+            )}
+
+            {activeModal === "experience" && (
+                <ExperienceModal
+                    onClose={closeModal}
+                    experiences={workExperiences}
+                    onSave={updateExperiences}
+                />
+            )}
+
+            {activeModal === "education" && (
+                <EducationModal
+                    onClose={closeModal}
+                    educations={educations}
+                    onSave={updateEducations}
+                />
+            )}
+
+            {activeModal === "certificate" && (
+                <CertificateModal
+                    onClose={closeModal}
+                    certificates={certificates}
+                    onSave={updateCertificates}
+                />
             )}
         </div>
-    )
-}
+    );
+};
 
-export default OverviewTab
-
+export default UserProfile;

@@ -1,5 +1,8 @@
 package com.ts.talentshift.Model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.Role;
 import com.ts.talentshift.Model.Freelancer.*;
 import jakarta.persistence.*;
@@ -16,17 +19,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId" // or "userId" for User,
+                                                                                              // "id" for Skill/Job
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    
+
     @NaturalId
     @Column(unique = true)
     private String email;
 
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String gender;
     private String avatar;
     private String password;
@@ -41,7 +46,8 @@ public class User {
     private String location;
     private LocalDate birthDate;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "users", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    // @JsonManagedReference("skills")
     private List<Skill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -65,19 +71,23 @@ public class User {
     private String contactLink;
     private String logoPath;
     private String registrationFilePath;
-    
+
     @Column(nullable = false)
     private boolean verified = false;
 
     // Helper methods to manage bidirectional relationships
     public void addSkill(Skill skill) {
         skills.add(skill);
-        skill.setUser(this);
+        if (!skill.getUsers().contains(this)) { // Prevent infinite recursion
+            skill.getUsers().add(this); // Add this User to the Skill's users list
+        }
     }
 
     public void removeSkill(Skill skill) {
         skills.remove(skill);
-        skill.setUser(null);
+        if (skill.getUsers().contains(this)) {
+            skill.getUsers().remove(this);
+        }
     }
 
     public void addExperience(Experience experience) {

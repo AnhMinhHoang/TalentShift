@@ -9,8 +9,6 @@ export default function Register() {
   const { register } = useAuth();
   const emailRef = useRef(null);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -34,6 +32,8 @@ export default function Register() {
       description,
       placement,
       duration: 3,
+      showProgress: true,
+      pauseOnHover: true,
     });
   };
 
@@ -80,7 +80,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if ((formData.userType === "FREELANCER" && (!formData.firstName || !formData.lastName || !formData.email) || formData.userType === "HIRER" && !formData.email)) {
+    if ((formData.userType === "FREELANCER" && !formData.email) || formData.userType === "HIRER" && !formData.email) {
       setError("Please fill in all fields");
       return;
     }
@@ -107,13 +107,11 @@ export default function Register() {
       await register(
         formData.email,
         formData.password,
-        formData.firstName,
-        formData.lastName,
         formData.userType
       );
       setIsLoading(false);
       openNotification("success", "Register successful!", "top");
-      
+
       // Navigate based on user type
       if (formData.userType === "FREELANCER") {
         navigate("/register-additional"); // For freelancers
@@ -165,9 +163,8 @@ export default function Register() {
                       </p>
                       <div className={styles.registerSteps}>
                         <div
-                          className={`${styles.stepItem} ${
-                            step >= 1 ? styles.stepActive : ""
-                          }`}
+                          className={`${styles.stepItem} ${step >= 1 ? styles.stepActive : ""
+                            }`}
                         >
                           <div className={styles.stepNumber}>1</div>
                           <div className={styles.stepText}>
@@ -176,9 +173,8 @@ export default function Register() {
                           </div>
                         </div>
                         <div
-                          className={`${styles.stepItem} ${
-                            step >= 2 ? styles.stepActive : ""
-                          }`}
+                          className={`${styles.stepItem} ${step >= 2 ? styles.stepActive : ""
+                            }`}
                         >
                           <div className={styles.stepNumber}>2</div>
                           <div className={styles.stepText}>
@@ -230,11 +226,10 @@ export default function Register() {
                               <div className="row mt-3">
                                 <div className="col-md-6 mb-3 mb-md-0">
                                   <div
-                                    className={`${styles.userTypeCard} ${
-                                      formData.userType === "FREELANCER"
-                                        ? styles.userTypeCardActive
-                                        : ""
-                                    }`}
+                                    className={`${styles.userTypeCard} ${formData.userType === "FREELANCER"
+                                      ? styles.userTypeCardActive
+                                      : ""
+                                      }`}
                                     onClick={() => handleUserTypeSelect("FREELANCER")}
                                   >
                                     <div className={styles.userTypeIcon}>
@@ -276,11 +271,10 @@ export default function Register() {
                                 </div>
                                 <div className="col-md-6">
                                   <div
-                                    className={`${styles.userTypeCard} ${
-                                      formData.userType === "HIRER"
-                                        ? styles.userTypeCardActive
-                                        : ""
-                                    }`}
+                                    className={`${styles.userTypeCard} ${formData.userType === "HIRER"
+                                      ? styles.userTypeCardActive
+                                      : ""
+                                      }`}
                                     onClick={() => handleUserTypeSelect("HIRER")}
                                   >
                                     <div className={styles.userTypeIcon}>
@@ -336,77 +330,34 @@ export default function Register() {
 
                         {step === 2 && (
                           <>
-                          {formData.userType === "FREELANCER" && (
-                            <div className="row mb-3">
-                              <div className="col-md-6 mb-3 mb-md-0">
-                                <label
-                                  htmlFor="firstName"
-                                  className={`form-label ${styles.formLabel}`}
-                                >
-                                  First Name
-                                </label>
-                                <div className={styles.inputWrapper}>
-                                  <i className="bi bi-person"></i>
-                                  <input
-                                    type="text"
-                                    className={`form-control ${styles.formInput}`}
-                                    id="firstName"
-                                    name="firstName"
-                                    placeholder="John"
-                                    value={formData.firstName}
-                                    onChange={handleChange}
-                                    required
-                                  />
-                                  <span className={styles.inputFocus}></span>
+                            {formData.userType === "FREELANCER" && (
+                              <div className="row mb-3">
+                                <div className="col-12">
+                                  <label
+                                    htmlFor="email"
+                                    className={`form-label ${styles.formLabel}`}
+                                  >
+                                    Email
+                                  </label>
+                                  <div className={styles.inputWrapper}>
+                                    <i className="bi bi-envelope"></i>
+                                    <input
+                                      type="email"
+                                      className={`form-control ${styles.formInput}`}
+                                      id="email"
+                                      name="email"
+                                      placeholder="your@email.com"
+                                      value={formData.email}
+                                      onChange={handleChange}
+                                      ref={emailRef}
+                                      required
+                                    />
+                                    <span className={styles.inputFocus}></span>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="col-md-6">
-                                <label
-                                  htmlFor="lastName"
-                                  className={`form-label ${styles.formLabel}`}
-                                >
-                                  Last Name
-                                </label>
-                                <div className={styles.inputWrapper}>
-                                  <i className="bi bi-person"></i>
-                                  <input
-                                    type="text"
-                                    className={`form-control ${styles.formInput}`}
-                                    id="lastName"
-                                    name="lastName"
-                                    placeholder="Doe"
-                                    value={formData.lastName}
-                                    onChange={handleChange}
-                                    required
-                                  />
-                                  <span className={styles.inputFocus}></span>
-                                </div>
-                              </div>
-                            </div>
-                            )}
-                            <div className="mb-3">
-                              <label
-                                htmlFor="email"
-                                className={`form-label ${styles.formLabel}`}
-                              >
-                                Email
-                              </label>
-                              <div className={styles.inputWrapper}>
-                                <i className="bi bi-envelope"></i>
-                                <input
-                                  type="email"
-                                  className={`form-control ${styles.formInput}`}
-                                  id="email"
-                                  name="email"
-                                  placeholder="your@email.com"
-                                  value={formData.email}
-                                  onChange={handleChange}
-                                  ref={emailRef}
-                                  required
-                                />
-                                <span className={styles.inputFocus}></span>
-                              </div>
-                            </div>
+                              </div >
+                            )
+                            }
                             <div className="mb-3">
                               <label
                                 htmlFor="password"
@@ -436,15 +387,15 @@ export default function Register() {
                                       passwordStrength === 0
                                         ? styles.strengthWeak
                                         : passwordStrength < 3
-                                        ? styles.strengthMedium
-                                        : styles.strengthStrong
+                                          ? styles.strengthMedium
+                                          : styles.strengthStrong
                                     }
                                   >
                                     {passwordStrength === 0
                                       ? " Weak"
                                       : passwordStrength < 3
-                                      ? " Medium"
-                                      : " Strong"}
+                                        ? " Medium"
+                                        : " Strong"}
                                   </span>
                                 </div>
                                 <div className={styles.strengthBars}>
@@ -553,7 +504,7 @@ export default function Register() {
                             </div>
                           </>
                         )}
-                      </form>
+                      </form >
 
                       {step === 2 && (
                         <>
@@ -583,19 +534,19 @@ export default function Register() {
                           </Link>
                         </p>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    </div >
+                  </div >
+                </div >
+              </div >
+            </div >
 
             <div className={styles.securityNote}>
               <i className="bi bi-shield-lock me-2"></i>
               <span>Your data is protected with enterprise-grade security</span>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </div >
+        </div >
+      </div >
+    </div >
   );
 }

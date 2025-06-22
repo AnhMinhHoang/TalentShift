@@ -26,14 +26,14 @@ const HirerAdditionalRegistration = () => {
   const [logoPreview, setLogoPreview] = useState(null);
   const [registrationFile, setRegistrationFile] = useState(null);
 
-  const [api, contextHolder] = notification.useNotification();
-
   const openNotification = (type, message, description) => {
-    api[type]({
+    notification[type]({
       message,
       description,
       placement: "topRight",
       duration: 3,
+      showProgress: true,
+      pauseOnHover: true,
     });
   };
 
@@ -101,7 +101,7 @@ const HirerAdditionalRegistration = () => {
             "Registration Complete",
             "Your company profile has been updated successfully!"
           );
-          navigate("/login");
+          navigate("/");
         }
       } catch (error) {
         openNotification(
@@ -128,7 +128,6 @@ const HirerAdditionalRegistration = () => {
 
   return (
     <Container className={`${styles.container} mt-5 ${styles.registerAdditional}`}>
-      {contextHolder}
       <Row className="justify-content-center">
         <Col>
           <div className={styles.registerForm}>
@@ -190,7 +189,7 @@ const HirerAdditionalRegistration = () => {
           </div>
         </Col>
       </Row>
-    </Container>
+    </Container >
   );
 };
 
