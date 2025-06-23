@@ -25,8 +25,9 @@ import JobApply from './pages/jobApply/jobApplyPage.jsx';
 import JobPost from './pages/Job/JobPost/JobPost.jsx';
 import JobTracker from './pages/userProfile/Profile_Page.jsx';
 import Plan from './pages/payment/Plan.jsx';
-import Success from './pages/payment/Success.jsx';
+import TransactionResult from './pages/payment/TransactionResult.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
+import Payment from './pages/payment/Payment.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -53,12 +54,13 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/register-additional" element={<RegisterAdditional />} />
             <Route path="/job-posting" element={<JobPost />} />
+            <Route path="/payment" element={<Payment />} />
             <Route path="/hirer-additional" element={<HirerAdditionalRegistration />}/>
             <Route path="/profile-page" element={<JobTracker />} />
             <Route path="/job-apply" element={<JobApply />} />
             <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
-            <Route path='/payment' element={<Plan />} />
-            <Route path='/payment-success' element={<Success />} />
+            <Route path='/paymentPlan' element={<Plan />} />
+            <Route path='/transaction-result' element={<TransactionResult />} />
             <Route path="/job-detail/:id" element={<JobDetail />} />
             <Route path="/jobs" element={<JobListing />} />
             <Route path="/login" element={<Login />} />

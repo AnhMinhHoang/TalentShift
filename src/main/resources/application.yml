@@ -21,6 +21,24 @@ spring:
       hibernate:
         format_sql: true
 
+jwt:
+    secret: bYfFml3KXwYj6t9uXxTz3KQm1aRP+F0T2r+TfQJzrXc=
+# MoMo Configuration (Sandbox)
+momo:
+  partner-code: MOMO
+  access-key: F8BBA842ECF85
+  secret-key: K951B6PE1waDMi640xX08PD3vg6EkVlz
+  api-endpoint: https://test-payment.momo.vn/v2/gateway/api/create
+  return-url: http://localhost:8080/api/momo/return
+  notify-url: http://localhost:8080/api/momo/callback
+
+logging:
+  level:
+    org.hibernate.SQL: warn
+    org.hibernate.type.descriptor.sql: warn
+    com.zaxxer.hikari: warn
+    com.mysql.cj: warn
+
 # File upload configuration
 file:
   upload-dir: ./uploads

@@ -15,6 +15,8 @@ public interface IUserService {
 
     User updateUserProfile(Long userId, User updatedUser);
 
+    User getUserById(Long userId);
+
     // Profile update methods
     User updateBasicProfile(Long userId, User updatedUser);
     User updateFreelancerProfile(Long userId, User updatedUser);

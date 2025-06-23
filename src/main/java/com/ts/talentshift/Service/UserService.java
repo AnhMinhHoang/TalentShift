@@ -30,6 +30,11 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    @Override
     public User registerUser(String email, String password, String fullName, String role) {
         if (userRepository.existsByEmail(email)) {
             return null;

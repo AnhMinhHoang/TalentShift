@@ -28,12 +28,6 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String uri = request.getRequestURI();
-
-        if (uri.startsWith("/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -49,15 +43,11 @@ public class JwtFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
             }
-        } else {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
         }
 
+        // ✅ Always continue the filter chain
         filterChain.doFilter(request, response);
     }
+
 }

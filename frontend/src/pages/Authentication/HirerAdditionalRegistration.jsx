@@ -68,14 +68,14 @@ const HirerAdditionalRegistration = () => {
         }
         formData.append("registrationFile", registrationFile);
 
-        const email = localStorage.getItem('userEmail');
+        const user = JSON.parse(localStorage.getItem("user"));
+        const email = user?.email;
+        const userId = user?.id;
         if (!email) {
           openNotification("error", "Registration Failed", "User email not found.");
           navigate("/login");
           return;
         }
-
-        const userId = localStorage.getItem('userId'); // Get userId from localStorage
         if (!userId) {
           openNotification("error", "Registration Failed", "User ID not found.");
           navigate("/login");
