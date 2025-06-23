@@ -25,6 +25,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -142,11 +143,11 @@ public class MoMoService {
         String resultCode = String.valueOf(callbackData.get("resultCode"));
         String message = String.valueOf(callbackData.get("message"));
         String responseTime = String.valueOf(callbackData.get("responseTime"));
-        String bankCode = String.valueOf(callbackData.get("bankCode"));
         String payType = String.valueOf(callbackData.get("payType"));
 
-        Transaction transaction = getTransactionByOrderId(orderId);
-        if (transaction != null) {
+        Optional<Transaction> transactionOpt = getTransactionByOrderId(orderId);
+        if (transactionOpt.isPresent()) {
+            Transaction transaction = transactionOpt.get();
             transaction.setResultCode(Integer.parseInt(resultCode));
             transaction.setMessage(message);
             transaction.setResponseTime(responseTime);
@@ -164,7 +165,7 @@ public class MoMoService {
         return null;
     }
 
-    public Transaction getTransactionByOrderId(String orderId) {
+    public Optional<Transaction> getTransactionByOrderId(String orderId) {
         return transactionRepository.findByOrderId(orderId);
     }
 

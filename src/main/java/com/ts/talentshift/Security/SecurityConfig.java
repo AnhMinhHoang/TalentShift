@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/momo/callback").permitAll()
                         .requestMatchers("/api/momo/return").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

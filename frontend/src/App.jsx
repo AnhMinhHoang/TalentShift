@@ -50,7 +50,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/job-detail" element={<JobDetail />} />
-            <Route path="/jobs" element={<JobListing />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/register-additional" element={<RegisterAdditional />} />
             <Route path="/job-posting" element={<JobPost />} />

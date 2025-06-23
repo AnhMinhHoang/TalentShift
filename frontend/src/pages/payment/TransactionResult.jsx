@@ -13,13 +13,13 @@ export default function TransactionResult() {
         const fetchData = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get("orderId");
-            const resultCode = urlParams.get("resultCode");
+            const paymentMethod = urlParams.get("paymentMethod");
 
-            if (orderId) {
+            if (orderId && paymentMethod) {
                 setLoading(true);
-                await fetchTransactionData(orderId);
+                await fetchTransactionData(orderId, paymentMethod);
             } else {
-                setError("No transaction ID found");
+                setError("Missing transaction information");
                 setLoading(false);
             }
         };
@@ -31,13 +31,17 @@ export default function TransactionResult() {
         });
     }, []);
 
-    const fetchTransactionData = async (orderId) => {
+    const fetchTransactionData = async (orderId, paymentMethod) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.get(`http://localhost:8080/api/momo/transaction/${orderId}`,{
+            const apiUrl = paymentMethod === "momo"
+                ? `http://localhost:8080/api/momo/transaction/${orderId}`
+                : `http://localhost:8080/api/vnpay/transaction/${orderId}`;
+
+            const response = await axios.get(apiUrl, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
             });
 
@@ -94,7 +98,7 @@ export default function TransactionResult() {
                     icon: "fas fa-mobile-alt",
                     color: "#a50064",
                 }
-            case "vnpay":
+            case "VNPAY":
                 return {
                     name: "VNPAY",
                     icon: "fas fa-credit-card",

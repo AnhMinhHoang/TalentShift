@@ -41,16 +41,6 @@ export default function Payment() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (paymentMethod !== "momo") {
-            openNotification(
-                "info",
-                "Coming Soon",
-                "bottomRight",
-                "This payment method is not available yet. Please select MoMo."
-            );
-            return;
-        }
-
         if (!isValidAmount()) {
             openNotification(
                 "error",
@@ -68,8 +58,12 @@ export default function Payment() {
         const userId = user?.id;
 
         try {
+            const apiUrl = paymentMethod === "momo"
+                ? "http://localhost:8080/api/momo/create"
+                : "http://localhost:8080/api/vnpay/create";
+
             const response = await axios.post(
-                "http://localhost:8080/api/momo/create",
+                apiUrl,
                 {
                     amount: parseFloat(amount.replace(/,/g, "")),
                     userId: userId,
@@ -170,7 +164,6 @@ export default function Payment() {
                                                             <span className="fw-bold">VNPAY</span>
                                                         </div>
                                                         <small className="text-muted">VNPay</small>
-                                                        <span className="badge bg-secondary ms-2">Coming soon</span>
                                                     </div>
                                                 </label>
                                             </div>

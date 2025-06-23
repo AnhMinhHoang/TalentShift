@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -64,9 +65,13 @@ public class MoMoPaymentController {
     public ResponseEntity<String> handleReturn(@RequestParam Map<String, String> params) {
         String orderId = params.get("orderId");
         String resultCode = params.get("resultCode");
+        String paymentMethod = "momo";
 
         // Redirect to frontend with transaction info
-        String redirectUrl = "http://localhost:5173/transaction-result?orderId=" + orderId + "&resultCode=" + resultCode;
+        String redirectUrl = "http://localhost:5173/transaction-result"
+                + "?orderId=" + orderId
+                + "&paymentMethod=" + paymentMethod
+                + "&responseCode=" + resultCode;
 
         return ResponseEntity.status(302)
                 .header("Location", redirectUrl)
@@ -75,7 +80,8 @@ public class MoMoPaymentController {
 
     @GetMapping("/transaction/{orderId}")
     public ResponseEntity<Transaction> getTransaction(@PathVariable String orderId) {
-        Transaction transaction = moMoService.getTransactionByOrderId(orderId);
+        Optional<Transaction> transactionOpt = moMoService.getTransactionByOrderId(orderId);
+        Transaction transaction = transactionOpt.orElse(null);
         if (transaction != null) {
             return ResponseEntity.ok(transaction);
         }
