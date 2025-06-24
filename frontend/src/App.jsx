@@ -54,7 +54,6 @@ function App() {
             <Route path="/job-detail" element={<JobDetail />} /> {/* Job detail without ID */}
             <Route path="/job-detail/:id" element={<JobDetail />} /> {/* Job detail with ID - e.g., /job-detail/1 */}
 
-            <Route path="/jobs" element={<JobListing />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/register-additional" element={<RegisterAdditional />} />
             <Route path="/job-posting" element={<JobPost />} />
@@ -63,14 +62,11 @@ function App() {
             <Route path="/profile-page" element={<JobTracker />} />
             <Route path="/job-apply" element={<JobApply />} />
             <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
-            <Route path='/paymentPlan' element={<Plan />} />
             <Route path='/transaction-result' element={<TransactionResult />} />
             <Route path='/payment/plan' element={<Plan />} />
-            <Route path="/job-detail/:id" element={<JobDetail />} />
             <Route path="/jobs" element={<JobListing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/rating" element={<RatingSystem />} />
           </Routes>
         </AntdApp>
         <Footer />
