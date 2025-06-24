@@ -28,7 +28,6 @@ import Plan from './pages/payment/Plan.jsx';
 import Success from './pages/payment/Success.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
 import RatingSystem from "./pages/Rating.jsx";
-import Business from './pages/Job/Business.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,7 +49,11 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/job-detail" element={<JobDetail />} />
+            
+            {/* Job Detail Routes */}
+            <Route path="/job-detail" element={<JobDetail />} /> {/* Job detail without ID */}
+            <Route path="/job-detail/:id" element={<JobDetail />} /> {/* Job detail with ID - e.g., /job-detail/1 */}
+            
             <Route path="/jobs" element={<JobListing />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/register-additional" element={<RegisterAdditional />} />
@@ -59,15 +62,15 @@ function App() {
             <Route path="/profile-page" element={<JobTracker />} />
             <Route path="/job-apply" element={<JobApply />} />
             <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
+            
+            {/* Payment Routes */}
             <Route path='/payment' element={<Plan />} />
+            <Route path='/payment/plan' element={<Plan />} />
             <Route path='/payment-success' element={<Success />} />
-            <Route path="/job-detail/:id" element={<JobDetail />} />
-            <Route path="/jobs" element={<JobListing />} />
+            
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/rating" element={<RatingSystem />} />
-            <Route path='/payment/plan' element={<Plan />} />
-            <Route path="/business-applicants" element={<Business />} />
           </Routes>
         </AntdApp>
         <Footer />
