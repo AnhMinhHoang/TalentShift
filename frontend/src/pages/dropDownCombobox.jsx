@@ -15,7 +15,16 @@ const ComboBox = ({ options, onChange }) => {
         borderRadius: "40px",
         border: "2px solid #ccc",
         fontSize: "17px",
-        paddingRight: "0px"
+        padding: "10px 28px",
+        height: 48,
+        boxShadow: "none",
+        outline: "none",
+        color: "#222",
+        fontWeight: 500,
+        marginLeft: 10,
+        minWidth: 160,
+        width: 'auto',
+        background: '#fff',
       }}>
       <option value="">Services</option>
       {options.map((opt, index) => (
