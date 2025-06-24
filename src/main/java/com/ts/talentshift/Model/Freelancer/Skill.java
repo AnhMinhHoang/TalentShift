@@ -1,6 +1,5 @@
 package com.ts.talentshift.Model.Freelancer;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.SkillType;
@@ -41,10 +40,8 @@ public class Skill {
             joinColumns = @JoinColumn(name = "skill_id"), // Foreign key for Skill
             inverseJoinColumns = @JoinColumn(name = "userId") // Foreign key for User
     )
-    // @JsonBackReference("skills")
     private List<User> users = new ArrayList<>();
 
     @ManyToMany(mappedBy = "skills")
-    // @JsonBackReference("job-skill")
     private List<Job> jobs;
 }

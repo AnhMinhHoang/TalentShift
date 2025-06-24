@@ -2,6 +2,7 @@ server:
   error:
     include-message: always
     include-binding-errors: always
+    include-exception: true
 spring:
   servlet:
     multipart:
@@ -10,13 +11,13 @@ spring:
       max-request-size: 10MB
   datasource:
     username: root
-    password: GoldCandy562004
+    password: admin
     url: jdbc:mysql://localhost:3306/talentshift
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -24,3 +25,9 @@ spring:
 # File upload configuration
 file:
   upload-dir: ./uploads
+# Day la cho debug loi neu khong xuat hien tu front end sang
+# logging:
+#   level:
+#     root: DEBUG
+#     org.hibernate.orm.results: WARN
+#     org.hibernate.orm.mapping.natural_id: WARN

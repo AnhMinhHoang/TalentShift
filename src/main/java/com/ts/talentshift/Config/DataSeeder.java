@@ -39,16 +39,23 @@ public class DataSeeder {
                 }
 
                 // Seed Categories
-                String[] categories = { "Software Development", "Design", "Marketing", "Finance", "HR", "Sales",
-                        "Customer Service", "Operations", "IT", "Legal", "Web Development", "Mobile App Development",
-                        "UI/UX Design" };
+                String[] categories = {
+                        "Software Development", "Design", "Marketing", "Finance", "HR", "Sales",
+                        "Customer Service", "Operations", "IT", "Legal", "Web Development",
+                        "Mobile App Development", "UI/UX Design"
+                };
+
                 for (String categoryName : categories) {
-                    log.info("Checking category: {}", categoryName);
-                    if (!categoryRepo.existsByName(categoryName)) {
-                        JobCategory category = new JobCategory();
-                        category.setName(categoryName);
-                        log.info("Seeding category: {}", categoryName);
-                        categoryRepo.save(category);
+                    String cleanName = categoryName.trim(); // normalize input
+                    try {
+                        if (!categoryRepo.existsByName(cleanName)) {
+                            JobCategory category = new JobCategory();
+                            category.setName(cleanName);
+                            log.info("Seeding category: {}", cleanName);
+                            categoryRepo.save(category);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error seeding '{}': {}", cleanName, e.getMessage());
                     }
                 }
 

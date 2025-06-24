@@ -24,6 +24,24 @@ api.interceptors.request.use(
     }
 );
 
+// Response interceptor
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response) {
+            // Handle specific status codes
+            if (error.response.status === 401) {
+                // Handle unauthorized access
+            }
+            return Promise.reject({
+                message: error.response.data.message || 'An error occurred',
+                status: error.response.status,
+            });
+        }
+        return Promise.reject({ message: 'Network error' });
+    }
+);
+
 // Auth API calls
 export const authAPI = {
     register: (userData) => api.post('/auth/register', userData),

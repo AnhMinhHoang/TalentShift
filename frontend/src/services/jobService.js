@@ -9,7 +9,12 @@ export const fetchAllJobs = () => api.get('/jobs/all');
 export const fetchJobCategories = async () => {
     try {
         const response = await api.get('/categories');
-        return response.data.map(category => category.name);
+        console.log("Raw category data:", response.data);
+        const names = response.data.map((category, index) => {
+            console.log(`Category ${index}:`, category);
+            return category?.name;
+        });
+        return names;
     } catch (error) {
         throw new Error(error.message || 'Failed to fetch categories');
     }
@@ -38,5 +43,14 @@ export const createJobPost = async (jobData) => {
         return response.data;
     } catch (error) {
         throw new Error(error.message || 'Failed to create job');
+    }
+};
+
+export const fetchAllActiveJobs = async () => {
+    try {
+        const response = await api.get('/jobs/active');
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message || 'Failed to fetch active jobs');
     }
 };
