@@ -167,7 +167,19 @@ function Navbar() {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Welcome, Nguyen Van A {/* Show user's name */}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                      <div style={{ fontWeight: 600, fontSize: 16, color: '#fff' }}>{user.fullName || 'User'}</div>
+                      <div style={{ fontSize: 13, color: '#e0e0e0', fontWeight: 400 }}>
+                        Balance: <span style={{ color: '#ffd700', fontWeight: 600 }}>{user.balance !== undefined ? user.balance : '1,000,000'}₫</span>
+                      </div>
+                    </span>
+                    <img
+                      src={user.avatar || '/asset/images/default-profile.jpg'}
+                      alt="avatar"
+                      style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fff', background: '#eee' }}
+                    />
+                  </span>
                 </a>
                 <ul
                   className="dropdown-menu dropdown-menu-end"

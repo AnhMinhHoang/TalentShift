@@ -44,13 +44,36 @@ function index() {
                 <h1 className="text-white text-center">Discover. Learn. Enjoy</h1>
                 <h6 className="text-center">platform for creatives around the world</h6>
                 <form method="get" className="custom-form mt-4 pt-2 mb-lg-0 mb-5" role="search">
-                  <div className="input-group input-group-lg">
-                                    <span className="input-group-text bi-search" id="basic-addon1">
-                                    </span>
-                    <input name="keyword" type="search" className="form-control" id="keyword"
-                           placeholder="Search for ..." aria-label="Search"/>
-                    <ComboBox options={options}></ComboBox>
-                    <button type="submit" className="form-control" style={{ paddingLeft:"5px"}}>Search</button>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: '#fff',
+                    borderRadius: 50,
+                    padding: 10,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    gap: 0,
+                  }}>
+                    <span style={{ padding: '0 18px', color: '#6c757d', fontSize: 22, display: 'flex', alignItems: 'center' }}>
+                      <i className="bi bi-search"></i>
+                    </span>
+                    <input name="keyword" type="search" className="form-control border-0 shadow-none" id="keyword"
+                      placeholder="Search for ..." aria-label="Search"
+                      style={{ border: 'none', outline: 'none', boxShadow: 'none', fontSize: 18, background: 'transparent', color: '#333', borderRadius: 0, minWidth: 220 }}
+                    />
+                    <ComboBox options={options} />
+                    <button type="submit" style={{
+                      background: '#80d0c7',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 40,
+                      fontWeight: 600,
+                      fontSize: 20,
+                      padding: '10px 38px',
+                      marginLeft: 10,
+                      transition: 'background 0.2s',
+                      boxShadow: 'none',
+                      cursor: 'pointer',
+                    }}>Search</button>
                   </div>
                 </form>
               </div>

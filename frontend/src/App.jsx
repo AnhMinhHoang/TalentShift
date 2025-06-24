@@ -27,6 +27,8 @@ import JobTracker from './pages/userProfile/Profile_Page.jsx';
 import Plan from './pages/payment/Plan.jsx';
 import Success from './pages/payment/Success.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
+import RatingSystem from "./pages/Rating.jsx";
+import Business from './pages/Job/Business.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -63,6 +65,9 @@ function App() {
             <Route path="/jobs" element={<JobListing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/rating" element={<RatingSystem />} />
+            <Route path='/payment/plan' element={<Plan />} />
+            <Route path="/business-applicants" element={<Business />} />
           </Routes>
         </AntdApp>
         <Footer />
