@@ -35,9 +35,11 @@ public class VNPayService {
     private String vnpReturnUrl;
 
     private final TransactionRepository transactionRepository;
+    private final IUserService userService;
 
-    public VNPayService(TransactionRepository transactionRepository) {
+    public VNPayService(TransactionRepository transactionRepository, IUserService userService) {
         this.transactionRepository = transactionRepository;
+        this.userService = userService;
     }
 
     public Map<String, Object> createPayment(User user, BigDecimal amount, String orderInfo) {
@@ -154,6 +156,7 @@ public class VNPayService {
             if (signValue.equals(vnpSecureHash)) {
                 if ("00".equals(responseCode)) {
                     transaction.setStatus(TransactionStatus.SUCCESS);
+                    userService.addUserBalance(transaction.getUser(), transaction.getAmount());
                 } else {
                     transaction.setStatus(TransactionStatus.FAILED);
                 }

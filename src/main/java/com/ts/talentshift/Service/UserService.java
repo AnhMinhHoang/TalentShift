@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -214,5 +215,10 @@ public class UserService implements IUserService {
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);
+    }
+
+    @Override
+    public void addUserBalance(User user, BigDecimal amount) {
+        user.setBalance(user.getBalance().add(amount));
     }
 }

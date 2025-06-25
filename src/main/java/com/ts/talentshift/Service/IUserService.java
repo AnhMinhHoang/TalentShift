@@ -3,6 +3,7 @@ package com.ts.talentshift.Service;
 import com.ts.talentshift.Model.User;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,8 @@ public interface IUserService {
     Optional<User> findByEmail(String email);
 
     User updateUserProfile(Long userId, User updatedUser);
+
+    void addUserBalance(User user, BigDecimal amount);
 
     User getUserById(Long userId);
 

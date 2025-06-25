@@ -51,12 +51,12 @@ public class MoMoService {
 
     private final TransactionRepository transactionRepository;
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
+    private final IUserService userService;
 
-    public MoMoService(TransactionRepository transactionRepository, RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public MoMoService(TransactionRepository transactionRepository, RestTemplate restTemplate, IUserService userService) {
         this.transactionRepository = transactionRepository;
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
+        this.userService = userService;
     }
 
     public Map<String, Object> createPayment(BigDecimal amount, User user, String orderInfo) {
@@ -156,6 +156,7 @@ public class MoMoService {
 
             if ("0".equals(resultCode) || "1006".equals(resultCode)) {
                 transaction.setStatus(TransactionStatus.SUCCESS);
+                userService.addUserBalance(transaction.getUser(), transaction.getAmount());
             } else {
                 transaction.setStatus(TransactionStatus.FAILED);
             }

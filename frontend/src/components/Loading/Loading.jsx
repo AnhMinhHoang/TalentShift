@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../assets/css/Loader.module.css'; // We'll create this CSS file next
+import styles from '../../assets/css/Loader.module.css';
 
 const Loading = ({ isLoading }) => {
     if (!isLoading) return null;

@@ -6,6 +6,8 @@ import com.ts.talentshift.Service.IUserService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
@@ -91,5 +93,17 @@ public class AuthController {
     public ResponseEntity<List<User>> getAllUser()
     {
         return new ResponseEntity<>(userService.getAllUser(), HttpStatus.OK);
+    }
+
+    @GetMapping("/checkUser")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication){
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userService.findByEmail(authentication.getName())
+                .orElse(null);
+
+        return ResponseEntity.ok(user);
     }
 }

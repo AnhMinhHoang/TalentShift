@@ -54,7 +54,7 @@ const faqData = [
     title: "Can I edit my profile after creating it?",
     content:
       "You can update your profile anytime to reflect your latest skills, experience, or portfolio. Keeping your profile up-to-date helps you stand out to potential employers and increases your chances of landing great projects.",
-    icon: "bi-person-gear",
+    icon: "bi-person",
   },
   {
     id: "payment-security",
@@ -739,13 +739,16 @@ function Index() {
             <div className="row">
               <FloatingElement delay={0.2}>
                 <div className="col-12 text-center mb-5">
-                  <motion.h2
-                    className="text-white mb-4"
-                    whileInView={{ scale: [0.8, 1.1, 1] }}
-                    transition={{ duration: 0.6 }}
+                  <motion.h1
+                      className="text-white mb-4"
+                      initial={{ scale: 0.8, y: 0, transform: 'none' }} // Reset initial position and transform
+                      whileInView={{ scale: [0.8, 1.1, 1], y: 0 }} // Animate scale, keep y at 0
+                      viewport={{ once: false, amount: 0.5 }} // Trigger when 50% in view
+                      transition={{ duration: 0.6 }}
+                      style={{ transform: 'none', position: 'relative', fontWeight: 'bold'}} // Override parent transform
                   >
                     How TalentShift Works
-                  </motion.h2>
+                  </motion.h1>
                   <p className="text-white-50">Simple steps to get started on your freelancing journey</p>
                 </div>
               </FloatingElement>

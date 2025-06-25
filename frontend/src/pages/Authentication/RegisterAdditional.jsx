@@ -16,6 +16,7 @@ import ProfileStep from "./components/ProfileStep";
 import styles from "./styles/RegisterAdditional.module.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 const steps = ["Skills", "Experience", "Education", "Overview", "Profile"];
 
@@ -44,10 +45,14 @@ const socialPlatforms = [
   "Other",
 ];
 
+
+
 const RegisterAdditional = () => {
   // State for active step
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
+
+  const { getUserById } = useAuth();
 
   // State for Skills step
   const [mainSkill, setMainSkill] = useState("");
@@ -230,6 +235,7 @@ const RegisterAdditional = () => {
 
         if (response.status === 200) {
           openNotification("success", "Profile Completed", "Your profile has been successfully completed!");
+          await getUserById(userId);
           navigate("/");
         }
       } catch (error) {

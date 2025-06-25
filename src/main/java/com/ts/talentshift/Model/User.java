@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +33,13 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    private String fullName;
+    private String fullName = "User";
     private String gender;
     private String avatar;
     private String password;
     private String phone;
+    private boolean premium = false;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -64,7 +67,7 @@ public class User {
     private List<Link> links = new ArrayList<>();
 
     // Hirer fields
-    private String companyName;
+    private String companyName = "Company A";
 
     @Column(length = 1000)
     private String description;

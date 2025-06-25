@@ -6,7 +6,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import { AuthProvider } from "./pages/AuthContext.jsx";
+import {AuthProvider, useAuth} from "./pages/AuthContext.jsx";
 import { App as AntdApp } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import Index from "./pages/index";
@@ -28,6 +28,7 @@ import Plan from './pages/payment/Plan.jsx';
 import TransactionResult from './pages/payment/TransactionResult.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
 import Payment from './pages/payment/Payment.jsx';
+import Loading from "./components/Loading/Loading.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -40,9 +41,11 @@ function ScrollToTop() {
 }
 
 function App() {
+  const { loading } = useAuth();
+
+  if (loading) return <Loading isLoading={true} />;
+
   return (
-    <Router>
-      <AuthProvider>
         <AntdApp>
           <ScrollToTop />
           <ScrollToAnchor />
@@ -68,10 +71,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>
-        </AntdApp>
         <Footer />
-      </AuthProvider>
-    </Router>
+      </AntdApp>
   );
 }
 

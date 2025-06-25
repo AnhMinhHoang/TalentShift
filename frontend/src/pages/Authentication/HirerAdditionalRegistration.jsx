@@ -12,11 +12,13 @@ import {
 import HirerCompanyStep from "./components/HirerCompanyStep";
 import styles from "./styles/RegisterAdditional.module.css";
 import axios from "axios";
+import {  useAuth } from "../AuthContext.jsx";
 
 const HirerAdditionalRegistration = () => {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
+  const { getUserById } = useAuth();
 
   // State for company information
   const [companyName, setCompanyName] = useState("");
@@ -101,6 +103,7 @@ const HirerAdditionalRegistration = () => {
             "Registration Complete",
             "Your company profile has been updated successfully!"
           );
+          await getUserById(userId);
           navigate("/");
         }
       } catch (error) {
