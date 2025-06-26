@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom"
 import styles from "./style/Plan.module.css"
 import { CheckCircleFill } from "react-bootstrap-icons"
+import { useAuth } from "../AuthContext"
 
 const plans = [
   {
@@ -40,13 +41,11 @@ const plans = [
 ]
 
 const Plan = () => {
+  const { userData, getUserById } = useAuth()
   const navigate = useNavigate()
 
   const handleSubscribe = (plan) => {
-    sessionStorage.setItem("selectedPlan", JSON.stringify(plan))
-    setTimeout(() => {
-      navigate("/payment/success")
-    }, 1000)
+
   }
 
   return (

@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles/Auth.module.css";
 import { useAuth } from "../AuthContext";
 import { notification } from "antd";
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import {useGoogleLogin} from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import { Modal } from 'antd';
+import axios from "axios";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -23,9 +23,6 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [roleModalVisible, setRoleModalVisible] = useState(false);
-  const [selectedRole, setSelectedRole] = useState('FREELANCER');
-  const [googleUser, setGoogleUser] = useState(null);
 
   useEffect(() => {
     document
@@ -41,6 +38,30 @@ export default function Register() {
       duration: 3,
       showProgress: true,
       pauseOnHover: true,
+    });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    if (name === "password") {
+      let strength = 0;
+      if (value.length > 6) strength += 1;
+      if (value.match(/[A-Z]/)) strength += 1;
+      if (value.match(/[0-9]/)) strength += 1;
+      if (value.match(/[^A-Za-z0-9]/)) strength += 1;
+      setPasswordStrength(strength);
+    }
+  };
+
+  const handleUserTypeSelect = (type) => {
+    setFormData({
+      ...formData,
+      userType: type,
     });
   };
 
@@ -90,7 +111,8 @@ export default function Register() {
       await register(
         formData.email,
         formData.password,
-        formData.userType
+        formData.userType,
+        ""
       );
       setIsLoading(false);
       openNotification("success", "Register successful!", "top");
@@ -112,58 +134,44 @@ export default function Register() {
       const decoded = jwtDecode(credentialResponse.credential);
       const email = decoded.email;
       // Check if user exists in backend
-      const response = await fetch('http://localhost:8080/auth/google-check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const data = await response.json();
+      const response = await axios.post('http://localhost:8080/auth/google-check', { email });
+      const data = await response.data;
       if (data.exists) {
         await login(email, null, true);
         openNotification('success', 'Login successful!', 'top', 'Redirecting to Homepage!');
         navigate('/');
       } else {
-        setGoogleUser(decoded);
-        setRoleModalVisible(true);
+        const payload = {
+          email: decoded.email,
+          password: null,
+          role: formData.userType,
+          fullName: `${decoded.given_name || ''} ${decoded.family_name || ''}`.trim(),
+        };
+        await register(
+            payload.email,
+            payload.password,
+            payload.role,
+            payload.fullName
+        );
+
+        openNotification("success", "Register successful!", "top");
+        if (formData.userType === "FREELANCER") {
+          navigate('/register-additional');
+        } else {
+          navigate('/hirer-additional');
+        }
       }
     } catch (error) {
       openNotification('error', 'Google Register Failed', 'top', error.message || 'Something went wrong');
     }
   };
 
-  const handleRoleSelect = async () => {
-    // Register the user with Google info and selected role
-    try {
-      const payload = {
-        fullName: `${googleUser.given_name || ''} ${googleUser.family_name || ''}`.trim(),
-        email: googleUser.email,
-        password: null, // No password for Google
-        role: selectedRole,
-        google: true
-      };
-      const response = await fetch('http://localhost:8080/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      localStorage.setItem('userEmail', googleUser.email);
-      localStorage.setItem('userId', data.userId);
-      setRoleModalVisible(false);
-      if (selectedRole === 'FREELANCER') {
-        openNotification("success", "Register successful!", "top");
-        navigate('/register-additional');
-      } else {
-        openNotification("success", "Register successful!", "top");
-        navigate('/hirer-additional');
-      }
-    } catch (error) {
-      openNotification('error', 'Registration Failed', 'top', error.message || 'Something went wrong');
-    }
-  };
+  const googleButtonOnClick = useGoogleLogin({
+    onSuccess: handleGoogleRegisterSuccess,
+    onError: () => openNotification('error', 'Google Login Failed', 'top', ''),
+  });
 
   return (
-    <GoogleOAuthProvider clientId="153366497643-q63021a9hd62pecvhphkdsmptd9k9h51.apps.googleusercontent.com">
       <div className={styles.authContainer}>
         <div className={styles.shapesContainer}>
           <div className={`${styles.shape} ${styles.shape1}`}></div>
@@ -539,11 +547,18 @@ export default function Register() {
                               <span>OR</span>
                             </div>
                             <div className="d-grid">
-                              <GoogleLogin
-                                onSuccess={handleGoogleRegisterSuccess}
-                                onError={() => openNotification('error', 'Google Register Failed', 'top', '')}
-                                width="100%"
-                              />
+                              <button
+                                  type="button"
+                                  className={`btn ${styles.googleBtn}`}
+                                  onClick={() => {
+                                    console.log('Google button clicked');
+                                    googleButtonOnClick()
+                                  }}
+                                  disabled={isLoading}
+                              >
+                                <i className="bi bi-google me-2"></i>
+                                Sign up with Google
+                              </button>
                             </div>
                           </>
                         )}
@@ -569,107 +584,6 @@ export default function Register() {
             </div>
           </div>
         </div>
-        <Modal
-          title="Select Your Role"
-          open={roleModalVisible}
-          onOk={handleRoleSelect}
-          onCancel={() => setRoleModalVisible(false)}
-          okText="Continue"
-          width={600}
-        >
-          <div className="row mt-3">
-            <div className="col-md-6 mb-3 mb-md-0">
-              <div
-                className={`${styles.userTypeCard} ${selectedRole === "FREELANCER"
-                    ? styles.userTypeCardActive
-                    : ""
-                  }`}
-                onClick={() => setSelectedRole("FREELANCER")}
-              >
-                <div className={styles.userTypeIcon}>
-                  <i className="bi bi-person-workspace"></i>
-                </div>
-                <div className={styles.userTypeContent}>
-                  <h5>Freelancer</h5>
-                  <p>
-                    I want to work on projects and offer my
-                    services
-                  </p>
-                  <ul className={styles.userTypeFeatures}>
-                    <li>
-                      <i className="bi bi-check-circle-fill"></i>{" "}
-                      Find projects
-                    </li>
-                    <li>
-                      <i className="bi bi-check-circle-fill"></i>{" "}
-                      Showcase skills
-                    </li>
-                    <li>
-                      <i className="bi bi-check-circle-fill"></i>{" "}
-                      Get paid
-                    </li>
-                  </ul>
-                </div>
-                <div className={styles.userTypeRadio}>
-                  <input
-                    type="radio"
-                    name="userType"
-                    id="freelancer"
-                    value="FREELANCER"
-                    checked={selectedRole === "FREELANCER"}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="form-check-input"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div
-                className={`${styles.userTypeCard} ${selectedRole === "HIRER"
-                    ? styles.userTypeCardActive
-                    : ""
-                  }`}
-                onClick={() => setSelectedRole("HIRER")}
-              >
-                <div className={styles.userTypeIcon}>
-                  <i className="bi bi-briefcase"></i>
-                </div>
-                <div className={styles.userTypeContent}>
-                  <h5>Hirer</h5>
-                  <p>
-                    I want to hire talent and post projects
-                  </p>
-                  <ul className={styles.userTypeFeatures}>
-                    <li>
-                      <i className="bi bi-check-circle-fill"></i>{" "}
-                      Post jobs
-                    </li>
-                    <li>
-                      <i className="bi bi-check-circle-fill"></i>{" "}
-                      Find talent
-                    </li>
-                    <li>
-                      <i className="bi bi-check-circle-fill"></i>{" "}
-                      Manage projects
-                    </li>
-                  </ul>
-                </div>
-                <div className={styles.userTypeRadio}>
-                  <input
-                    type="radio"
-                    name="userType"
-                    id="hirer"
-                    value="HIRER"
-                    checked={selectedRole === "HIRER"}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="form-check-input"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Modal>
       </div>
-    </GoogleOAuthProvider>
   );
 }

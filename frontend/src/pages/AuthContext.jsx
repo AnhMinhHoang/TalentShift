@@ -90,10 +90,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password, role) => {
+  const register = async (email, password, role, fullName) => {
     try {
       const response = await axios.post("http://localhost:8080/auth/register", {
-        fullName: "", // Empty fullName since it will be set in RegisterAdditional
+        fullName, // Empty fullName since it will be set in RegisterAdditional
         email,
         password,
         role,

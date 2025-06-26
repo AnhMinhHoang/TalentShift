@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import "./App.css";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
 } from "react-router-dom";
-import { AuthProvider, useAuth } from "./pages/AuthContext.jsx";
+import { useAuth } from "./pages/AuthContext.jsx";
 import { App as AntdApp } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import Index from "./pages/index";
@@ -15,7 +14,6 @@ import Footer from "./components/Footer/Footer";
 import JobDetail from "./pages/Job/JobDetail.jsx";
 import JobListing from "./pages/Job/JobListing.jsx";
 import Contact from "./pages/Contact.jsx";
-import "antd/dist/reset.css";
 import "antd/dist/reset.css";
 import ScrollToAnchor from "./ScrollToAnchor.jsx";
 import RegisterAdditional from "./pages/Authentication/RegisterAdditional.jsx";

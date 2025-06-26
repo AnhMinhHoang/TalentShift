@@ -3,13 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles/Auth.module.css";
 import { useAuth } from "../AuthContext";
 import { notification } from "antd";
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { useGoogleLogin  } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { Modal } from 'antd';
+import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -71,12 +72,8 @@ export default function Login() {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
       const email = decoded.email;
-      const response = await fetch('http://localhost:8080/auth/google-check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const data = await response.json();
+      const response = await axios.post('http://localhost:8080/auth/google-check', { email });
+      const data = await response.data;
       if (data.exists) {
         await login(email, null, true);
         openNotification('success', 'Login successful!', 'top', 'Redirecting to Homepage!');
@@ -93,21 +90,17 @@ export default function Login() {
   const handleRoleSelect = async () => {
     try {
       const payload = {
-        firstName: googleUser.given_name || '',
-        lastName: googleUser.family_name || '',
+        fullName: `${googleUser.given_name || ''} ${googleUser.family_name || ''}`.trim(),
         email: googleUser.email,
         password: null,
         role: selectedRole,
-        google: true
       };
-      const response = await fetch('http://localhost:8080/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      localStorage.setItem('userEmail', googleUser.email);
-      localStorage.setItem('userId', data.userId);
+      await register(
+        payload.email,
+        payload.password,
+        payload.role,
+        payload.fullName
+      )
       setRoleModalVisible(false);
       if (selectedRole === 'FREELANCER') {
         openNotification("success", "Register successful!", "top");
@@ -121,8 +114,12 @@ export default function Login() {
     }
   };
 
+  const googleButtonOnClick = useGoogleLogin({
+    onSuccess: handleGoogleLoginSuccess,
+    onError: () => openNotification('error', 'Google Login Failed', 'top', ''),
+  });
+
   return (
-    <GoogleOAuthProvider clientId="153366497643-q63021a9hd62pecvhphkdsmptd9k9h51.apps.googleusercontent.com">
       <div className={styles.authContainer}>
         <div className={styles.shapesContainer}>
           <div className={`${styles.shape} ${styles.shape1}`}></div>
@@ -276,11 +273,17 @@ export default function Login() {
                                 "Sign In"
                               )}
                             </button>
-                            <GoogleLogin
-                              onSuccess={handleGoogleLoginSuccess}
-                              onError={() => openNotification('error', 'Google Login Failed', 'top', '')}
-                              width="100%"
-                            />
+                            <div className="d-grid">
+                              <button
+                                  type="button"
+                                  className={`btn ${styles.googleBtn}`}
+                                  onClick={() => googleButtonOnClick()} // ← Call the hook here
+                                  disabled={isLoading}
+                              >
+                                <i className="bi bi-google me-2"></i>
+                                Sign up with Google
+                              </button>
+                            </div>
                           </div>
                         </form>
 
@@ -409,6 +412,5 @@ export default function Login() {
           </div>
         </Modal>
       </div>
-    </GoogleOAuthProvider>
   );
 }
