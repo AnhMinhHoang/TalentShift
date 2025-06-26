@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-    private String SECRET_KEY = "bYfFml3KXwYj6t9uXxTz3KQm1aRP+F0T2r+TfQJzrXc=\n";
+    private String SECRET_KEY = "bYfFml3KXwYj6t9uXxTz3KQm1aRP+F0T2r+TfQJzrXc=";
     private long EXPIRES_IN = 1000 * 60 * 60;
 
     public String generateJwtToken(User user) {
