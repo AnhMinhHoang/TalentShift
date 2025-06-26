@@ -1,0 +1,89 @@
+.jobListPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 2rem 0;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(66, 138, 155, 0.1);
+}
+
+.pageTitle {
+  color: #428a9b;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 1rem;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #428a9b, #266987);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: 0 4px 12px rgba(66, 138, 155, 0.3);
+}
+
+.statNumber {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.dashboardContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(66, 138, 155, 0.1);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 1.5rem;
+  }
+
+  .pageHeader .d-flex {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .statsContainer {
+    justify-content: center;
+  }
+
+  .statCard {
+    padding: 1rem;
+    min-width: 80px;
+  }
+
+  .statNumber {
+    font-size: 1.5rem;
+  }
+
+  .pageTitle {
+    font-size: 1.8rem;
+  }
+}

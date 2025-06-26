@@ -18,9 +18,8 @@ import com.ts.talentshift.Model.User;
 @Table(name = "jobs")
 @Getter
 @Setter
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"     // or "userId" for User, "id" for Skill/Job
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id" // or "userId" for User, "id"
+                                                                                          // for Skill/Job
 )
 public class Job {
     @Id
@@ -48,13 +47,13 @@ public class Job {
     private List<String> idealSkills;
 
     @ManyToMany
-//    @JsonManagedReference("job-skill")
+    // @JsonManagedReference("job-skill")
     @JoinTable(name = "job_skills", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-//    @JsonBackReference
+    // @JsonBackReference
     private JobCategory category;
 
     @ManyToOne

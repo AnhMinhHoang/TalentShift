@@ -80,19 +80,19 @@ public class UserService implements IUserService {
                     if (existingUser.getRole() != Role.FREELANCER) {
                         return null;
                     }
-                    
+
                     // Update basic freelancer fields
                     existingUser.setBio(updatedUser.getBio());
                     existingUser.setLocation(updatedUser.getLocation());
                     existingUser.setBirthDate(updatedUser.getBirthDate());
-                    
+
                     // Clear existing collections
                     existingUser.getSkills().clear();
                     existingUser.getExperiences().clear();
                     existingUser.getEducations().clear();
                     existingUser.getCertificates().clear();
                     existingUser.getLinks().clear();
-                    
+
                     // Add new items using helper methods to maintain bidirectional relationships
                     if (updatedUser.getSkills() != null) {
                         updatedUser.getSkills().forEach(skill -> {
@@ -106,7 +106,7 @@ public class UserService implements IUserService {
                             }
                         });
                     }
-                    
+
                     if (updatedUser.getExperiences() != null) {
                         updatedUser.getExperiences().forEach(experience -> {
                             // Clear and update projects for each experience
@@ -119,28 +119,28 @@ public class UserService implements IUserService {
                             existingUser.getExperiences().add(experience);
                         });
                     }
-                    
+
                     if (updatedUser.getEducations() != null) {
                         updatedUser.getEducations().forEach(education -> {
                             education.setUser(existingUser);
                             existingUser.getEducations().add(education);
                         });
                     }
-                    
+
                     if (updatedUser.getCertificates() != null) {
                         updatedUser.getCertificates().forEach(certificate -> {
                             certificate.setUser(existingUser);
                             existingUser.getCertificates().add(certificate);
                         });
                     }
-                    
+
                     if (updatedUser.getLinks() != null) {
                         updatedUser.getLinks().forEach(link -> {
                             link.setUser(existingUser);
                             existingUser.getLinks().add(link);
                         });
                     }
-                    
+
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);
@@ -176,7 +176,8 @@ public class UserService implements IUserService {
 
                         // Handle registration file upload
                         if (registrationFile != null && !registrationFile.isEmpty()) {
-                            String regFileName = UUID.randomUUID().toString() + "_" + registrationFile.getOriginalFilename();
+                            String regFileName = UUID.randomUUID().toString() + "_"
+                                    + registrationFile.getOriginalFilename();
                             Path regFilePath = uploadPath.resolve(regFileName);
                             Files.copy(registrationFile.getInputStream(), regFilePath);
                             existingUser.setRegistrationFilePath(regFileName);

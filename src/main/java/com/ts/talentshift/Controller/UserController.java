@@ -52,12 +52,12 @@ public class UserController {
             @RequestParam("contactLink") String contactLink,
             @RequestParam(value = "logo", required = false) MultipartFile logo,
             @RequestParam("registrationFile") MultipartFile registrationFile) {
-        
+
         User updatedUser = new User();
         updatedUser.setCompanyName(companyName);
         updatedUser.setDescription(description);
         updatedUser.setContactLink(contactLink);
-        
+
         User updated = userService.updateHirerProfile(userId, updatedUser, logo, registrationFile);
         if (updated != null) {
             return ResponseEntity.ok(updated);
@@ -69,4 +69,4 @@ public class UserController {
     public ResponseEntity<?> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUser());
     }
-} 
+}

@@ -22,6 +22,8 @@ public interface IUserService {
 
     // Profile update methods
     User updateBasicProfile(Long userId, User updatedUser);
+
     User updateFreelancerProfile(Long userId, User updatedUser);
+
     User updateHirerProfile(Long userId, User updatedUser, MultipartFile logo, MultipartFile registrationFile);
 }

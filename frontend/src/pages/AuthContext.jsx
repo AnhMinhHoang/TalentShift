@@ -18,17 +18,17 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       axios.get("http://localhost:8080/auth/checkUser")
-          .then((res) => setUserData(res.data))
-          .catch(() =>{
-            setUser(null);
-            setUserData(null);
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            localStorage.removeItem("userEmail");
-            localStorage.removeItem("userId");
-            delete axios.defaults.headers.common["Authorization"];
-          })
-          .finally(() => setLoading(false)); // ✅ loading complete
+        .then((res) => setUserData(res.data))
+        .catch(() => {
+          setUser(null);
+          setUserData(null);
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+          localStorage.removeItem("userEmail");
+          localStorage.removeItem("userId");
+          delete axios.defaults.headers.common["Authorization"];
+        })
+        .finally(() => setLoading(false)); // ✅ loading complete
     } else {
       setLoading(false);
     }
@@ -48,13 +48,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  const login = async (email, password) => {
+  const login = async (email, password, google = false) => {
     try {
-      const response = await axios.post("http://localhost:8080/auth/login", {
-        email,
-        password,
-      });
-
+      let response;
+      if (google) {
+        // Google login: fetch user by email
+        response = await axios.post("http://localhost:8080/auth/google-login", { email });
+      } else {
+        response = await axios.post("http://localhost:8080/auth/login", {
+          email,
+          password,
+        });
+      }
       const {
         token,
         email: userEmail,

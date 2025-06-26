@@ -20,15 +20,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "userId"     // or "userId" for User, "id" for Skill/Job
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId" // or "userId" for User,
+                                                                                              // "id" for Skill/Job
 )
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    
+
     @NaturalId
     @Column(unique = true)
     private String email;
@@ -51,7 +50,7 @@ public class User {
     private LocalDate birthDate;
 
     @ManyToMany(mappedBy = "users", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-//    @JsonManagedReference("skills")
+    // @JsonManagedReference("skills")
     private List<Skill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -75,7 +74,7 @@ public class User {
     private String contactLink;
     private String logoPath;
     private String registrationFilePath;
-    
+
     @Column(nullable = false)
     private boolean verified = false;
 

@@ -224,13 +224,13 @@ const RegisterAdditional = () => {
         };
 
         const response = await axios.put(
-            `http://localhost:8080/api/users/${userId}/freelancer`,
-            payload,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
+          `http://localhost:8080/api/users/${userId}/freelancer`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (response.status === 200) {
@@ -408,13 +408,12 @@ const RegisterAdditional = () => {
                     <StepLabel
                       icon={
                         <span
-                          className={`${styles.stepIcon} ${
-                            index < activeStep
+                          className={`${styles.stepIcon} ${index < activeStep
                               ? styles.completedStep
                               : index === activeStep
-                              ? styles.activeStep
-                              : ""
-                          }`}
+                                ? styles.activeStep
+                                : ""
+                            }`}
                         >
                           {index < activeStep ? "✔" : index + 1}
                         </span>

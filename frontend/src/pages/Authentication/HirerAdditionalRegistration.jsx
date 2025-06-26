@@ -12,7 +12,7 @@ import {
 import HirerCompanyStep from "./components/HirerCompanyStep";
 import styles from "./styles/RegisterAdditional.module.css";
 import axios from "axios";
-import {  useAuth } from "../AuthContext.jsx";
+import { useAuth } from "../AuthContext.jsx";
 
 const HirerAdditionalRegistration = () => {
   const navigate = useNavigate();
