@@ -4,7 +4,6 @@ import styles from "./styles/Auth.module.css";
 import { useAuth } from "../AuthContext";
 import { notification } from "antd";
 import {useGoogleLogin} from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import axios from "axios";
 
 export default function Register() {
@@ -131,8 +130,12 @@ export default function Register() {
 
   const handleGoogleRegisterSuccess = async (credentialResponse) => {
     try {
-      const decoded = jwtDecode(credentialResponse.credential);
-      const email = decoded.email;
+      const userInfo = await axios
+          .get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${credentialResponse.access_token}` },
+          })
+          .then(res => res.data);
+      const email = userInfo.email;
       // Check if user exists in backend
       const response = await axios.post('http://localhost:8080/auth/google-check', { email });
       const data = await response.data;
@@ -142,10 +145,10 @@ export default function Register() {
         navigate('/');
       } else {
         const payload = {
-          email: decoded.email,
-          password: null,
+          email: userInfo.email,
+          password: "",
           role: formData.userType,
-          fullName: `${decoded.given_name || ''} ${decoded.family_name || ''}`.trim(),
+          fullName: `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim(),
         };
         await register(
             payload.email,

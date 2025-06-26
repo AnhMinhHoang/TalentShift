@@ -102,6 +102,20 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
+    @PostMapping("/google-check")
+    public ResponseEntity<Map<String, Object>> googleCheck(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        Map<String, Object> response = new HashMap<>();
+        if (email == null) {
+            response.put("exists", false);
+            response.put("error", "Email required");
+            return ResponseEntity.badRequest().body(response);
+        }
+        boolean exists = userService.findByEmail(email).isPresent();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/google-login")
     public ResponseEntity<Map<String, Object>> googleLogin(@RequestBody Map<String, String> request) {
         String email = request.get("email");

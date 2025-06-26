@@ -4,7 +4,6 @@ import styles from "./styles/Auth.module.css";
 import { useAuth } from "../AuthContext";
 import { notification } from "antd";
 import { useGoogleLogin  } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import { Modal } from 'antd';
 import axios from "axios";
 
@@ -70,8 +69,15 @@ export default function Login() {
 
   const handleGoogleLoginSuccess = async (credentialResponse) => {
     try {
-      const decoded = jwtDecode(credentialResponse.credential);
-      const email = decoded.email;
+      const userInfo = await axios
+          .get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${credentialResponse.access_token}` },
+          })
+          .then(res => res.data);
+
+      console.log(userInfo.email);
+
+      const email = userInfo.email;
       const response = await axios.post('http://localhost:8080/auth/google-check', { email });
       const data = await response.data;
       if (data.exists) {
@@ -79,7 +85,7 @@ export default function Login() {
         openNotification('success', 'Login successful!', 'top', 'Redirecting to Homepage!');
         navigate('/');
       } else {
-        setGoogleUser(decoded);
+        setGoogleUser(userInfo);
         setRoleModalVisible(true);
       }
     } catch (error) {
@@ -92,7 +98,7 @@ export default function Login() {
       const payload = {
         fullName: `${googleUser.given_name || ''} ${googleUser.family_name || ''}`.trim(),
         email: googleUser.email,
-        password: null,
+        password: "",
         role: selectedRole,
       };
       await register(
