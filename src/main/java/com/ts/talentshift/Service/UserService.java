@@ -222,4 +222,15 @@ public class UserService implements IUserService {
     public void addUserBalance(User user, BigDecimal amount) {
         user.setBalance(user.getBalance().add(amount));
     }
+
+    @Override
+    public User proPurchase(Long userId) {
+        return userRepository.findById(userId)
+                .map(existingUser -> {
+                    existingUser.setPremium(true);
+                    existingUser.setBalance(existingUser.getBalance().subtract(BigDecimal.valueOf(200000)));
+                    return userRepository.save(existingUser);
+                })
+                .orElse(null);
+    }
 }

@@ -26,4 +26,6 @@ public interface IUserService {
     User updateFreelancerProfile(Long userId, User updatedUser);
 
     User updateHirerProfile(Long userId, User updatedUser, MultipartFile logo, MultipartFile registrationFile);
+
+    User proPurchase(Long userId);
 }

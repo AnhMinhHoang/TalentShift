@@ -69,4 +69,13 @@ public class UserController {
     public ResponseEntity<?> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUser());
     }
+
+    @PostMapping("/pro-purchase")
+    public ResponseEntity<?> proPurchase(@RequestParam("userId") Long userId) {
+        User updatedUser = userService.proPurchase(userId);
+        if (updatedUser != null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
