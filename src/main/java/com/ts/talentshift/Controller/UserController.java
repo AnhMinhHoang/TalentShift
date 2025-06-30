@@ -1,20 +1,24 @@
 package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.Model.User;
-import com.ts.talentshift.Service.IUserService;
+import com.ts.talentshift.Service.FreelancerService;
+import com.ts.talentshift.Service.HirerService;
+import com.ts.talentshift.Service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private final IUserService userService;
+    private final UserService userService;
+    private final FreelancerService freelancerService;
+    private final HirerService hirerService;
 
-    public UserController(IUserService userService) {
+    public UserController(UserService userService, FreelancerService freelancerService, HirerService hirerService) {
         this.userService = userService;
+        this.freelancerService = freelancerService;
+        this.hirerService = hirerService;
     }
 
     @GetMapping("/{userId}")
@@ -37,7 +41,7 @@ public class UserController {
 
     @PutMapping("/{userId}/freelancer")
     public ResponseEntity<User> updateFreelancerProfile(@PathVariable Long userId, @RequestBody User updatedUser) {
-        User updated = userService.updateFreelancerProfile(userId, updatedUser);
+        User updated = freelancerService.updateFreelancerProfile(userId, updatedUser);
         if (updated != null) {
             return ResponseEntity.ok(updated);
         }
@@ -58,7 +62,7 @@ public class UserController {
         updatedUser.setDescription(description);
         updatedUser.setContactLink(contactLink);
 
-        User updated = userService.updateHirerProfile(userId, updatedUser, logo, registrationFile);
+        User updated = hirerService.updateHirerProfile(userId, updatedUser, logo, registrationFile);
         if (updated != null) {
             return ResponseEntity.ok(updated);
         }
@@ -74,7 +78,7 @@ public class UserController {
     public ResponseEntity<?> proPurchase(@RequestParam("userId") Long userId) {
         User updatedUser = userService.proPurchase(userId);
         if (updatedUser != null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(updatedUser);
         }
         return ResponseEntity.notFound().build();
     }

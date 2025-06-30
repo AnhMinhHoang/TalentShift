@@ -2,8 +2,8 @@ package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.Model.Transaction;
 import com.ts.talentshift.Model.User;
-import com.ts.talentshift.Service.IUserService;
 import com.ts.talentshift.Service.MoMoService;
+import com.ts.talentshift.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +17,9 @@ import java.util.Optional;
 @RequestMapping("/api/momo")
 public class MoMoPaymentController {
     private final MoMoService moMoService;
-    private final IUserService userService;
+    private final UserService userService;
 
-    public MoMoPaymentController(MoMoService moMoService, IUserService userService) {
+    public MoMoPaymentController(MoMoService moMoService, UserService userService) {
         this.moMoService = moMoService;
         this.userService = userService;
     }

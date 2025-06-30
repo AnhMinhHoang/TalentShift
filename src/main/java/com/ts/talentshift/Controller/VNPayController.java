@@ -3,7 +3,7 @@ package com.ts.talentshift.Controller;
 import com.ts.talentshift.Model.Transaction;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.TransactionRepository;
-import com.ts.talentshift.Service.IUserService;
+import com.ts.talentshift.Service.UserService;
 import com.ts.talentshift.Service.VNPayService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +20,10 @@ import java.util.Optional;
 @RequestMapping("/api/vnpay")
 public class VNPayController {
     private final VNPayService vnpayService;
-    private final IUserService userService;
+    private final UserService userService;
     private final TransactionRepository transactionRepository;
 
-    public VNPayController(VNPayService vnpayService, IUserService userService, TransactionRepository transactionRepository) {
+    public VNPayController(VNPayService vnpayService, UserService userService, TransactionRepository transactionRepository) {
         this.vnpayService = vnpayService;
         this.userService = userService;
         this.transactionRepository = transactionRepository;

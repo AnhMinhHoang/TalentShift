@@ -51,9 +51,9 @@ public class MoMoService {
 
     private final TransactionRepository transactionRepository;
     private final RestTemplate restTemplate;
-    private final IUserService userService;
+    private final UserService userService;
 
-    public MoMoService(TransactionRepository transactionRepository, RestTemplate restTemplate, IUserService userService) {
+    public MoMoService(TransactionRepository transactionRepository, RestTemplate restTemplate, UserService userService) {
         this.transactionRepository = transactionRepository;
         this.restTemplate = restTemplate;
         this.userService = userService;

@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "proxy": "http://localhost:8080",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,12 +11,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^6.4.8",
-    "@mui/material": "^6.4.8",
-    "@mui/x-date-pickers": "^7.28.0",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -40,6 +35,7 @@
     "react-bootstrap": "^2.10.9",
     "react-bootstrap-icons": "^1.11.5",
     "react-dom": "^19.0.0",
+    "react-easy-crop": "^5.4.2",
     "react-icons": "^5.5.0",
     "react-particles": "^2.12.2",
     "react-router-dom": "^7.2.0",
@@ -52,13 +48,11 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.21",
-    "autoprefixer": "^10.4.21",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
-    "sass-embedded": "^1.85.1",
     "sass-embedded": "^1.85.1",
     "vite": "^6.1.0"
   },

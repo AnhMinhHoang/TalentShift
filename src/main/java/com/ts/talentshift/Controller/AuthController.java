@@ -2,12 +2,11 @@ package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Security.JwtUtil;
-import com.ts.talentshift.Service.IUserService;
 
+import com.ts.talentshift.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
@@ -18,11 +17,11 @@ import java.util.Map;
 @RequestMapping("/auth")
 
 public class AuthController {
-    private final IUserService userService;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public AuthController(IUserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthController(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;

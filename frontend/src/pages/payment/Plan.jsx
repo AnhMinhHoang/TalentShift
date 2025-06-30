@@ -10,7 +10,7 @@ const plans = [
   {
     id: 1,
     name: "Free",
-    price: "0.00VND",
+    price: "0.00₫",
     period: "Forever",
     description: "Start for free, no credit card needed.",
     features: [
@@ -25,7 +25,7 @@ const plans = [
   {
     id: 2,
     name: "Premium",
-    price: "200.000VND",
+    price: "200.000₫",
     period: "/ month",
     description: "Unlock the full capabilities and enjoy new perks as they are added.",
     features: [
@@ -43,7 +43,7 @@ const plans = [
 ]
 
 const Plan = () => {
-  const { userData, getUserById } = useAuth()
+  const { userData, setUserData } = useAuth()
   const navigate = useNavigate()
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
@@ -78,20 +78,20 @@ const Plan = () => {
       setShowConfirmModal(false)
       setShowInsufficientModal(true)
       setIsProcessing(false)
-      openNotification('warning', 'Insufficient Balance', 'topRight', 'You need 200,000 to upgrade to Pro.')
+      openNotification('warning', 'Insufficient Balance', 'topRight', 'You need 200,000₫ to upgrade to Pro.')
       return
     }
 
     try {
       // Call API to purchase pro
-      await axios.post('http://localhost:8080/api/users/pro-purchase', null, {
+      const response = await axios.post('http://localhost:8080/api/users/pro-purchase', null, {
         params: {
           userId: userData?.userId
         }
       })
 
       // Success - update user data and show success modal
-      await getUserById(userData?.userId)
+      setUserData(response.data)
       setShowConfirmModal(false)
       setShowSuccessModal(true)
       openNotification('success', 'Welcome to Pro!', 'topRight', 'You have successfully upgraded to TalentShift Pro.')
@@ -252,8 +252,8 @@ const Plan = () => {
               }}>
                 <h3 style={{ color: '#266987', marginBottom: 16, fontWeight: 700 }}>Confirm Purchase</h3>
                 <p style={{ color: '#666', marginBottom: 24 }}>
-                  Are you sure you want to upgrade to Pro for 200.000VND?
-                  This will deduct 200,000 from your balance.
+                  Are you sure you want to upgrade to Pro for 200.000₫?
+                  This will deduct 200,000₫ from your balance.
                 </p>
                 <p style={{ color: '#888', fontSize: 14, marginBottom: 24 }}>
                   Current Balance: {userData?.balance?.toLocaleString() || 0}
@@ -376,7 +376,7 @@ const Plan = () => {
               }}>
                 <h3 style={{ color: '#e74c3c', marginBottom: 16, fontWeight: 700 }}>Insufficient Balance</h3>
                 <p style={{ color: '#666', marginBottom: 16 }}>
-                  You don't have enough balance to purchase Pro. You need 200,000 but your current balance is {userData?.balance?.toLocaleString() || 0}.
+                  You don't have enough balance to purchase Pro. You need 200,000₫ but your current balance is {userData?.balance?.toLocaleString() || 0}.
                 </p>
                 <p style={{ color: '#888', fontSize: 14, marginBottom: 24 }}>
                   Would you like to top up your balance?

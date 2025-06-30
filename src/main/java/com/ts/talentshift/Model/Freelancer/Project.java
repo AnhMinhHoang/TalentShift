@@ -1,5 +1,6 @@
 package com.ts.talentshift.Model.Freelancer;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +29,6 @@ public class Project {
 
     @ManyToOne
     @JoinColumn(name = "experienceId")
+    @JsonBackReference
     private Experience experience;
 }

@@ -1,0 +1,106 @@
+package com.ts.talentshift.Controller;
+
+import com.ts.talentshift.DTO.Freelancer.FreelancerSideBarUpdateDTO;
+import com.ts.talentshift.Model.User;
+import com.ts.talentshift.Repository.UserRepository;
+import com.ts.talentshift.Service.FreelancerService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/freelancers")
+public class FreelancerController {
+    private final FreelancerService freelancerService;
+    private final UserRepository userRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+    public FreelancerController(FreelancerService freelancerService, UserRepository userRepository) {
+        this.freelancerService = freelancerService;
+        this.userRepository = userRepository;
+    }
+
+    @PutMapping("/sidebar/{userId}")
+    public ResponseEntity<User> updateFreelancerSideBar(
+            @PathVariable Long userId,
+            @ModelAttribute FreelancerSideBarUpdateDTO dto,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile) {
+
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            try {
+//                deleteOldAvatar(userId); // Clean up old avatar if exists
+                String avatarPath = saveAvatarFile(avatarFile);
+                dto.setAvatar(avatarPath); // Set the new avatar path
+            } catch (IOException e) {
+                return ResponseEntity.status(500).build(); // Internal server error if file save fails
+            }
+        } else {
+            // If no new avatar is uploaded, retain the existing one
+            Optional<User> existingUser = userRepository.findById(userId);
+            if (existingUser.isPresent()) {
+                dto.setAvatar(existingUser.get().getAvatar());
+            } else {
+                dto.setAvatar(null); // Or handle as needed
+            }
+        }
+
+        User updated = freelancerService.updateFreelancerSideBar(userId, dto);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    private String saveAvatarFile(MultipartFile file) throws IOException {
+        String subDir = "/freelancer/avatar";
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path uploadPath = Paths.get(uploadDir, subDir);
+
+        // Ensure the directory exists
+        try {
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create upload directory", e);
+        }
+
+        // Save the file
+        Path filePath = uploadPath.resolve(fileName);
+        file.transferTo(filePath);
+
+        // Return the relative path for frontend access
+        return "/uploads" + subDir + "/" + fileName; // e.g., /uploads/freelancer/avatar/avatar_123.jpg
+    }
+
+    private void deleteOldAvatar(Long userId) {
+        try {
+            // Find existing user to get old avatar path
+            userRepository.findById(userId).ifPresent(user -> {
+                if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+                    try {
+                        Path oldAvatarPath = Paths.get(user.getAvatar());
+                        if (Files.exists(oldAvatarPath)) {
+                            Files.delete(oldAvatarPath);
+                        }
+                    } catch (IOException e) {
+                        // Log warning but don't throw - old file cleanup is not critical
+                        System.err.println("Warning: Could not delete old avatar file: " + e.getMessage());
+                    }
+                }
+            });
+        } catch (Exception e) {
+            // Log warning but don't throw - old file cleanup is not critical
+            System.err.println("Warning: Error during old avatar cleanup: " + e.getMessage());
+        }
+    }
+}

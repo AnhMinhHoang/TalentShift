@@ -35,9 +35,9 @@ public class VNPayService {
     private String vnpReturnUrl;
 
     private final TransactionRepository transactionRepository;
-    private final IUserService userService;
+    private final UserService userService;
 
-    public VNPayService(TransactionRepository transactionRepository, IUserService userService) {
+    public VNPayService(TransactionRepository transactionRepository, UserService userService) {
         this.transactionRepository = transactionRepository;
         this.userService = userService;
     }

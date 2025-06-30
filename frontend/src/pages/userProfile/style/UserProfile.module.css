@@ -3,9 +3,9 @@
   }
   
   .skillBadge {
-    background-color: #f8f9fa;
+    background-color: #e9edef;
     color: #212529;
-    font-weight: normal;
+    font-weight: bold;
     padding: 0.5rem 0.75rem;
     border-radius: 0.25rem;
   }
