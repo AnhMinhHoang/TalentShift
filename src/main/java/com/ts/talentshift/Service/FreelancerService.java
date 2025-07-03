@@ -5,17 +5,21 @@ import com.ts.talentshift.DTO.Freelancer.LinkDTO;
 import com.ts.talentshift.Enums.Role;
 import com.ts.talentshift.Model.Freelancer.*;
 import com.ts.talentshift.Model.User;
+import com.ts.talentshift.Repository.SkillRepository;
 import com.ts.talentshift.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class FreelancerService {
     private final UserRepository userRepository;
+    private final SkillRepository skillRepository;
 
-    public FreelancerService(UserRepository userRepository) {
+    public FreelancerService(UserRepository userRepository, SkillRepository skillRepository) {
         this.userRepository = userRepository;
+        this.skillRepository = skillRepository;
     }
 
     public User updateFreelancerSideBar(Long userId, FreelancerSideBarUpdateDTO dto) {
@@ -108,15 +112,13 @@ public class FreelancerService {
                 .orElse(null);
     }
 
-    public User updateFreelancerBasicInfo(Long userId, User updatedUser) {
+    public User updateFreelancerBio(Long userId, String bio) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
                     if (existingUser.getRole() != Role.FREELANCER) {
                         return null;
                     }
-                    existingUser.setBio(updatedUser.getBio());
-                    existingUser.setLocation(updatedUser.getLocation());
-                    existingUser.setBirthDate(updatedUser.getBirthDate());
+                    existingUser.setBio(bio);
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);
@@ -128,17 +130,38 @@ public class FreelancerService {
                     if (existingUser.getRole() != Role.FREELANCER) {
                         return null;
                     }
-                    existingUser.getSkills().clear();
-                    if (updatedSkills != null) {
-                        updatedSkills.forEach(skill -> {
-                            if (!skill.getUsers().contains(existingUser)) {
-                                skill.getUsers().add(existingUser);
-                            }
-                            if (!existingUser.getSkills().contains(skill)) {
-                                existingUser.getSkills().add(skill);
-                            }
-                        });
+
+                    // Step 1: Remove user from existing skills' users lists to sync the relationship
+                    for (Skill skill : new ArrayList<>(existingUser.getSkills())) {
+                        skill.getUsers().remove(existingUser);
                     }
+                    existingUser.getSkills().clear();
+
+                    // Step 2: Process updated skills
+                    if (updatedSkills != null) {
+                        for (Skill updatedSkill : updatedSkills) {
+                            // Find existing skill by name and type
+                            Skill existingSkill = skillRepository.findBySkillNameAndSkillType(
+                                    updatedSkill.getSkillName(), updatedSkill.getSkillType());
+                            if (existingSkill == null) {
+                                // If not found, create a new skill
+                                existingSkill = new Skill();
+                                existingSkill.setSkillName(updatedSkill.getSkillName());
+                                existingSkill.setSkillType(updatedSkill.getSkillType());
+                                existingSkill.setUsers(new ArrayList<>()); // Initialize users list
+                            }
+
+                            // Add skill to user and user to skill, avoiding duplicates
+                            if (!existingUser.getSkills().contains(existingSkill)) {
+                                existingUser.getSkills().add(existingSkill);
+                            }
+                            if (!existingSkill.getUsers().contains(existingUser)) {
+                                existingSkill.getUsers().add(existingUser);
+                            }
+                        }
+                    }
+
+                    // Step 3: Save the user (cascades to skills due to PERSIST and MERGE)
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);

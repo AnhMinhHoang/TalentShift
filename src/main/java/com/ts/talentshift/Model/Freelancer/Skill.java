@@ -20,7 +20,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "skills")
+@Table(name = "skills", uniqueConstraints = @UniqueConstraint(columnNames = {"skillName", "skillType"}))
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"     // or "userId" for User, "id" for Skill/Job

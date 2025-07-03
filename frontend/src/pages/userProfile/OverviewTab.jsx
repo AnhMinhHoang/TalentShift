@@ -10,6 +10,8 @@ import { SkillsSection } from "./OverviewComponent/SkillsSection";
 import { ExperienceSection } from "./OverviewComponent/ExperienceSection";
 import { EducationSection } from "./OverviewComponent/EducationSection";
 import { CertificateSection } from "./OverviewComponent/CertificateSection";
+import axios from "axios";
+import { notification } from "antd";
 
 const OverviewTab = ({ userData, setUserData }) => {
     const [activeModal, setActiveModal] = useState(null);
@@ -20,13 +22,21 @@ const OverviewTab = ({ userData, setUserData }) => {
     const [educations, setEducations] = useState([]);
     const [certificates, setCertificates] = useState([]);
 
-    // Function to format dates from "YYYY-MM-DD" to "MM-YY"
-    const formatDate = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = String(date.getFullYear()).slice(2);
-        return `${month}-${year}`;
+    const openNotification = (type, message, placement, description) => {
+        notification[type]({
+            message,
+            description,
+            placement,
+            duration: 3,
+            showProgress: true,
+            pauseOnHover: true,
+        });
+    };
+
+    const formatDateArray = ([year, month, day]) => {
+        const formattedMonth = String(month).padStart(2, "0");
+        const formattedDay = String(day).padStart(2, "0");
+        return `${year}-${formattedMonth}-${formattedDay}`;
     };
 
     // Sync state with userData when it changes
@@ -50,8 +60,8 @@ const OverviewTab = ({ userData, setUserData }) => {
                 id: exp.expId,
                 position: exp.jobPosition,
                 company: exp.companyName,
-                startDate: formatDate(exp.startDate),
-                endDate: exp.currentlyWork ? "Now" : formatDate(exp.endDate),
+                startDate: Array.isArray(exp.startDate) ? formatDateArray(exp.startDate) : exp.startDate, // Keep original format
+                endDate: exp.currentlyWork ? "Now" : Array.isArray(exp.endDate) ? formatDateArray(exp.endDate) : exp.endDate, // Keep "Now" or original format
                 description: exp.jobDescription,
                 projects: exp.projects.map((proj) => ({
                     id: proj.projectId,
@@ -67,8 +77,8 @@ const OverviewTab = ({ userData, setUserData }) => {
                 id: edu.educationId,
                 school: edu.schoolName,
                 major: edu.majorName,
-                startDate: formatDate(edu.startDate),
-                endDate: edu.currentlyStudy ? "Now" : formatDate(edu.endDate),
+                startDate: Array.isArray(edu.startDate) ? formatDateArray(edu.startDate) : edu.startDate, // Keep original format
+                endDate: edu.currentlyWork ? "Now" : Array.isArray(edu.endDate) ? formatDateArray(edu.endDate) : edu.endDate, // Keep "Now" or original format
                 description: edu.description,
             }));
             setEducations(educations);
@@ -77,7 +87,7 @@ const OverviewTab = ({ userData, setUserData }) => {
             const certificates = userData.certificates.map((cert) => ({
                 id: cert.certificateId,
                 name: cert.certificateName,
-                issueDate: formatDate(cert.certificateDate),
+                issueDate: Array.isArray(cert.certificateDate) ? formatDateArray(cert.certificateDate) : cert.certificateDate, // Keep original format
                 score: cert.achievement,
                 description: cert.certificateDescription,
             }));
@@ -89,30 +99,112 @@ const OverviewTab = ({ userData, setUserData }) => {
     const openModal = (modalName) => setActiveModal(modalName);
     const closeModal = () => setActiveModal(null);
 
-    const updateSummary = (newSummary) => {
-        setSummary(newSummary);
-        closeModal();
+    const updateSummary = async (newSummary) => {
+        try {
+            const response = await axios.put(`http://localhost:8080/api/freelancers/bio/${userData.userId}`, newSummary, {
+                headers: {
+                    "Content-Type": "text/plain",
+                },
+            });
+            setUserData(response.data);
+            openNotification("success", "Summary Updated", "topRight", "Your summary has been updated successfully.");
+            closeModal();
+        } catch (error) {
+            console.error("Failed to update summary:", error);
+            openNotification("error", "Update Failed", "topRight", "There was an error updating your summary.");
+        }
     };
 
-    const updateSkills = (newMainSkills, newOtherSkills) => {
-        setMainSkills(newMainSkills);
-        setOtherSkills(newOtherSkills);
-        closeModal();
+    const updateSkills = async (MainSkills, OtherSkills) => {
+        try {
+            const payload = [
+                ...MainSkills.map((skill) => ({
+                    skillName: skill,
+                    skillType: "MAIN",
+                })),
+                ...OtherSkills.map((skill) => ({
+                    skillName: skill,
+                    skillType: "ADDITIONAL",
+                })),
+            ];
+
+            const response = await axios.put(`http://localhost:8080/api/freelancers/skills/${userData.userId}`, payload);
+            setUserData(response.data);
+            openNotification("success", "Skills Updated", "topRight", "Your skills have been updated successfully.");
+            closeModal();
+        } catch (error) {
+            console.error("Failed to update skills:", error);
+            openNotification("error", "Update Failed", "topRight", "There was an error updating your skills.");
+        }
     };
 
-    const updateExperiences = (newExperiences) => {
-        setWorkExperiences(newExperiences);
-        closeModal();
+    const updateExperiences = async (newExperiences) => {
+        try {
+            const payload = newExperiences.map((exp) => ({
+                jobPosition: exp.position,
+                companyName: exp.company,
+                startDate: exp.startDate, // Use original format
+                endDate: exp.endDate === "Now" ? null : exp.endDate,
+                currentlyWork: exp.endDate === "Now",
+                jobDescription: exp.description,
+                projects: exp.projects.map((proj) => ({
+                    projectName: proj.name,
+                    projectTime: proj.time,
+                    projectDescription: proj.description,
+                })),
+            }));
+
+            const response = await axios.put(`http://localhost:8080/api/freelancers/experience/${userData.userId}`, payload);
+            setUserData(response.data);
+            openNotification("success", "Experience Updated", "topRight", "Your experience has been updated successfully.");
+            closeModal();
+            return response.data;
+        } catch (error) {
+            console.error("Error updating experiences:", error);
+            openNotification("error", "Update Failed", "topRight", "There was an error updating your experiences.");
+        }
     };
 
-    const updateEducations = (newEducations) => {
-        setEducations(newEducations);
-        closeModal();
+    const updateEducations = async (newEducations) => {
+        try {
+            const payload = newEducations.map((edu) => ({
+                schoolName: edu.school,
+                majorName: edu.major,
+                startDate: edu.startDate, // Use original format
+                endDate: edu.endDate === "Now" ? null : edu.endDate,
+                currentlyStudy: edu.endDate === "Now",
+                description: edu.description,
+            }));
+
+            const response = await axios.put(`http://localhost:8080/api/freelancers/education/${userData.userId}`, payload);
+            setUserData(response.data);
+            openNotification("success", "Education Updated", "topRight", "Your education has been updated successfully.");
+            closeModal();
+        } catch (error) {
+            console.error("Failed to update educations:", error);
+            openNotification("error", "Update Failed", "topRight", "There was an error updating your educations.");
+        }
     };
 
     const updateCertificates = (newCertificates) => {
-        setCertificates(newCertificates);
-        closeModal();
+        const payload = newCertificates.map((cert) => ({
+            certificateName: cert.name,
+            certificateDate: cert.issueDate, // Use original format
+            achievement: cert.score,
+            certificateDescription: cert.description,
+        }));
+
+        axios
+            .put(`http://localhost:8080/api/freelancers/certification/${userData.userId}`, payload)
+            .then((response) => {
+                setUserData(response.data);
+                openNotification("success", "Certificates Updated", "topRight", "Your certificates have been updated successfully.");
+                closeModal();
+            })
+            .catch((error) => {
+                console.error("Failed to update certificates:", error);
+                openNotification("error", "Update Failed", "topRight", "There was an error updating your certificates.");
+            });
     };
 
     return (
@@ -126,15 +218,9 @@ const OverviewTab = ({ userData, setUserData }) => {
                         onEdit={() => openModal("skills")}
                         styles={styles}
                     />
-                    <ExperienceSection
-                        workExperiences={workExperiences}
-                        onEdit={() => openModal("experience")}
-                    />
+                    <ExperienceSection workExperiences={workExperiences} onEdit={() => openModal("experience")} />
                     <EducationSection educations={educations} onEdit={() => openModal("education")} />
-                    <CertificateSection
-                        certificates={certificates}
-                        onEdit={() => openModal("certificate")}
-                    />
+                    <CertificateSection certificates={certificates} onEdit={() => openModal("certificate")} />
                 </div>
             </div>
 

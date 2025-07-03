@@ -1,4 +1,4 @@
-package com.ts.talentshift.Dto.Job;
+package com.ts.talentshift.DTO.Job;
 
 import lombok.Getter;
 import lombok.Setter;

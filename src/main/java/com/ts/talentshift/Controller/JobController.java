@@ -1,6 +1,6 @@
 package com.ts.talentshift.Controller;
 
-import com.ts.talentshift.Dto.Job.JobRequestDto;
+import com.ts.talentshift.DTO.Job.JobRequestDto;
 import com.ts.talentshift.Model.Job.Job;
 import com.ts.talentshift.Model.Job.JobCategory;
 import com.ts.talentshift.Service.JobService;

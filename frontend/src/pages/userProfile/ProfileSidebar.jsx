@@ -8,7 +8,7 @@ const ProfileSidebar = ({ userData, setUserData }) => {
     const [showCropModal, setShowCropModal] = useState(false);
 
     const formatDateArray = (arr) => {
-        if (!Array.isArray(arr) || arr.length !== 3) return "05-06-2024";
+        if (!Array.isArray(arr) || arr.length !== 3) return "";
         const [year, month, day] = arr;
         const paddedMonth = String(month).padStart(2, "0");
         const paddedDay = String(day).padStart(2, "0");

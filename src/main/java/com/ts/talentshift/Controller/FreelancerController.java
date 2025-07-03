@@ -1,6 +1,10 @@
 package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.DTO.Freelancer.FreelancerSideBarUpdateDTO;
+import com.ts.talentshift.Model.Freelancer.Certificate;
+import com.ts.talentshift.Model.Freelancer.Education;
+import com.ts.talentshift.Model.Freelancer.Experience;
+import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.UserRepository;
 import com.ts.talentshift.Service.FreelancerService;
@@ -13,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -54,6 +59,62 @@ public class FreelancerController {
         }
 
         User updated = freelancerService.updateFreelancerSideBar(userId, dto);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/bio/{userId}")
+    public ResponseEntity<User> updateFreelancerBio(
+            @PathVariable Long userId,
+            @RequestBody String bio) {
+
+        User updated = freelancerService.updateFreelancerBio(userId, bio);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/skills/{userId}")
+    public ResponseEntity<User> updateFreelancerSkills(
+            @PathVariable Long userId,
+            @RequestBody List<Skill> skills) {
+        User updated = freelancerService.updateFreelancerSkills(userId, skills);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/experience/{userId}")
+    public ResponseEntity<User> updateFreelancerExperiences(
+            @PathVariable Long userId,
+            @RequestBody List<Experience> experiences) {
+        User updated = freelancerService.updateFreelancerExperiences(userId, experiences);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("education/{userId}")
+    public ResponseEntity<User> updateFreelancerEducation(
+            @PathVariable Long userId,
+            @RequestBody List<Education> education) {
+        User updated = freelancerService.updateFreelancerEducations(userId, education);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("certification/{userId}")
+    public ResponseEntity<User> updateFreelancerCertification(
+            @PathVariable Long userId,
+            @RequestBody List<Certificate> certifications) {
+        User updated = freelancerService.updateFreelancerCertificates(userId, certifications);
         if (updated != null) {
             return ResponseEntity.ok(updated);
         }

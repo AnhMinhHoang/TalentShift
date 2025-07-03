@@ -1,6 +1,6 @@
 package com.ts.talentshift.Service;
 
-import com.ts.talentshift.Dto.Job.JobRequestDto;
+import com.ts.talentshift.DTO.Job.JobRequestDto;
 import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Model.Job.Job;
 import com.ts.talentshift.Model.Job.JobCategory;

@@ -2,37 +2,51 @@ import React from "react";
 import { CustomSection } from "../../../components/Section/CustomSection";
 
 export const ExperienceSection = ({ workExperiences, onEdit }) => {
+    const hasExperiences = workExperiences && workExperiences.length > 0;
+
+    const formatDate = (dateString) => {
+        if (!dateString || dateString === "Now") return "Now";
+        const date = new Date(dateString);
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = String(date.getFullYear()).slice(2);
+        return `${month}-${year}`;
+    };
+
     return (
         <CustomSection title="Work Experience" onEdit={onEdit}>
-            {workExperiences.map((experience) => (
-                <div className="mb-4" key={experience.id}>
-                    <div className="row">
-                        <div className="col-md-3">
-                            <p className="mb-1">
-                                {experience.startDate} - {experience.endDate}
-                            </p>
-                        </div>
-                        <div className="col-md-9">
-                            <h6 className="mb-1">
-                                {experience.position} at {experience.company}
-                            </h6>
-                            <p className="text-muted small mb-2">{experience.description}</p>
-                            {experience.projects && experience.projects.length > 0 && (
-                                <div className="mt-2 mb-2">
-                                    <h6 className="small">Projects:</h6>
-                                    <ul className="list-unstyled ps-3">
-                                        {experience.projects.map((project) => (
-                                            <li key={project.id} className="small text-muted">
-                                                {project.name} ({project.time})
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+            {hasExperiences ? (
+                workExperiences.map((experience) => (
+                    <div className="mb-4" key={experience.id}>
+                        <div className="row">
+                            <div className="col-md-3">
+                                <p className="mb-1">
+                                    {formatDate(experience.startDate)} - {formatDate(experience.endDate)}
+                                </p>
+                            </div>
+                            <div className="col-md-9">
+                                <h6 className="mb-1">
+                                    {experience.position} at {experience.company}
+                                </h6>
+                                <p className="text-muted small mb-2">{experience.description}</p>
+                                {experience.projects && experience.projects.length > 0 && (
+                                    <div className="mt-2 mb-2">
+                                        <h6 className="small">Projects:</h6>
+                                        <ul className="list-unstyled ps-3">
+                                            {experience.projects.map((project) => (
+                                                <li key={project.id} className="small text-muted">
+                                                    {project.name} ({project.time})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                ))
+            ) : (
+                <p className="text-muted fs-5 fst-italic">No work experience added yet. Click edit to add your professional experience.</p>
+            )}
         </CustomSection>
     );
 };
