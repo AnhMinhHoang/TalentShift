@@ -110,24 +110,32 @@ const DraftJobPostList = () => {
         }
     }
 
-    const handlePost = async (id) => {
-        try {
-            await publishDraftJob(id);
+    const handlePost = (id) => {
+        Modal.confirm({
+            title: "Confirm Publish",
+            content: "Are you sure you want to publish this job post? It will become visible to freelancers.",
+            okText: "Yes, Publish",
+            cancelText: "Cancel",
+            onOk: async () => {
+                try {
+                    await publishDraftJob(id);
 
-            setDraftPosts(prevDrafts => prevDrafts.filter(post => post.id !== id));
+                    setDraftPosts(prevDrafts => prevDrafts.filter(post => post.id !== id));
 
-            notification.success({
-                message: "Job Posted",
-                description: "Your job post has been successfully published.",
-                placement: "topRight",
-            });
-        } catch (error) {
-            notification.error({
-                message: "Publish Failed",
-                description: error.message || "Failed to publish job post.",
-                placement: "topRight",
-            });
-        }
+                    notification.success({
+                        message: "Job Posted",
+                        description: "Your job post has been successfully published.",
+                        placement: "topRight",
+                    });
+                } catch (error) {
+                    notification.error({
+                        message: "Publish Failed",
+                        description: error.message || "Failed to publish job post.",
+                        placement: "topRight",
+                    });
+                }
+            },
+        });
     };
 
     const handleEdit = (id) => {

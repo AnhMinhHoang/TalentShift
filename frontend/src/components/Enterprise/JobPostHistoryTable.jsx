@@ -127,34 +127,43 @@ const JobPostHistoryTable = () => {
         setEditModalVisible(true);
     };
 
-    const handleSaveJob = async (values) => {
-        try {
-            const jobId = editingJob.id;
+    const handleSaveJob = (values) => {
+        Modal.confirm({
+            title: "Confirm Job Update",
+            content: "Updating this job will set it back to draft. Do you want to continue?",
+            okText: "Yes, Update",
+            cancelText: "Cancel",
+            onOk: async () => {
+                try {
+                    const jobId = editingJob.id;
 
-            const jobData = {
-                ...values,
-                id: jobId,
-                expiredAt: values.expiredAt ? values.expiredAt.toISOString() : null,
-            };
+                    const jobData = {
+                        ...values,
+                        id: jobId,
+                        publishStatus: "DRAFT", // 🔁 Explicitly set back to draft
+                        expiredAt: values.expiredAt ? values.expiredAt.toISOString() : null,
+                    };
 
-            const updated = await updateJob(jobId, jobData); // ✅ API call
+                    const updated = await updateJob(jobId, jobData);
 
-            setEditModalVisible(false);
-            await loadJobs(); // Reload jobs after update
+                    setEditModalVisible(false);
+                    await loadJobs(); // refresh list
 
-            notification.success({
-                message: "Job Updated",
-                description: "Job post has been successfully updated.",
-                placement: "topRight",
-            });
-        } catch (error) {
-            console.error("Error updating job:", error);
-            notification.error({
-                message: "Update Failed",
-                description: error.message || "Failed to update job post.",
-                placement: "topRight",
-            });
-        }
+                    notification.success({
+                        message: "Job Updated",
+                        description: "Job post has been successfully updated and moved to draft.",
+                        placement: "topRight",
+                    });
+                } catch (error) {
+                    console.error("Error updating job:", error);
+                    notification.error({
+                        message: "Update Failed",
+                        description: error.message || "Failed to update job post.",
+                        placement: "topRight",
+                    });
+                }
+            }
+        });
     };
 
     const handleDeleteJob = (id) => {
