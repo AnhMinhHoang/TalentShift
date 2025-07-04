@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 function LoginRegister() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [isActive, setIsActive] = useState(false);
+  const [isPublish, setisPublish] = useState(false);
   const [user, setUser] = useState({
     firstName: "",
     lastName: "",
@@ -17,8 +17,8 @@ function LoginRegister() {
     role: "2",
   });
 
-  const handleRegisterClick = () => setIsActive(true);
-  const handleLoginClick = () => setIsActive(false);
+  const handleRegisterClick = () => setisPublish(true);
+  const handleLoginClick = () => setisPublish(false);
   const emailPlaceHolder = user.role === "1" ? "Work Email" : "Email";
 
   const handleInputChange = (e) => {
@@ -59,7 +59,7 @@ function LoginRegister() {
     // try{
     //     await axios.post("http://localhost:8080/auth/register", user)
     //     alert("Registration successful! Please login.");
-    //     setIsActive(false);
+    //     setisPublish(false);
     // }
     // catch (error) {
     //     if (error.response) {
@@ -83,7 +83,7 @@ function LoginRegister() {
 
   return (
     <main className={styles.Wrapper}>
-      <div className={`${styles.container} ${isActive ? styles.active : ""}`}>
+      <div className={`${styles.container} ${isPublish ? styles.active : ""}`}>
         <div className={`${styles.formBox} login`}>
           <form onSubmit={handleLogin}>
             <h1>Login</h1>

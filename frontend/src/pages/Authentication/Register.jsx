@@ -330,7 +330,7 @@ export default function Register() {
 
                         {step === 2 && (
                           <>
-                            {formData.userType === "FREELANCER" && (
+                            {formData.userType && (
                               <div className="row mb-3">
                                 <div className="col-12">
                                   <label

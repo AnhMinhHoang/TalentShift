@@ -1,5 +1,6 @@
 package com.ts.talentshift.Controller;
 
+import com.ts.talentshift.DTO.Freelancer.SkillDTO;
 import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Service.SkillService;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class SkillController {
     }
 
     @GetMapping
-    public List<Skill> getAllSkills() {
+    public List<SkillDTO> getAllSkills() {
         return skillService.getAllSkills();
     }
 }

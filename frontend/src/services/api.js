@@ -62,6 +62,19 @@ export const userAPI = {
     // Update hirer profile
     updateHirerProfile: (userId, data) => api.put(`/users/${userId}/hirer`, data),
 
+    updateHirerProfileFromForm: (userId, data) =>
+        api.put(`/users/${userId}/hirer/profile`, data),
+
+    uploadCompanyLogo: (userId, file) => {
+        const formData = new FormData();
+        formData.append("logo", file);
+        return api.put(`/users/${userId}/hirer/logo`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+    },
+
     // Get all users (admin only)
     getAllUsers: () => api.get('/users/all'),
 };

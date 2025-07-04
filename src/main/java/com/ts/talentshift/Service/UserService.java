@@ -50,6 +50,11 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    @Override
     public List<User> getAllUser() {
         return userRepository.findAll();
     }
@@ -186,6 +191,54 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public User updateHirerFromProfilePage(
+            Long userId,
+            String phone,
+            String companyName,
+            String description,
+            String contactLink,
+            String location
+    ) {
+        return userRepository.findById(userId)
+                .map(existingUser -> {
+                    if (existingUser.getRole() != Role.HIRER) {
+                        return null;
+                    }
+
+                    // Basic info updates
+                    if (phone != null) existingUser.setPhone(phone);
+                    if (companyName != null) existingUser.setCompanyName(companyName);
+                    if (description != null) existingUser.setDescription(description);
+                    if (contactLink != null) existingUser.setContactLink(contactLink);
+                    if (location != null) existingUser.setLocation(location);
+
+                    return userRepository.save(existingUser);
+                })
+                .orElse(null);
+    }
+    @Override
+    public User updateCompanyLogo(Long userId, MultipartFile logoFile) {
+        return userRepository.findById(userId).map(existingUser -> {
+            try {
+                if (logoFile != null && !logoFile.isEmpty()) {
+                    String filename = UUID.randomUUID() + "_" + logoFile.getOriginalFilename();
+                    Path uploadPath = Paths.get(uploadDir); // Ensure this is defined
+                    if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+
+                    Files.copy(logoFile.getInputStream(), uploadPath.resolve(filename));
+                    existingUser.setLogoPath(filename);
+
+                    return userRepository.save(existingUser);
+                }
+                return existingUser;
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload logo", e);
+            }
+        }).orElse(null);
+    }
+
+
+    @Override
     public User updateUserProfile(Long userId, User updatedUser) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
@@ -198,6 +251,7 @@ public class UserService implements IUserService {
                     existingUser.setBirthDate(updatedUser.getBirthDate());
                     existingUser.setSkills(updatedUser.getSkills());
                     existingUser.setExperiences(updatedUser.getExperiences());
+                    existingUser.setPassword(updatedUser.getPassword());
                     existingUser.setEducations(updatedUser.getEducations());
                     existingUser.setCertificates(updatedUser.getCertificates());
                     existingUser.setLinks(updatedUser.getLinks());

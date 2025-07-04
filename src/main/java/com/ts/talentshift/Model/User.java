@@ -68,6 +68,7 @@ public class User {
     private String description;
 
     private String contactLink;
+    @Column(length = 1024)
     private String logoPath;
     private String registrationFilePath;
 

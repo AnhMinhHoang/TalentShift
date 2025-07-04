@@ -1,5 +1,6 @@
 package com.ts.talentshift.Controller;
 
+import com.ts.talentshift.DTO.Hirer.HirerProfileUpdateRequest;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Service.IUserService;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
-        return userService.findByEmail(userId.toString())
+        return userService.findById(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -62,6 +63,48 @@ public class UserController {
             return ResponseEntity.ok(updated);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping(value = "/{userId}/hirer/profile")
+    public ResponseEntity<User> updateHirerFromProfilePage(
+            @PathVariable Long userId,
+            @RequestBody HirerProfileUpdateRequest request
+    ) {
+        System.out.println("Received update request for userId: " + userId);
+        System.out.println("phone: " + request.getPhone());
+        System.out.println("companyName: " + request.getCompanyName());
+        System.out.println("description: " + request.getDescription());
+        System.out.println("contactLink: " + request.getContactLink());
+        System.out.println("location: " + request.getLocation());
+
+        User updated = userService.updateHirerFromProfilePage(
+                userId,
+                request.getPhone(),
+                request.getCompanyName(),
+                request.getDescription(),
+                request.getContactLink(),
+                request.getLocation()
+        );
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
+    }
+    @PutMapping(value = "/{userId}/hirer/logo", consumes = "multipart/form-data")
+    public ResponseEntity<User> uploadCompanyLogo(
+            @PathVariable Long userId,
+            @RequestParam("logo") MultipartFile logoFile
+    ) {
+        try {
+            User updated = userService.updateCompanyLogo(userId, logoFile);
+            if (updated != null) {
+                return ResponseEntity.ok(updated);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @GetMapping("/all")

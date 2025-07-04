@@ -271,7 +271,7 @@ export default function JobListingPage() {
                               style={{ color: company.color }}
                             ></i>
                           </div>
-                          <h5 className="card-title">{company.name}</h5>
+                          <h5 className="card-title">{company.title}</h5>
                           <p className="card-text text-muted small mb-3">
                             {company.description}
                           </p>

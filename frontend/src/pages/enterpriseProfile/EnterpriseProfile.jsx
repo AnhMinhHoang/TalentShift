@@ -1,43 +1,66 @@
 import React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, notification } from "antd"
 import { FaBuilding, FaHistory, FaFileAlt, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaEdit } from "react-icons/fa"
 import GeneralInfoForm from "../../components/Enterprise/GeneralInfoForm"
 import JobPostHistoryTable from "../../components/Enterprise/JobPostHistoryTable"
 import DraftJobPostList from "../../components/Enterprise/DraftJobPostList"
 import styles from "./style/EnterpriseProfile.module.css"
-
-const { TabPane } = Tabs
+import api, { userAPI } from "../../services/api"
 
 const EnterpriseProfile = () => {
     const [activeTab, setActiveTab] = useState("1")
+    const [companyData, setCompanyData] = useState({});
+    const [loading, setLoading] = useState(true);
+    const userId = localStorage.getItem("userId");
 
-    // Sample company data based on the image
-    const [companyData, setCompanyData] = useState({
-        name: "TechCorp Solutions",
-        logo: "/placeholder.svg?height=150&width=150",
-        email: "contact@techcorp.com",
-        phone: "123-456-7890",
-        location: "San Francisco, CA",
-        description:
-            "TechCorp Solutions is a leading technology company specializing in enterprise software solutions. We provide innovative products and services to help businesses streamline their operations and achieve their goals.",
-        website: "www.techcorp.com",
-    })
+    const fetchProfile = async () => {
+        try {
+            const res = await userAPI.getProfile(userId);
+            const user = res.data;
+            console.log("Fetched user data:", user);
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0]
-        if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setCompanyData({ ...companyData, logo: reader.result })
-                notification.success({
-                    message: "Logo Updated",
-                    description: "Your company logo has been successfully updated.",
-                })
-            }
-            reader.readAsDataURL(file)
+            setCompanyData({
+                name: user.companyName || "",
+                logo: user.logoPath ? `http://localhost:8080/uploads/${user.logoPath}` : "/placeholder.svg",
+                email: user.email,
+                phone: user.phone,
+                location: user.location || "",
+                description: user.description || "",
+                website: user.contactLink || "",
+            });
+            setLoading(false);
+        } catch (err) {
+            console.error("Error fetching profile:", err.message);
+            setLoading(false);
         }
-    }
+    };
+
+    useEffect(() => {
+        fetchProfile();
+    }, [userId]);
+
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            await userAPI.uploadCompanyLogo(userId, file);
+
+            notification.success({
+                message: "Logo Updated",
+                description: "Company logo uploaded successfully",
+            });
+
+            fetchProfile();
+        } catch (error) {
+            console.error("Logo upload failed:", error);
+            notification.error({
+                message: "Upload Failed",
+                description: error.message || "Could not upload logo.",
+            });
+        }
+    };
 
     const handleUpdateCompany = (updatedData) => {
         setCompanyData({ ...companyData, ...updatedData })
@@ -50,6 +73,23 @@ const EnterpriseProfile = () => {
     const handleTabChange = (key) => {
         setActiveTab(key)
     }
+    const items = [
+        {
+            key: "1",
+            label: "General Information",
+            children: <GeneralInfoForm companyData={companyData} onUpdate={handleUpdateCompany} fetchProfile={fetchProfile} />,
+        },
+        {
+            key: "2",
+            label: "Job Post History",
+            children: <JobPostHistoryTable />,
+        },
+        {
+            key: "3",
+            label: "Draft Job Posts",
+            children: <DraftJobPostList />,
+        },
+    ];
 
     return (
         <div className="bg-light py-4 mt-5">
@@ -72,29 +112,29 @@ const EnterpriseProfile = () => {
                                             <FaEdit size={16} />
                                         </div>
                                         <img
-                                            src={companyData.logo || "/placeholder.svg"}
+                                            src={companyData?.logo || "/placeholder.svg"}
                                             alt="Company Logo"
                                             className={styles.companyLogo}
                                         />
                                     </label>
                                 </div>
-                                <h3 className={styles.companyName}>{companyData.name}</h3>
+                                <h3 className={styles.companyName}>{companyData?.name}</h3>
                                 <div className={styles.companyInfo}>
                                     <div className={styles.infoItem}>
                                         <FaEnvelope className={styles.infoIcon} />
-                                        <span>{companyData.email}</span>
+                                        <span>{companyData?.email}</span>
                                     </div>
                                     <div className={styles.infoItem}>
                                         <FaPhone className={styles.infoIcon} />
-                                        <span>{companyData.phone}</span>
+                                        <span>{companyData?.phone}</span>
                                     </div>
                                     <div className={styles.infoItem}>
                                         <FaMapMarkerAlt className={styles.infoIcon} />
-                                        <span>{companyData.location}</span>
+                                        <span>{companyData?.location}</span>
                                     </div>
                                     <div className={styles.infoItem}>
                                         <FaUser className={styles.infoIcon} />
-                                        <span>{companyData.website}</span>
+                                        <span>{companyData?.website}</span>
                                     </div>
                                 </div>
 
@@ -129,25 +169,12 @@ const EnterpriseProfile = () => {
                         {/* Main Content */}
                         <div className="col-md-9">
                             <div className={styles.mainContent}>
-                                <Tabs activeKey={activeTab} onChange={handleTabChange} className={styles.tabs}>
-                                    <TabPane
-                                        key="1"
-                                    >
-                                        <GeneralInfoForm companyData={companyData} onUpdate={handleUpdateCompany} />
-                                    </TabPane>
-
-                                    <TabPane
-                                        key="2"
-                                    >
-                                        <JobPostHistoryTable />
-                                    </TabPane>
-
-                                    <TabPane
-                                        key="3"
-                                    >
-                                        <DraftJobPostList />
-                                    </TabPane>
-                                </Tabs>
+                                <Tabs
+                                    activeKey={activeTab}
+                                    onChange={handleTabChange}
+                                    items={items}
+                                    className={styles.tabs}
+                                />
                             </div>
                         </div>
                     </div>

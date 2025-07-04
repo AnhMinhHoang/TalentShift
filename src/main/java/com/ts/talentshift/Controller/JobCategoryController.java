@@ -1,5 +1,6 @@
 package com.ts.talentshift.Controller;
 
+import com.ts.talentshift.DTO.Job.JobCategoryDto;
 import com.ts.talentshift.Model.Job.JobCategory;
 import com.ts.talentshift.Service.JobCategoryService;
 
@@ -18,9 +19,7 @@ public class JobCategoryController {
     }
 
     @GetMapping
-    public List<JobCategory> getAllCategories() {
-//        List<JobCategory> categories = categoryService.getAllCategories();
-//        categories.forEach(System.out::println);
+    public List<JobCategoryDto> getAllCategories() {
         return categoryService.getAllCategories();
     }
 

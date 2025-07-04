@@ -1,5 +1,6 @@
 package com.ts.talentshift.Service;
 
+import com.ts.talentshift.DTO.Job.JobCategoryDto;
 import com.ts.talentshift.Model.Job.JobCategory;
 import com.ts.talentshift.Repository.JobCategoryRepository;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,10 @@ public class JobCategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<JobCategory> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<JobCategoryDto> getAllCategories() {
+        return categoryRepository.findAll()
+                .stream()
+                .map(c -> new JobCategoryDto(c.getId(), c.getName()))
+                .toList();
     }
 }

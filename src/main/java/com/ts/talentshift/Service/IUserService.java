@@ -21,4 +21,19 @@ public interface IUserService {
     User updateFreelancerProfile(Long userId, User updatedUser);
 
     User updateHirerProfile(Long userId, User updatedUser, MultipartFile logo, MultipartFile registrationFile);
+
+    Optional<User> findById(Long userId);
+
+    User updateHirerFromProfilePage(
+            Long userId,
+            String phone,
+            String companyName,
+            String description,
+            String contactLink,
+            String location
+    );
+
+    User updateCompanyLogo(Long userId, MultipartFile logoFile);
+
+
 }
