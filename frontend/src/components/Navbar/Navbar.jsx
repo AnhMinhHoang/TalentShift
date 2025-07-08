@@ -1,33 +1,40 @@
-import { Link } from "react-router-dom";
-import { useAuth } from "../../pages/AuthContext";
+import { Link } from "react-router-dom"
+import { useAuth } from "../../pages/AuthContext"
+import styles from "./Navbar.module.css"
 
 export default function Navbar() {
-  const { userData, logout, loading } = useAuth();
+  const { userData, logout, loading } = useAuth()
 
-  if (loading) return null;
+  if (loading) return null
 
   // Format balance to VND
   const formatVND = (amount) => {
     return amount !== undefined
-        ? amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-        : (1000000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-  };
+        ? amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
+        : (1000000).toLocaleString("vi-VN", { style: "currency", currency: "VND" })
+  }
 
   return (
-      <nav className="navbar navbar-expand-lg">
+      <nav className={`navbar navbar-expand-lg ${styles.navbar}`}>
         <div className="container">
-          <a className="navbar-brand" href="/"
-             style={{ textDecoration: 'none', color: 'white', pointerEvents: 'auto' }}>
-            <img src="/asset/images/icons/favicon-32x32.png" alt="logo" className="me-2" />
-            <span>TalentShift</span>
-          </a>
+          <Link to="/" className={`navbar-brand ${styles.navbarBrand}`}>
+            <div className={styles.logoContainer}>
+              <img src="/asset/images/icons/favicon-32x32.png" alt="TalentShift" className={styles.logo} />
+            </div>
+            <span className={styles.brandText}>TalentShift</span>
+          </Link>
 
           <div className="d-lg-none ms-auto me-4">
-            <a href="#" className="navbar-icon bi-person smoothscroll"></a>
+            <Link
+                to={userData ? (userData.role === "HIRER" ? "/enterprise-profile-page" : "/profile-page") : "/login"}
+                className={styles.mobileProfileIcon}
+            >
+              <i className="bi bi-person"></i>
+            </Link>
           </div>
 
           <button
-              className="navbar-toggler"
+              className={`navbar-toggler ${styles.navbarToggler}`}
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#navbarNav"
@@ -35,134 +42,123 @@ export default function Navbar() {
               aria-expanded="false"
               aria-label="Toggle navigation"
           >
-            <span className="navbar-toggler-icon"></span>
+            <span className={styles.navbarTogglerIcon}></span>
           </button>
 
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-lg-5 me-lg-auto">
               <li className="nav-item">
-                <Link to="/#section_1" className="nav-link click-scroll">
+                <Link to="/#section_1" className={`nav-link ${styles.navLink}`}>
                   Home
                 </Link>
               </li>
-
               <li className="nav-item">
-                <div>
-                  <Link to="/jobs" className="nav-link">
-                    Jobs
-                  </Link>
-                </div>
+                <Link to="/jobs" className={`nav-link ${styles.navLink}`}>
+                  Jobs
+                </Link>
               </li>
-
-              <li className="nav-item">
-                <div>
-                  <Link to="/job-posting" className="nav-link">
-                    Post Job
-                  </Link>
-                </div>
-              </li>
+              {userData && userData.role === "HIRER" && (
+                  <li className="nav-item">
+                    <Link to="/job-posting" className={`nav-link ${styles.navLink}`}>
+                      Post Job
+                    </Link>
+                  </li>
+              )}
+              {userData && userData.role === "FREELANCER" && (
+                  <li className="nav-item">
+                    <Link to="/user-profile?tab=applied" className={`nav-link ${styles.navLink}`}>
+                      Applied Jobs
+                    </Link>
+                  </li>
+              )}
+              {userData && (
+                  <li className="nav-item">
+                    <Link to="/payment/plan" className={`nav-link ${styles.navLink}`}>
+                      Pricing
+                    </Link>
+                  </li>
+              )}
             </ul>
 
             <div className="d-none d-lg-block">
               {userData ? (
-                  <div className="nav-item dropdown">
+                  <div className={`nav-item dropdown ${styles.userDropdown}`}>
                     <a
-                        className="nav-link dropdown-toggle text-white"
+                        className={`nav-link dropdown-toggle ${styles.dropdownToggle}`}
                         href="#"
                         id="userDropdown"
                         role="button"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                     >
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                      <div style={{ fontWeightEAD6Weight: 600, fontSize: 16, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {
-                          userData.role === 'HIRER'
-                              ? userData.companyName
-                              : userData.role === 'FREELANCER'
-                                  ? userData.fullName
-                                  : 'User'
-                        }
-                        {/* Premium Badge */}
-                        {userData.premium ? (
-                            <span style={{
-                              background: 'linear-gradient(135deg, #ffd700, #ffed4e)',
-                              color: '#000',
-                              fontSize: 9,
-                              fontWeight: 700,
-                              padding: '2px 4px',
-                              borderRadius: 8,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px',
-                              boxShadow: '0 1px 3px rgba(255, 215, 0, 0.3)'
-                            }}>
-                            PRO
-                          </span>
-                        ) : (
-                            <span style={{
-                              background: '#6c757d',
-                              color: '#fff',
-                              fontSize: 9,
-                              fontWeight: 600,
-                              padding: '2px 4px',
-                              borderRadius: 8,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px'
-                            }}>
-                            FREE
-                          </span>
-                        )}
+                      <div className={styles.userInfo}>
+                        <div className={styles.userDetails}>
+                          <div className={styles.userName}>
+                            {userData.role === "HIRER"
+                                ? userData.companyName
+                                : userData.role === "FREELANCER"
+                                    ? userData.fullName
+                                    : "User"}
+                            {userData.premium ? (
+                                <span className={styles.premiumBadge}>PRO</span>
+                            ) : (
+                                <span className={styles.freeBadge}>FREE</span>
+                            )}
+                          </div>
+                          <div className={styles.userBalance}>
+                            Balance: <span className={styles.balanceAmount}>{formatVND(userData.balance)}</span>
+                          </div>
+                        </div>
+                        <img
+                            src={userData.avatar || "/asset/images/default-profile.jpg"}
+                            alt="avatar"
+                            className={styles.userAvatar}
+                        />
                       </div>
-                      <div style={{ fontSize: 13, color: '#e0e0e0', fontWeight: 400 }}>
-                        Balance: <span style={{ color: '#ffd700', fontWeight: 600 }}>{formatVND(userData.balance)}</span>
-                      </div>
-                    </span>
-                    <img
-                        src={userData.avatar || '/asset/images/default-profile.jpg'}
-                        alt="avatar"
-                        style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fff', background: '#eee' }}
-                    />
-                  </span>
                     </a>
-                    <ul
-                        className="dropdown-menu dropdown-menu-end"
-                        aria-labelledby="userDropdown"
-                    >
+                    <ul className={`dropdown-menu dropdown-menu-end ${styles.dropdownMenu}`} aria-labelledby="userDropdown">
                       <li>
-                        <Link to="/profile-page" className="dropdown-item">
+                        <Link
+                            to={userData.role === "HIRER" ? "/enterprise-profile-page" : "/profile-page"}
+                            className={`dropdown-item ${styles.dropdownItem}`}
+                        >
+                          <i className="bi bi-person me-2"></i>
                           Profile
                         </Link>
                       </li>
                       <li>
-                        <Link to="/payment" className="dropdown-item">
-                          Balance: <span style={{ color: '#ffd700', fontWeight: 600 }}>{formatVND(userData.balance)}</span>
+                        <Link to="/payment" className={`dropdown-item ${styles.dropdownItem}`}>
+                          <i className="bi bi-wallet2 me-2"></i>
+                          Balance: <span className={styles.balanceAmount}>{formatVND(userData.balance)}</span>
                         </Link>
                       </li>
-                      {/* Only show Upgrade Account if user is not premium */}
                       {!userData.premium && (
                           <li>
-                            <Link to="/payment/plan" className="dropdown-item">
+                            <Link to="/payment/plan" className={`dropdown-item ${styles.dropdownItem} ${styles.upgradeItem}`}>
+                              <i className="bi bi-star me-2"></i>
                               Upgrade Account
                             </Link>
                           </li>
                       )}
                       <li>
-                        <button className="dropdown-item" onClick={logout}>
+                        <hr className={styles.dropdownDivider} />
+                      </li>
+                      <li>
+                        <button className={`dropdown-item ${styles.dropdownItem} ${styles.logoutItem}`} onClick={logout}>
+                          <i className="bi bi-box-arrow-right me-2"></i>
                           Logout
                         </button>
                       </li>
                     </ul>
                   </div>
               ) : (
-                  <Link
-                      to="/login"
-                      className="navbar-icon bi-person smoothscroll"
-                  ></Link>
+                  <Link to="/login" className={styles.loginIcon}>
+                    <i className="bi bi-person"></i>
+                  </Link>
               )}
             </div>
           </div>
         </div>
       </nav>
-  );
+  )
 }

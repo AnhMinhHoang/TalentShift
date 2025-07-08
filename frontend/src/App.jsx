@@ -28,6 +28,10 @@ import TransactionResult from './pages/payment/TransactionResult.jsx';
 import EnterpriseProfile from './pages/enterpriseProfile/EnterpriseProfile.jsx';
 import Payment from './pages/payment/Payment.jsx';
 import Loading from "./components/Loading/Loading.jsx";
+import Unauthorized from "./pages/Authentication/Unauthorized.jsx";
+import RoleBasedOutlet from "./components/RoleBasedOutlet";
+import PrivateOutlet from "./components/PrivateOutlet..jsx";
+import MainLayout from "./components/MainLayout";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -48,29 +52,37 @@ function App() {
     <AntdApp>
       <ScrollToTop />
       <ScrollToAnchor />
-      <Navbar />
       <Routes>
-        <Route path="/" element={<Index />} />
-
-        {/* Job Detail Routes */}
-        <Route path="/job-detail" element={<JobDetail />} /> {/* Job detail without ID */}
-        <Route path="/job-detail/:id" element={<JobDetail />} /> {/* Job detail with ID - e.g., /job-detail/1 */}
-
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/register-additional" element={<RegisterAdditional />} />
-        <Route path="/job-posting" element={<JobPost />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
-        <Route path="/profile-page" element={<JobTracker />} />
-        <Route path="/job-apply" element={<JobApply />} />
-        <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
-        <Route path='/transaction-result' element={<TransactionResult />} />
-        <Route path='/payment/plan' element={<Plan />} />
-        <Route path="/jobs" element={<JobListing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route element={<MainLayout />}>
+          <Route element={<PrivateOutlet />}>
+            <Route path="/payment" element={<Payment />} />
+            <Route path='/payment/plan' element={<Plan />} />
+            <Route path='/transaction-result' element={<TransactionResult />} />
+          </Route>
+          {/* HIRER-only routes */}
+          <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
+            <Route path="/job-posting" element={<JobPost />} />
+            <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
+            <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
+          </Route>
+          {/* FREELANCER-only routes */}
+          <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
+            <Route path="/job-apply" element={<JobApply />} />
+            <Route path="/profile-page" element={<JobTracker />} />
+            <Route path="/register-additional" element={<RegisterAdditional />} />
+          </Route>
+          {/*Unauthenticated routes*/}
+          <Route path="/" element={<Index />} />
+          <Route path="/jobs" element={<JobListing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/job-detail" element={<JobDetail />} />
+          <Route path="/job-detail/:id" element={<JobDetail />} />
+          <Route path="/contact" element={<Contact />} />
+        </Route>
+        {/* Fallback for unauthorized access, no layout */}
+        <Route path="/unauthorized" element={<Unauthorized />} />
       </Routes>
-      <Footer />
     </AntdApp>
   );
 }
