@@ -115,7 +115,6 @@ export default function JobDetail() {
     fetchJob();
   }, [id]);
 
-
   // Transform backend job data to match frontend structure
   const transformJobData = (backendJob) => {
     return {

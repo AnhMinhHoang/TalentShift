@@ -34,7 +34,7 @@ const JobCard = ({ job }) => {
                                 </span>
                             </div>
                             <div>
-                                <h5 className="card-title mb-0">{job.title}</h5>
+                                <h5 className="card-title mb-0">{job.jobTitle}</h5>
                                 <p className="card-text text-muted small">
                                     {job.company?.name || "Company not specified"}
                                 </p>

@@ -2,25 +2,30 @@ import React from "react"
 import { useState } from "react"
 import { Form, Input, Button, notification, Modal } from "antd"
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa"
+import api, { userAPI } from "../../services/api"
 
 const { TextArea } = Input
 
-const GeneralInfoForm = ({ companyData, onUpdate }) => {
+const GeneralInfoForm = ({ companyData, onUpdate, fetchProfile }) => {
     const [isEditing, setIsEditing] = useState(false)
     const [form] = Form.useForm()
 
     // Validation regex patterns
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    const companyNameRegex = /^[a-zA-Z0-9\s]{3,50}$/
 
     const handleEdit = () => {
         form.setFieldsValue({
-            email: companyData.email,
-            phone: companyData.phone,
-            description: companyData.description,
+            name: companyData?.name,
+            email: companyData?.email,
+            phone: companyData?.phone,
+            description: companyData?.description,
             newPassword: "",
             confirmPassword: "",
+            location: companyData?.location,
+            website: companyData?.website,
+
         })
         setIsEditing(true)
     }
@@ -30,19 +35,42 @@ const GeneralInfoForm = ({ companyData, onUpdate }) => {
         setIsEditing(false)
     }
 
-    const handleSubmit = (values) => {
+    const handleSubmit = async (values) => {
         if (values.newPassword && values.newPassword !== values.confirmPassword) {
             notification.error({
                 message: "Validation Error",
                 description: "New password and confirm password do not match.",
-            })
-            return
+            });
+            return;
         }
 
-        onUpdate(values)
-        setIsEditing(false)
-        form.resetFields()
-    }
+        try {
+            const userId = localStorage.getItem("userId");
+            const payload = {
+                companyName: values.companyName,
+                description: values.description,
+                contactLink: values.website || "",
+                phone: values.phone,
+                location: values.location,
+            };
+
+            await userAPI.updateHirerProfileFromForm(userId, payload);
+            console.log("Profile updated successfully:", payload);
+            fetchProfile();
+            notification.success({
+                message: "Profile Updated",
+                description: "Company information updated successfully.",
+            });
+
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Update error:", error);
+            notification.error({
+                message: "Update Failed",
+                description: error.message || "Something went wrong.",
+            });
+        }
+    };
 
     return (
         <div className="card">
@@ -72,11 +100,6 @@ const GeneralInfoForm = ({ companyData, onUpdate }) => {
                     </div>
 
                     <div className="mb-4">
-                        <h6 className="text-muted mb-2">Password</h6>
-                        <p>••••••••</p>
-                    </div>
-
-                    <div className="mb-4">
                         <h6 className="text-muted mb-2">Company Description</h6>
                         <p style={{ whiteSpace: "pre-line" }}>{companyData.description}</p>
                     </div>
@@ -97,26 +120,27 @@ const GeneralInfoForm = ({ companyData, onUpdate }) => {
                     layout="vertical"
                     onFinish={handleSubmit}
                     initialValues={{
+                        companyName: companyData?.name,
                         email: companyData.email,
                         phone: companyData.phone,
                         description: companyData.description,
-                        newPassword: "",
-                        confirmPassword: "",
+                        location: companyData.location,
+                        website: companyData.website,
                     }}
                 >
-                    {/* Email Field */}
+                    {/* Company Name Field */}
                     <Form.Item
-                        label="Email Address"
-                        name="email"
+                        label="Company Name"
+                        name="companyName"
                         rules={[
-                            { required: true, message: "Please enter your email" },
+                            { required: true, message: "Please enter your company name" },
                             {
-                                pattern: emailRegex,
-                                message: "Please enter a valid email address",
+                                pattern: companyNameRegex,
+                                message: "Company name must be 3-50 characters long and can include letters, numbers, and spaces",
                             },
                         ]}
                     >
-                        <Input placeholder="company@example.com" />
+                        <Input placeholder="TechCorp Solutions" />
                     </Form.Item>
 
                     {/* Phone Field */}
@@ -133,42 +157,28 @@ const GeneralInfoForm = ({ companyData, onUpdate }) => {
                     >
                         <Input placeholder="+1 234-567-890" />
                     </Form.Item>
-
-                    {/* New Password Field */}
+                    {/* Location Field */}
                     <Form.Item
-                        label="New Password"
-                        name="newPassword"
-                        rules={[
-                            {
-                                min: 8,
-                                message: "Password must be at least 8 characters",
-                            },
-                            {
-                                pattern: passwordRegex,
-                                message: "Must contain uppercase, lowercase, number, and special character",
-                            },
-                        ]}
+                        label="Location"
+                        name="location"
+                        rules={[{ required: true, message: "Please enter your company location" }]}
                     >
-                        <Input.Password placeholder="Enter new password (min 8 characters)" />
+                        <Input placeholder="e.g. San Francisco, CA" />
                     </Form.Item>
 
-                    {/* Confirm Password Field */}
+                    {/* Website / Contact Link Field */}
                     <Form.Item
-                        label="Confirm Password"
-                        name="confirmPassword"
-                        dependencies={['newPassword']}
+                        label="Company Website"
+                        name="website"
                         rules={[
-                            ({ getFieldValue }) => ({
-                                validator(_, value) {
-                                    if (!value || getFieldValue('newPassword') === value) {
-                                        return Promise.resolve()
-                                    }
-                                    return Promise.reject(new Error('Passwords do not match!'))
-                                },
-                            }),
+                            { required: true, message: "Please enter your company website" },
+                            {
+                                type: "url",
+                                message: "Please enter a valid URL (e.g. https://example.com)",
+                            },
                         ]}
                     >
-                        <Input.Password placeholder="Confirm new password" />
+                        <Input placeholder="https://yourcompany.com" />
                     </Form.Item>
 
                     {/* Description Field */}

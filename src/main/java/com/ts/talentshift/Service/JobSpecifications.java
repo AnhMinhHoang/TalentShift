@@ -14,12 +14,12 @@ public class JobSpecifications {
         return (root, query, builder) -> location == null ? null : builder.equal(root.get("location"), location);
     }
 
-//    public static Specification<Job> withSalaryRange(int minSalary) {
-//        return (root, query, builder) -> minSalary == 0 ? null
-//                : builder.greaterThanOrEqualTo(
-//                        builder.function("CAST", Integer.class,
-//                                builder.substring(root.get("salary"), 2,
-//                                        builder.locate(root.get("salary"), "-") - 2)),
-//                        minSalary);
-//    }
+    // public static Specification<Job> withSalaryRange(int minSalary) {
+    // return (root, query, builder) -> minSalary == 0 ? null
+    // : builder.greaterThanOrEqualTo(
+    // builder.function("CAST", Integer.class,
+    // builder.substring(root.get("salary"), 2,
+    // builder.locate(root.get("salary"), "-") - 2)),
+    // minSalary);
+    // }
 }

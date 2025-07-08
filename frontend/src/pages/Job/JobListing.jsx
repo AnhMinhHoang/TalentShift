@@ -179,45 +179,46 @@ export default function JobListingPage() {
                   </div>
 
                   {/* Job Cards */}
-                  {jobs.length === 0 ? (
-                    <div className="text-center py-5">
-                      <h4>No jobs found</h4>
-                      <p>Try adjusting your filters</p>
-                    </div>
-                  ) : (
-                    <>
-                      {jobs.map(job => (
-                        <JobCard key={job.id} job={job} />
-                      ))}
-
-                      {/* Pagination */}
-                      <div className="d-flex justify-content-center mt-4">
-                        <nav aria-label="Page navigation">
-                          <ul className="pagination">
-                            {[...Array(Math.ceil(totalJobs / formFilters.size)).keys()].map(page => (
-                              <li
-                                key={page}
-                                className={`page-item ${formFilters.page === page ? 'active' : ''}`}
-                              >
-                                <button
-                                  className="page-link rounded-circle"
-                                  onClick={() => handlePageChange(page)}
-                                >
-                                  {page + 1}
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </nav>
+                  {
+                    jobs.length === 0 ? (
+                      <div className="text-center py-5">
+                        <h4>No jobs found</h4>
+                        <p>Try adjusting your filters</p>
                       </div>
-                    </>
-                  )}
-                </div>
-              </div>
+                    ) : (
+                      <>
+                        {jobs.map(job => (
+                          <JobCard key={job.id} job={job} />
+                        ))}
 
+                        {/* Pagination */}
+                        <div className="d-flex justify-content-center mt-4">
+                          <nav aria-label="Page navigation">
+                            <ul className="pagination">
+                              {[...Array(Math.ceil(totalJobs / formFilters.size)).keys()].map(page => (
+                                <li
+                                  key={page}
+                                  className={`page-item ${formFilters.page === page ? 'active' : ''}`}
+                                >
+                                  <button
+                                    className="page-link rounded-circle"
+                                    onClick={() => handlePageChange(page)}
+                                  >
+                                    {page + 1}
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </nav>
+                        </div>
+                      </>
+                    )
+                  }
+                </div >
+              </div >
 
               {/* Top Companies Section */}
-              <div className="mt-5 mb-4">
+              < div className="mt-5 mb-4" >
                 <h2 className="text-center fw-bold mb-2">Top Company</h2>
                 <p className="text-center text-muted mb-4">
                   Find your dream job at these leading social platforms
@@ -270,7 +271,7 @@ export default function JobListingPage() {
                               style={{ color: company.color }}
                             ></i>
                           </div>
-                          <h5 className="card-title">{company.name}</h5>
+                          <h5 className="card-title">{company.title}</h5>
                           <p className="card-text text-muted small mb-3">
                             {company.description}
                           </p>
@@ -282,11 +283,11 @@ export default function JobListingPage() {
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+              </div >
+            </div >
+          </div >
+        </div >
+      </main >
+    </div >
   );
 }

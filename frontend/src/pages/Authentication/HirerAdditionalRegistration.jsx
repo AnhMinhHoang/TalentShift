@@ -192,7 +192,7 @@ const HirerAdditionalRegistration = () => {
           </div>
         </Col>
       </Row>
-    </Container>
+    </Container >
   );
 };
 

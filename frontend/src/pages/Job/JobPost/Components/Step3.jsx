@@ -9,9 +9,9 @@ export default function Step3({ formData, onChange, onNext, onBack }) {
     // Validate form - all fields required
     setIsValid(
       formData.projectName.trim() !== "" &&
-        formData.projectDescription.trim() !== "" &&
-        formData.keyResponsibilities.trim() !== "" &&
-        formData.idealSkills.trim() !== ""
+      formData.projectDescription.trim() !== "" &&
+      formData.keyResponsibilities.trim() !== "" &&
+      formData.idealSkills.trim() !== ""
     );
   }, [formData]);
 

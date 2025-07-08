@@ -1,5 +1,6 @@
 package com.ts.talentshift.Controller;
 
+import com.ts.talentshift.DTO.Job.JobCategoryDto;
 import com.ts.talentshift.Model.Job.JobCategory;
 import com.ts.talentshift.Service.JobCategoryService;
 
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/categories")
 public class JobCategoryController {
     private final JobCategoryService categoryService;
 
@@ -18,7 +19,7 @@ public class JobCategoryController {
     }
 
     @GetMapping
-    public List<JobCategory> getAllCategories() {
+    public List<JobCategoryDto> getAllCategories() {
         return categoryService.getAllCategories();
     }
 

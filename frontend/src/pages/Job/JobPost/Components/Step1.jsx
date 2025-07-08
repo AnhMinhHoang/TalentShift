@@ -25,6 +25,7 @@ export default function Step1({ formData, onChange, onNext }) {
     const loadCategories = async () => {
       try {
         const data = await fetchJobCategories();
+        console.log(data);
         setCategories(data);
         setLoading(false);
       } catch (err) {
