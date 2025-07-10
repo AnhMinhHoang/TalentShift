@@ -1,4 +1,4 @@
- package com.ts.talentshift.Security;
+package com.ts.talentshift.Security;
 
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.UserRepository;

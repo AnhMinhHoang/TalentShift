@@ -1,5 +1,6 @@
 package com.ts.talentshift.Repository;
 
+import com.ts.talentshift.Enums.SkillType;
 import com.ts.talentshift.Model.Freelancer.Skill;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,4 +11,5 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
     boolean existsBySkillName(String skillName);
 
+    Skill findBySkillNameAndSkillType(String skillName, SkillType skillType);
 }

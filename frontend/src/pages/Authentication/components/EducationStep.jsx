@@ -25,6 +25,7 @@ const EducationStep = ({
   handleSkip,
   calculateProgress,
   setProgress,
+  showSkipButton,
 }) => {
   // Modal style
   const modalStyle = {
@@ -41,6 +42,9 @@ const EducationStep = ({
     maxHeight: "90vh",
     overflow: "auto",
   };
+
+  // Add validation for required fields
+  const isEducationValid = currentEducation.degree && currentEducation.institution && currentEducation.startDate;
 
   // Education handlers
   const handleOpenEducationModal = (index = null) => {
@@ -101,13 +105,15 @@ const EducationStep = ({
         >
           <AddIcon fontSize="small" /> Add Education
         </Button>
-        <Button
-          variant="outline-secondary"
-          onClick={handleSkip}
-          className={styles.skipButton}
-        >
-          Skip this step
-        </Button>
+        {showSkipButton && (
+          <Button
+            variant="outline-secondary"
+            onClick={handleSkip}
+            className={styles.skipButton}
+          >
+            Skip this step
+          </Button>
+        )}
       </div>
 
       {educations.length === 0 && (
@@ -137,25 +143,25 @@ const EducationStep = ({
                         <CalendarIcon fontSize="small" className="me-1" />
                         {edu.startDate
                           ? new Date(edu.startDate).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                              }
-                            )
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                            }
+                          )
                           : ""}{" "}
                         -
                         {edu.isPresent
                           ? " Present"
                           : edu.endDate
-                          ? ` ${new Date(edu.endDate).toLocaleDateString(
+                            ? ` ${new Date(edu.endDate).toLocaleDateString(
                               "en-US",
                               {
                                 year: "numeric",
                                 month: "short",
                               }
                             )}`
-                          : ""}
+                            : ""}
                       </div>
                     </div>
                   </div>
@@ -203,141 +209,99 @@ const EducationStep = ({
           </div>
 
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
+            <div className="mb-3">
+              <label htmlFor="degree" className="form-label">
                 <MenuBookIcon fontSize="small" className="me-2" />
                 Degree / Certificate <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
+              </label>
+              <input
                 type="text"
+                className="form-control userProfile_formControl"
+                id="degree"
+                name="degree"
                 value={currentEducation.degree}
-                onChange={(e) =>
-                  setCurrentEducation({
-                    ...currentEducation,
-                    degree: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentEducation({ ...currentEducation, degree: e.target.value })}
                 placeholder="e.g. Bachelor of Science in Computer Science"
-                className={styles.formControl}
                 required
               />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="institution" className="form-label">
                 <SchoolIcon fontSize="small" className="me-2" />
                 Institution <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
+              </label>
+              <input
                 type="text"
+                className="form-control userProfile_formControl"
+                id="institution"
+                name="institution"
                 value={currentEducation.institution}
-                onChange={(e) =>
-                  setCurrentEducation({
-                    ...currentEducation,
-                    institution: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentEducation({ ...currentEducation, institution: e.target.value })}
                 placeholder="e.g. Harvard University"
-                className={styles.formControl}
                 required
               />
-            </Form.Group>
-
+            </div>
+            <div className="form-check mb-3">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="currentlyStudying"
+                checked={currentEducation.isPresent}
+                onChange={e => setCurrentEducation({ ...currentEducation, isPresent: e.target.checked, endDate: e.target.checked ? null : currentEducation.endDate })}
+              />
+              <label className="form-check-label" htmlFor="currentlyStudying">
+                I am currently studying here
+              </label>
+            </div>
             <div className="row mb-3">
               <div className="col-md-6">
-                <Form.Label className={styles.formLabel}>
+                <label htmlFor="startDate" className="form-label">
                   <CalendarIcon fontSize="small" className="me-2" />
-                  Start Date
-                </Form.Label>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    value={currentEducation.startDate}
-                    onChange={(date) =>
-                      setCurrentEducation({
-                        ...currentEducation,
-                        startDate: date,
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        margin="normal"
-                        className={styles.dateInput}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
+                  Start Date <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="date"
+                  className="form-control userProfile_formControl"
+                  id="startDate"
+                  name="startDate"
+                  value={currentEducation.startDate || ''}
+                  onChange={e => setCurrentEducation({ ...currentEducation, startDate: e.target.value })}
+                  required
+                />
               </div>
-
               {!currentEducation.isPresent && (
                 <div className="col-md-6">
-                  <Form.Label className={styles.formLabel}>
+                  <label htmlFor="endDate" className="form-label">
                     <CalendarIcon fontSize="small" className="me-2" />
-                    End Date
-                  </Form.Label>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      value={currentEducation.endDate}
-                      onChange={(date) =>
-                        setCurrentEducation({
-                          ...currentEducation,
-                          endDate: date,
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          fullWidth
-                          margin="normal"
-                          className={styles.dateInput}
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
+                    End Date <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control userProfile_formControl"
+                    id="endDate"
+                    name="endDate"
+                    value={currentEducation.endDate || ''}
+                    onChange={e => setCurrentEducation({ ...currentEducation, endDate: e.target.value })}
+                    required
+                  />
                 </div>
               )}
             </div>
-
-            <Form.Group className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label="I am currently studying here"
-                checked={currentEducation.isPresent}
-                onChange={(e) =>
-                  setCurrentEducation({
-                    ...currentEducation,
-                    isPresent: e.target.checked,
-                    endDate: null,
-                  })
-                }
-                className={styles.checkbox}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
+            <div className="mb-3">
+              <label htmlFor="description" className="form-label">
                 <DescriptionIcon fontSize="small" className="me-2" />
-                Description (Optional)
-              </Form.Label>
-              <Form.Control
-                as="textarea"
+                Description
+              </label>
+              <textarea
+                className="form-control userProfile_formControl"
+                id="description"
+                name="description"
                 rows={4}
                 value={currentEducation.description}
-                onChange={(e) =>
-                  setCurrentEducation({
-                    ...currentEducation,
-                    description: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentEducation({ ...currentEducation, description: e.target.value })}
                 placeholder="Share details about your studies, achievements, or relevant coursework..."
-                className={styles.formControl}
               />
-              <Form.Text className="text-muted">
-                Include relevant coursework, achievements, or extracurricular
-                activities.
-              </Form.Text>
-            </Form.Group>
+            </div>
           </Form>
 
           <div className={styles.modalActions}>
@@ -351,6 +315,7 @@ const EducationStep = ({
               variant="primary"
               onClick={handleSaveEducation}
               className={styles.nextButton}
+              disabled={!isEducationValid}
             >
               Save Education
             </Button>

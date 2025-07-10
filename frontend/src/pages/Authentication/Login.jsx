@@ -3,10 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles/Auth.module.css";
 import { useAuth } from "../AuthContext";
 import { notification } from "antd";
+import { useGoogleLogin  } from '@react-oauth/google';
+import { Modal } from 'antd';
+import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, register, userData } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -14,6 +17,9 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('FREELANCER');
+  const [googleUser, setGoogleUser] = useState(null);
 
   useEffect(() => {
     document
@@ -40,6 +46,31 @@ export default function Login() {
     });
   };
 
+  const handleNavigate = () => {
+    if (userData && userData.verified) {
+      openNotification(
+          "success",
+          "Login successful!",
+          "top",
+          "Redirecting to Homepage!"
+      );
+      navigate("/");
+    }
+    else if(userData && !userData.verified) {
+      openNotification(
+          "warning",
+          "Account not verified",
+          "top",
+          "Please fill in all of your neccessary information before continue using our service!"
+      );
+      if (userData.role === "FREELANCER") {
+        navigate("/register-additional");
+      } else if (userData.role === "HIRER") {
+        navigate("/hirer-additional");
+      }
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -48,224 +79,362 @@ export default function Login() {
     try {
       await login(formData.email, formData.password);
       setIsLoading(false);
-      openNotification(
-        "success",
-        "Login successful!",
-        "top",
-        "Redirecting to Homepage!"
-      );
-      navigate("/");
+      handleNavigate();
     } catch (err) {
       setIsLoading(false);
       setError(err.message || "Invalid email or password");
     }
   };
 
-  const handleGoogleLogin = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      login(formData.email);
-      setIsLoading(false);
-      openNotification(
-        "success",
-        "Login succesfully!",
-        "top",
-        "Redirect to Homepage!"
-      );
-      navigate("/");
-    }, 1500);
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    try {
+      const userInfo = await axios
+          .get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${credentialResponse.access_token}` },
+          })
+          .then(res => res.data);
+
+      console.log(userInfo.email);
+
+      const email = userInfo.email;
+      const response = await axios.post('http://localhost:8080/auth/google-check', { email });
+      const data = await response.data;
+      if (data.exists) {
+        await login(email, null, true);
+        handleNavigate();
+      } else {
+        setGoogleUser(userInfo);
+        setRoleModalVisible(true);
+      }
+    } catch (error) {
+      openNotification('error', 'Google Login Failed', 'top', error.message || 'Something went wrong');
+    }
   };
 
+  const handleRoleSelect = async () => {
+    try {
+      const payload = {
+        fullName: `${googleUser.given_name || ''} ${googleUser.family_name || ''}`.trim(),
+        email: googleUser.email,
+        password: "",
+        role: selectedRole,
+      };
+      await register(
+        payload.email,
+        payload.password,
+        payload.role,
+        payload.fullName
+      )
+      setRoleModalVisible(false);
+      if (selectedRole === 'FREELANCER') {
+        openNotification("success", "Register successful!", "top");
+        navigate('/register-additional');
+      } else {
+        openNotification("success", "Register successful!", "top");
+        navigate('/hirer-additional');
+      }
+    } catch (error) {
+      openNotification('error', 'Registration Failed', 'top', error.message || 'Something went wrong');
+    }
+  };
+
+  const googleButtonOnClick = useGoogleLogin({
+    onSuccess: handleGoogleLoginSuccess,
+    onError: () => openNotification('error', 'Google Login Failed', 'top', ''),
+  });
+
   return (
-    <div className={styles.authContainer}>
-      <div className={styles.shapesContainer}>
-        <div className={`${styles.shape} ${styles.shape1}`}></div>
-        <div className={`${styles.shape} ${styles.shape2}`}></div>
-        <div className={`${styles.shape} ${styles.shape3}`}></div>
-      </div>
+      <div className={styles.authContainer}>
+        <div className={styles.shapesContainer}>
+          <div className={`${styles.shape} ${styles.shape1}`}></div>
+          <div className={`${styles.shape} ${styles.shape2}`}></div>
+          <div className={`${styles.shape} ${styles.shape3}`}></div>
+        </div>
 
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-md-10 col-lg-8 col-xl-8">
-            <div className={styles.brandLogo}>
-              <div className={styles.logoCircle}>
-                <span>TS</span>
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-10 col-lg-8 col-xl-8">
+              <div className={styles.brandLogo}>
+                <div className={styles.logoCircle}>
+                  <span>TS</span>
+                </div>
+                <h3>Talent Shift</h3>
               </div>
-              <h3>Talent Shift</h3>
-            </div>
 
-            <div className={`card ${styles.authCard}`}>
-              <div className="row g-0">
-                <div className="col-md-5 d-none d-md-block">
-                  <div className={styles.authSidebar}>
-                    <div className={styles.sidebarContent}>
-                      <h2>Welcome Back</h2>
-                      <p>
-                        Log in to access your account and continue your journey
-                        with us.
-                      </p>
-                      <div className={styles.sidebarIllustration}>
-                        <i className="bi bi-person-check-fill"></i>
-                      </div>
-                      <div className={styles.testimonial}>
+              <div className={`card ${styles.authCard}`}>
+                <div className="row g-0">
+                  <div className="col-md-5 d-none d-md-block">
+                    <div className={styles.authSidebar}>
+                      <div className={styles.sidebarContent}>
+                        <h2>Welcome Back</h2>
                         <p>
-                          "The platform has transformed how I find work
-                          opportunities."
+                          Log in to access your account and continue your journey
+                          with us.
                         </p>
-                        <div className={styles.testimonialAuthor}>
-                          <span>— Sarah Johnson</span>
+                        <div className={styles.sidebarIllustration}>
+                          <i className="bi bi-person-check-fill"></i>
+                        </div>
+                        <div className={styles.testimonial}>
+                          <p>
+                            "The platform has transformed how I find work
+                            opportunities."
+                          </p>
+                          <div className={styles.testimonialAuthor}>
+                            <span>— Sarah Johnson</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="col-md-7">
-                  <div className={styles.authContent}>
-                    <div className={styles.authHeader}>
-                      <h2>Sign In</h2>
-                      <p className="text-muted">
-                        Access your Talent Shift account
-                      </p>
-                    </div>
+                  <div className="col-md-7">
+                    <div className={styles.authContent}>
+                      <div className={styles.authHeader}>
+                        <h2>Sign In</h2>
+                        <p className="text-muted">
+                          Access your Talent Shift account
+                        </p>
+                      </div>
 
-                    <div className="card-body p-5">
-                      {error && (
-                        <div
-                          className={`alert alert-danger ${styles.customAlert}`}
-                        >
-                          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                          {error}
-                        </div>
-                      )}
-
-                      <form onSubmit={handleSubmit}>
-                        <div className="mb-4">
-                          <label
-                            htmlFor="email"
-                            className={`form-label ${styles.formLabel}`}
+                      <div className="card-body p-5">
+                        {error && (
+                          <div
+                            className={`alert alert-danger ${styles.customAlert}`}
                           >
-                            Email Address
-                          </label>
-                          <div className={styles.inputWrapper}>
-                            <i className="bi bi-envelope"></i>
-                            <input
-                              type="email"
-                              className={`form-control ${styles.formInput}`}
-                              id="email"
-                              name="email"
-                              placeholder="your@email.com"
-                              value={formData.email}
-                              onChange={handleChange}
-                              required
-                            />
-                            <span className={styles.inputFocus}></span>
+                            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                            {error}
                           </div>
-                        </div>
+                        )}
 
-                        <div className="mb-3">
-                          <div className="d-flex justify-content-between align-items-center">
+                        <form onSubmit={handleSubmit}>
+                          <div className="mb-4">
                             <label
-                              htmlFor="password"
+                              htmlFor="email"
                               className={`form-label ${styles.formLabel}`}
                             >
-                              Password
+                              Email Address
                             </label>
-                            <Link
-                              to="/forgot-password"
-                              className={styles.forgotPassword}
+                            <div className={styles.inputWrapper}>
+                              <i className="bi bi-envelope"></i>
+                              <input
+                                type="email"
+                                className={`form-control ${styles.formInput}`}
+                                id="email"
+                                name="email"
+                                placeholder="your@email.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                              />
+                              <span className={styles.inputFocus}></span>
+                            </div>
+                          </div>
+
+                          <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                              <label
+                                htmlFor="password"
+                                className={`form-label ${styles.formLabel}`}
+                              >
+                                Password
+                              </label>
+                              <Link
+                                to="/forgot-password"
+                                className={styles.forgotPassword}
+                              >
+                                Forgot Password?
+                              </Link>
+                            </div>
+                            <div className={styles.inputWrapper}>
+                              <i className="bi bi-lock"></i>
+                              <input
+                                type="password"
+                                className={`form-control ${styles.formInput}`}
+                                id="password"
+                                name="password"
+                                placeholder="••••••••"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                              />
+                              <span className={styles.inputFocus}></span>
+                            </div>
+                          </div>
+
+                          <div className="mb-4">
+                            <div className={styles.customCheckbox}>
+                              <input
+                                type="checkbox"
+                                id="rememberMe"
+                                checked={rememberMe}
+                                onChange={() => setRememberMe(!rememberMe)}
+                              />
+                              <label htmlFor="rememberMe">
+                                <span className={styles.checkmark}>
+                                  <i className="bi bi-check"></i>
+                                </span>
+                                Remember me
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="d-grid gap-3 mt-4">
+                            <button
+                              type="submit"
+                              className={`btn ${styles.primaryBtn}`}
+                              disabled={isLoading}
                             >
-                              Forgot Password?
+                              {isLoading ? (
+                                <>
+                                  <span
+                                    className={styles.spinnerBorder}
+                                    role="status"
+                                    aria-hidden="true"
+                                  ></span>
+                                  <span className="ms-2">Sign In...</span>
+                                </>
+                              ) : (
+                                "Sign In"
+                              )}
+                            </button>
+                            <div className="d-grid">
+                              <button
+                                  type="button"
+                                  className={`btn ${styles.googleBtn}`}
+                                  onClick={() => googleButtonOnClick()} // ← Call the hook here
+                                  disabled={isLoading}
+                              >
+                                <i className="bi bi-google me-2"></i>
+                                Sign up with Google
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+
+                        <div className={styles.divider}>
+                          <span>OR</span>
+                        </div>
+
+                        <div className={styles.authFooter}>
+                          <p className="text-center mb-0">
+                            Don't have an account?{" "}
+                            <Link to="/register" className={styles.authLink}>
+                              Create Account
                             </Link>
-                          </div>
-                          <div className={styles.inputWrapper}>
-                            <i className="bi bi-lock"></i>
-                            <input
-                              type="password"
-                              className={`form-control ${styles.formInput}`}
-                              id="password"
-                              name="password"
-                              placeholder="••••••••"
-                              value={formData.password}
-                              onChange={handleChange}
-                              required
-                            />
-                            <span className={styles.inputFocus}></span>
-                          </div>
+                          </p>
                         </div>
-
-                        <div className="mb-4">
-                          <div className={styles.customCheckbox}>
-                            <input
-                              type="checkbox"
-                              id="rememberMe"
-                              checked={rememberMe}
-                              onChange={() => setRememberMe(!rememberMe)}
-                            />
-                            <label htmlFor="rememberMe">
-                              <span className={styles.checkmark}>
-                                <i className="bi bi-check"></i>
-                              </span>
-                              Remember me
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="d-grid gap-3 mt-4">
-                          <button
-                            type="submit"
-                            className={`btn ${styles.primaryBtn}`}
-                            disabled={isLoading}
-                          >
-                            {isLoading ? (
-                              <>
-                                <span
-                                  className={styles.spinnerBorder}
-                                  role="status"
-                                  aria-hidden="true"
-                                ></span>
-                                <span className="ms-2">Sign In...</span>
-                              </>
-                            ) : (
-                              "Sign In"
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            className={`btn ${styles.googleBtn}`}
-                            onClick={handleGoogleLogin}
-                            disabled={isLoading}
-                          >
-                            <i className="bi bi-google me-2"></i>
-                            Sign in with Google
-                          </button>
-                        </div>
-                      </form>
-
-                      <div className={styles.divider}>
-                        <span>OR</span>
-                      </div>
-
-                      <div className={styles.authFooter}>
-                        <p className="text-center mb-0">
-                          Don't have an account?{" "}
-                          <Link to="/register" className={styles.authLink}>
-                            Create Account
-                          </Link>
-                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className={styles.securityNote}>
-              <i className="bi bi-shield-lock me-2"></i>
-              <span>Secure login with 256-bit encryption</span>
+              <div className={styles.securityNote}>
+                <i className="bi bi-shield-lock me-2"></i>
+                <span>Secure login with 256-bit encryption</span>
+              </div>
             </div>
           </div>
         </div>
+        <Modal
+          title="Select Your Role"
+          open={roleModalVisible}
+          onOk={handleRoleSelect}
+          onCancel={() => setRoleModalVisible(false)}
+          okText="Continue"
+          width={600}
+        >
+          <div className="row mt-3">
+            <div className="col-md-6 mb-3 mb-md-0">
+              <div
+                className={`${styles.userTypeCard} ${selectedRole === "FREELANCER"
+                    ? styles.userTypeCardActive
+                    : ""
+                  }`}
+                onClick={() => setSelectedRole("FREELANCER")}
+              >
+                <div className={styles.userTypeIcon}>
+                  <i className="bi bi-person-workspace"></i>
+                </div>
+                <div className={styles.userTypeContent}>
+                  <h5>Freelancer</h5>
+                  <p>
+                    I want to work on projects and offer my
+                    services
+                  </p>
+                  <ul className={styles.userTypeFeatures}>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Find projects
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Showcase skills
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Get paid
+                    </li>
+                  </ul>
+                </div>
+                <div className={styles.userTypeRadio}>
+                  <input
+                    type="radio"
+                    name="userType"
+                    id="freelancer"
+                    value="FREELANCER"
+                    checked={selectedRole === "FREELANCER"}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="form-check-input"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div
+                className={`${styles.userTypeCard} ${selectedRole === "HIRER"
+                    ? styles.userTypeCardActive
+                    : ""
+                  }`}
+                onClick={() => setSelectedRole("HIRER")}
+              >
+                <div className={styles.userTypeIcon}>
+                  <i className="bi bi-briefcase"></i>
+                </div>
+                <div className={styles.userTypeContent}>
+                  <h5>Hirer</h5>
+                  <p>
+                    I want to hire talent and post projects
+                  </p>
+                  <ul className={styles.userTypeFeatures}>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Post jobs
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Find talent
+                    </li>
+                    <li>
+                      <i className="bi bi-check-circle-fill"></i>{" "}
+                      Manage projects
+                    </li>
+                  </ul>
+                </div>
+                <div className={styles.userTypeRadio}>
+                  <input
+                    type="radio"
+                    name="userType"
+                    id="hirer"
+                    value="HIRER"
+                    checked={selectedRole === "HIRER"}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="form-check-input"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
       </div>
-    </div>
   );
 }

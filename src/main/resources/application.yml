@@ -2,6 +2,7 @@ server:
   error:
     include-message: always
     include-binding-errors: always
+    include-exception: true
 spring:
   servlet:
     multipart:
@@ -14,13 +15,43 @@ spring:
     url: jdbc:mysql://localhost:3306/talentshift
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
 
+jwt:
+    secret: bYfFml3KXwYj6t9uXxTz3KQm1aRP+F0T2r+TfQJzrXc=
+# MoMo Configuration (Sandbox)
+momo:
+  partner-code: MOMO
+  access-key: F8BBA842ECF85
+  secret-key: K951B6PE1waDMi640xX08PD3vg6EkVlz
+  api-endpoint: https://test-payment.momo.vn/v2/gateway/api/create
+  return-url: https://e226-42-114-27-199.ngrok-free.app/api/momo/return
+  notify-url: https://e226-42-114-27-199.ngrok-free.app/api/momo/callback
+
+vnpay:
+  tmnCode: 6TZBIZ4W
+  secretKey: VMBRDFDCQQ2POO8TLNKCRUP6E0E7VHUI
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  returnUrl: http://localhost:8080/api/vnpay/return
+
+logging:
+  level:
+    org.hibernate.SQL: warn
+    org.hibernate.type.descriptor.sql: warn
+    com.zaxxer.hikari: warn
+    com.mysql.cj: warn
+
 # File upload configuration
 file:
   upload-dir: ./uploads
+# Day la cho debug loi neu khong xuat hien tu front end sang
+# logging:
+#   level:
+#     root: DEBUG
+#     org.hibernate.orm.results: WARN
+#     org.hibernate.orm.mapping.natural_id: WARN

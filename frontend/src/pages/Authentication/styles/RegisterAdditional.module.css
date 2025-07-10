@@ -266,12 +266,12 @@
     border-color: var(--border-color);
     width: 100%;
   }
-  
-  .skillChip {
-    background-color: var(--primary-color);
-    color: white;
-    margin: 0.25rem;
-  }
+
+.skillChip {
+  margin: 2px;
+  background-color: #e0e0e0;
+  color: #333;
+}
   
   /* Experience and Education Steps */
   .experienceActions,

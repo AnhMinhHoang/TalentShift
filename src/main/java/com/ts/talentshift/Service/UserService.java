@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserService implements IUserService {
+public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -29,7 +30,12 @@ public class UserService implements IUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
+    
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    
     public User registerUser(String email, String password, String fullName, String role) {
         if (userRepository.existsByEmail(email)) {
             return null;
@@ -44,17 +50,17 @@ public class UserService implements IUserService {
         return userRepository.save(user);
     }
 
-    @Override
+    
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    @Override
+    
     public List<User> getAllUser() {
         return userRepository.findAll();
     }
 
-    @Override
+    
     public User updateBasicProfile(Long userId, User updatedUser) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
@@ -67,124 +73,7 @@ public class UserService implements IUserService {
                 .orElse(null);
     }
 
-    @Override
-    public User updateFreelancerProfile(Long userId, User updatedUser) {
-        return userRepository.findById(userId)
-                .map(existingUser -> {
-                    if (existingUser.getRole() != Role.FREELANCER) {
-                        return null;
-                    }
-                    
-                    // Update basic freelancer fields
-                    existingUser.setBio(updatedUser.getBio());
-                    existingUser.setLocation(updatedUser.getLocation());
-                    existingUser.setBirthDate(updatedUser.getBirthDate());
-                    
-                    // Clear existing collections
-                    existingUser.getSkills().clear();
-                    existingUser.getExperiences().clear();
-                    existingUser.getEducations().clear();
-                    existingUser.getCertificates().clear();
-                    existingUser.getLinks().clear();
-                    
-                    // Add new items using helper methods to maintain bidirectional relationships
-                    if (updatedUser.getSkills() != null) {
-                        updatedUser.getSkills().forEach(skill -> {
-                            // Add existingUser to the skill's users list
-                            if (!skill.getUsers().contains(existingUser)) {
-                                skill.getUsers().add(existingUser);
-                            }
-                            // Add skill to existingUser's skills list
-                            if (!existingUser.getSkills().contains(skill)) {
-                                existingUser.getSkills().add(skill);
-                            }
-                        });
-                    }
-                    
-                    if (updatedUser.getExperiences() != null) {
-                        updatedUser.getExperiences().forEach(experience -> {
-                            // Clear and update projects for each experience
-                            if (experience.getProjects() != null) {
-                                experience.getProjects().forEach(project -> {
-                                    project.setExperience(experience);
-                                });
-                            }
-                            experience.setUser(existingUser);
-                            existingUser.getExperiences().add(experience);
-                        });
-                    }
-                    
-                    if (updatedUser.getEducations() != null) {
-                        updatedUser.getEducations().forEach(education -> {
-                            education.setUser(existingUser);
-                            existingUser.getEducations().add(education);
-                        });
-                    }
-                    
-                    if (updatedUser.getCertificates() != null) {
-                        updatedUser.getCertificates().forEach(certificate -> {
-                            certificate.setUser(existingUser);
-                            existingUser.getCertificates().add(certificate);
-                        });
-                    }
-                    
-                    if (updatedUser.getLinks() != null) {
-                        updatedUser.getLinks().forEach(link -> {
-                            link.setUser(existingUser);
-                            existingUser.getLinks().add(link);
-                        });
-                    }
-                    
-                    return userRepository.save(existingUser);
-                })
-                .orElse(null);
-    }
-
-    @Override
-    public User updateHirerProfile(Long userId, User updatedUser, MultipartFile logo, MultipartFile registrationFile) {
-        return userRepository.findById(userId)
-                .map(existingUser -> {
-                    if (existingUser.getRole() != Role.HIRER) {
-                        return null;
-                    }
-
-                    // Update basic information
-                    existingUser.setCompanyName(updatedUser.getCompanyName());
-                    existingUser.setDescription(updatedUser.getDescription());
-                    existingUser.setContactLink(updatedUser.getContactLink());
-
-                    try {
-                        // Create upload directory if it doesn't exist
-                        Path uploadPath = Paths.get(uploadDir);
-                        if (!Files.exists(uploadPath)) {
-                            Files.createDirectories(uploadPath);
-                        }
-
-                        // Handle logo upload
-                        if (logo != null && !logo.isEmpty()) {
-                            String logoFileName = UUID.randomUUID().toString() + "_" + logo.getOriginalFilename();
-                            Path logoPath = uploadPath.resolve(logoFileName);
-                            Files.copy(logo.getInputStream(), logoPath);
-                            existingUser.setLogoPath(logoFileName);
-                        }
-
-                        // Handle registration file upload
-                        if (registrationFile != null && !registrationFile.isEmpty()) {
-                            String regFileName = UUID.randomUUID().toString() + "_" + registrationFile.getOriginalFilename();
-                            Path regFilePath = uploadPath.resolve(regFileName);
-                            Files.copy(registrationFile.getInputStream(), regFilePath);
-                            existingUser.setRegistrationFilePath(regFileName);
-                        }
-
-                        return userRepository.save(existingUser);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to store file", e);
-                    }
-                })
-                .orElse(null);
-    }
-
-    @Override
+    
     public User updateUserProfile(Long userId, User updatedUser) {
         return userRepository.findById(userId)
                 .map(existingUser -> {
@@ -206,6 +95,22 @@ public class UserService implements IUserService {
                     existingUser.setLogoPath(updatedUser.getLogoPath());
                     existingUser.setRegistrationFilePath(updatedUser.getRegistrationFilePath());
                     existingUser.setVerified(updatedUser.isVerified());
+                    return userRepository.save(existingUser);
+                })
+                .orElse(null);
+    }
+
+    
+    public void addUserBalance(User user, BigDecimal amount) {
+        user.setBalance(user.getBalance().add(amount));
+    }
+
+    
+    public User proPurchase(Long userId) {
+        return userRepository.findById(userId)
+                .map(existingUser -> {
+                    existingUser.setPremium(true);
+                    existingUser.setBalance(existingUser.getBalance().subtract(BigDecimal.valueOf(200000)));
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);

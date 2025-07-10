@@ -1,5 +1,6 @@
 package com.ts.talentshift.Model.Freelancer;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ts.talentshift.Model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,5 +41,6 @@ public class Experience {
     private User user;
 
     @OneToMany(mappedBy = "experience", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Project> projects = new ArrayList<>();
 }

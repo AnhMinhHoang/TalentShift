@@ -8,6 +8,7 @@ import {
   Modal,
   Form,
 } from "react-bootstrap";
+import { Table, Tag, Input, Select } from "antd";
 import {
   FaMapMarkerAlt,
   FaDollarSign,
@@ -31,6 +32,41 @@ import styles from "./Styles/JobDetail.module.css";
 import { fetchJobById } from '../../services/jobService';
 import { useParams } from "react-router-dom";
 
+// Demo data ứng viên
+const applicantsData = [
+  {
+    id: 1,
+    name: "Nguyen Van A",
+    email: "a@gmail.com",
+    skills: ["React", "Node.js", "CSS"],
+    experience: 3,
+    expectedSalary: 1200,
+    status: "Pending",
+  },
+  {
+    id: 2,
+    name: "Tran Thi B",
+    email: "b@gmail.com",
+    skills: ["Java", "Spring", "SQL"],
+    experience: 5,
+    expectedSalary: 1500,
+    status: "Pending",
+  },
+  {
+    id: 3,
+    name: "Le Van C",
+    email: "c@gmail.com",
+    skills: ["Python", "Django", "React"],
+    experience: 2,
+    expectedSalary: 1000,
+    status: "Pending",
+  },
+];
+
+const allSkills = [
+  ...new Set(applicantsData.flatMap((u) => u.skills)),
+];
+
 export default function JobDetail() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -45,6 +81,12 @@ export default function JobDetail() {
     resume: null,
     coverLetter: "",
   });
+
+  // Applicants filter states
+  const [search, setSearch] = useState("");
+  const [skill, setSkill] = useState("");
+  const [minExp, setMinExp] = useState("");
+  const [maxSalary, setMaxSalary] = useState("");
 
   const jobLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
@@ -72,7 +114,6 @@ export default function JobDetail() {
 
     fetchJob();
   }, [id]);
-
 
   // Transform backend job data to match frontend structure
   const transformJobData = (backendJob) => {
@@ -182,6 +223,74 @@ export default function JobDetail() {
     });
   };
 
+  // Filter logic for applicants
+  const filteredApplicants = applicantsData.filter((u) => {
+    const matchName =
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase());
+    const matchSkill = skill ? u.skills.includes(skill) : true;
+    const matchExp = minExp ? u.experience >= Number(minExp) : true;
+    const matchSalary = maxSalary ? u.expectedSalary <= Number(maxSalary) : true;
+    return matchName && matchSkill && matchExp && matchSalary;
+  });
+
+  // Table columns for applicants
+  const applicantColumns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <div>
+          <div style={{ fontWeight: 600 }}>{text}</div>
+          <div style={{ fontSize: 13, color: "#888" }}>{record.email}</div>
+        </div>
+      ),
+    },
+    {
+      title: "Skills",
+      dataIndex: "skills",
+      key: "skills",
+      render: (skills) => (
+        <>
+          {skills.map((s) => (
+            <Tag color="blue" key={s}>{s}</Tag>
+          ))}
+        </>
+      ),
+    },
+    {
+      title: "Experience (years)",
+      dataIndex: "experience",
+      key: "experience",
+      align: "center",
+    },
+    {
+      title: "Expected Salary ($)",
+      dataIndex: "expectedSalary",
+      key: "expectedSalary",
+      align: "center",
+      render: (val) => <span style={{ fontWeight: 600 }}>{val}</span>,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <Tag color={status === "Pending" ? "orange" : "green"}>{status}</Tag>
+      ),
+      align: "center",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Button type="primary" size="small">View Profile</Button>
+      ),
+      align: "center",
+    },
+  ];
+
   return (
     <div className={`${styles.pageWrapper} ${styles.jobDetail}`}>
       {contextHolder} {/* Ant Design notification container */}
@@ -274,6 +383,13 @@ export default function JobDetail() {
               >
                 Skills
               </div>
+              <div
+                className={`${styles.tab} ${activeTab === "applicants" ? styles.activeTab : ""
+                  }`}
+                onClick={() => setActiveTab("applicants")}
+              >
+                Applicants ({applicantsData.length})
+              </div>
               {/* <div
                 className={`${styles.tab} ${
                   activeTab === "benefits" ? styles.activeTab : ""
@@ -319,6 +435,55 @@ export default function JobDetail() {
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {activeTab === "applicants" && (
+                <div>
+                  <h2>Job Applicants</h2>
+                  <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: 'wrap', background: '#f7fafc', borderRadius: 12, padding: 18 }}>
+                    <Input
+                      placeholder="Search by name or email..."
+                      value={search}
+                      onChange={e => setSearch(e.target.value)}
+                      style={{ width: 240, borderRadius: 8 }}
+                    />
+                    <Select
+                      allowClear
+                      placeholder="Filter by skill"
+                      value={skill}
+                      onChange={setSkill}
+                      style={{ width: 180 }}
+                    >
+                      {allSkills.map(s => (
+                        <Select.Option key={s} value={s}>{s}</Select.Option>
+                      ))}
+                    </Select>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="Min experience (years)"
+                      value={minExp}
+                      onChange={e => setMinExp(e.target.value)}
+                      style={{ width: 180, borderRadius: 8 }}
+                    />
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="Max salary ($)"
+                      value={maxSalary}
+                      onChange={e => setMaxSalary(e.target.value)}
+                      style={{ width: 180, borderRadius: 8 }}
+                    />
+                  </div>
+                  <Table
+                    columns={applicantColumns}
+                    dataSource={filteredApplicants}
+                    rowKey="id"
+                    pagination={{ pageSize: 6 }}
+                    bordered
+                    style={{ background: '#fff', borderRadius: 12 }}
+                  />
                 </div>
               )}
 

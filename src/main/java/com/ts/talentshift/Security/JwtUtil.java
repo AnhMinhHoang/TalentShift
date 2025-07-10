@@ -4,6 +4,7 @@ import com.ts.talentshift.Model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -15,7 +16,8 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-    private String SECRET_KEY = "bYfFml3KXwYj6t9uXxTz3KQm1aRP+F0T2r+TfQJzrXc=\n";
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
     private long EXPIRES_IN = 1000 * 60 * 60;
 
     public String generateJwtToken(User user) {

@@ -1,15 +1,22 @@
 import React from "react"
 import { useState } from "react"
-import { Edit, Trash, Calendar, Plus } from "lucide-react"
+import { Edit, Trash, Plus } from "lucide-react"
 import { CustomModal } from "../Modal/CustomModal"
 import styles from "../../pages/userProfile/style/UserProfile.module.css"
+
+const formatDate = (dateString) => {
+    if (!dateString) return "Now";
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear()).slice(2);
+    return `${month}-${year}`;
+};
 
 export const CertificateModal = ({ onClose, certificates, onSave }) => {
     const [certificateList, setCertificateList] = useState([...certificates])
     const [showAddCertificateForm, setShowAddCertificateForm] = useState(false)
     const [formData, setFormData] = useState({})
     const [validationErrors, setValidationErrors] = useState({})
-    const [showSuccess, setShowSuccess] = useState(false)
 
     // Handle form input changes
     const handleInputChange = (e) => {
@@ -29,10 +36,8 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
         setFormData({
             id: certificate.id,
             name: certificate.name,
-            issuer: certificate.issuer,
             issueDate: certificate.issueDate,
             score: certificate.score,
-            verifiedBy: certificate.verifiedBy,
             description: certificate.description,
         })
         setShowAddCertificateForm(true)
@@ -74,12 +79,7 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
 
     // Handle final save
     const handleSave = () => {
-        setShowSuccess(true)
-
-        // Show success message briefly before closing
-        setTimeout(() => {
-            onSave(certificateList)
-        }, 1000)
+        onSave(certificateList)
     }
 
     return (
@@ -91,8 +91,7 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
                             <div className="d-flex align-items-start">
                                 <div className="me-auto">
                                     <div className="fw-medium">{certificate.name}</div>
-                                    <div className="small text-muted">{certificate.issuer}</div>
-                                    <div className="small text-muted">{certificate.issueDate}</div>
+                                    <div className="small text-muted">{formatDate(certificate.issueDate)}</div>
                                 </div>
                                 <div>
                                     <button
@@ -127,12 +126,6 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
                         </button>
                     </div>
 
-                    {showSuccess && (
-                        <div className={`alert alert-success ${styles.alert} mt-3`} role="alert">
-                            Certificates updated successfully!
-                        </div>
-                    )}
-
                     <div className="text-end mt-3">
                         <button type="button" className="btn btn-secondary me-2" onClick={onClose}>
                             Cancel
@@ -161,20 +154,6 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
                     </div>
 
                     <div className="mb-3">
-                        <label htmlFor="issuer" className="form-label">
-                            Issuer
-                        </label>
-                        <input
-                            type="text"
-                            className={`form-control ${styles.formControl}`}
-                            id="issuer"
-                            name="issuer"
-                            value={formData.issuer || ""}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="mb-3">
                         <label htmlFor="achievement" className="form-label">
                             Achievement
                         </label>
@@ -189,13 +168,13 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
                     </div>
 
                     <div className="row mb-3">
-                        <div className="col-md-6">
+                        <div className="col-md-12">
                             <label htmlFor="issuedDate" className="form-label">
                                 Issued Date
                             </label>
                             <div className="input-group">
                                 <input
-                                    type="text"
+                                    type="date"
                                     className={`form-control ${styles.formControl}`}
                                     id="issuedDate"
                                     name="issueDate"
@@ -203,23 +182,7 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
                                     value={formData.issueDate || ""}
                                     onChange={handleInputChange}
                                 />
-                                <span className="input-group-text">
-                                    <Calendar size={16} />
-                                </span>
                             </div>
-                        </div>
-                        <div className="col-md-6">
-                            <label htmlFor="verifiedBy" className="form-label">
-                                Verified by
-                            </label>
-                            <input
-                                type="text"
-                                className={`form-control ${styles.formControl}`}
-                                id="verifiedBy"
-                                name="verifiedBy"
-                                value={formData.verifiedBy || ""}
-                                onChange={handleInputChange}
-                            />
                         </div>
                     </div>
 

@@ -53,9 +53,11 @@ export default function JobPost() {
   // In JobPost component
   const handleSubmit = async (isDraft = false) => {
     try {
+      const userId = localStorage.getItem("userId"); // ⬅️ Get hirer ID
 
       const response = await createJobPost({
         ...formData,
+        hirerId: userId, // ⬅️ Add it here
         keyResponsibilities: formData.keyResponsibilities
           .split('\n')
           .map(line => line.trim())
@@ -64,7 +66,7 @@ export default function JobPost() {
           .split('\n')
           .map(line => line.trim())
           .filter(Boolean),
-        status: isDraft ? 'DRAFT' : 'PUBLISHED'
+        publishStatus: isDraft ? 'DRAFT' : 'PUBLISHED',
       });
 
       setAlert({

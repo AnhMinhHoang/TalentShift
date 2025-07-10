@@ -1,201 +1,185 @@
-import React, { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../pages/AuthContext";
+import { Link } from "react-router-dom"
+import { useAuth } from "../../pages/AuthContext"
+import styles from "./Navbar.module.css"
 
-import $ from "jquery";
+export default function Navbar() {
+  const { userData, logout, loading } = useAuth()
 
-function Navbar() {
-  const location = useLocation();
-  const sectionArray = [1, 2, 3, 4, 5];
-  const { user, logout } = useAuth();
+  if (loading) return null
 
-  useEffect(() => {
-    // Check if we're on the homepage
-    if (location.pathname === "/") {
-      // Scroll event handler
-      const handleScroll = () => {
-        const docScroll = $(document).scrollTop();
-        sectionArray.forEach((value, index) => {
-          const offsetSection = $(`#section_${value}`).offset()?.top - 75;
-          if (docScroll + 1 >= offsetSection) {
-            $(".navbar-nav .nav-item .nav-link")
-              .removeClass("active")
-              .addClass("inactive");
-            $(".navbar-nav .nav-item .nav-link")
-              .eq(index)
-              .addClass("active")
-              .removeClass("inactive");
-          }
-        });
-      };
+  // Format balance to VND
+  const formatVND = (amount) => {
+    return amount !== undefined
+        ? amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
+        : (1000000).toLocaleString("vi-VN", { style: "currency", currency: "VND" })
+  }
 
-      // Attach scroll listener
-      $(document).on("scroll", handleScroll);
-
-      // Set initial state
-      $(".navbar-nav .nav-item .nav-link")
-        .removeClass("active")
-        .addClass("inactive");
-      $(".navbar-nav .nav-item .nav-link")
-        .eq(0)
-        .addClass("active")
-        .removeClass("inactive");
-
-      // Click event for smooth scrolling
-      sectionArray.forEach((value, index) => {
-        $(".click-scroll")
-          .eq(index)
-          .on("click", function (e) {
-            e.preventDefault();
-            const offsetClick = $(`#section_${value}`).offset()?.top - 75;
-            $("html, body").animate({ scrollTop: offsetClick }, 300);
-          });
-      });
-
-      // Cleanup event listeners when component unmounts or path changes
-      return () => {
-        $(document).off("scroll", handleScroll);
-        $(".click-scroll").off("click");
-      };
-    } else {
-      // On non-homepage routes, clear active class
-      $(".navbar-nav .nav-item .nav-link")
-        .removeClass("active")
-        .addClass("inactive");
+  // Get first letter for avatar
+  const getAvatarLetter = () => {
+    if (userData?.role === "HIRER") {
+      return userData.companyName ? userData.companyName.charAt(0).toUpperCase() : "C"
+    } else if (userData?.role === "FREELANCER") {
+      return userData.fullName ? userData.fullName.charAt(0).toUpperCase() : "U"
     }
-  }, [location.pathname]);
+    return "U"
+  }
+
+  // Check if user has custom avatar
+  const hasCustomAvatar = () => {
+    if (userData?.role === "HIRER") {
+      return userData.logoPath && userData.logoPath !== "/asset/images/default-company-logo.png"
+    } else if (userData?.role === "FREELANCER") {
+      return userData.avatar && userData.avatar !== "/asset/images/default-profile.jpg"
+    }
+    return false
+  }
+
   return (
-    <nav className="navbar navbar-expand-lg">
-      <div className="container">
-        <a className="navbar-brand" href="/">
-          <i className="bi-back"></i>
-          <span>TalentShift</span>
-        </a>
-
-        <div className="d-lg-none ms-auto me-4">
-          <a href="#" className="navbar-icon bi-person smoothscroll"></a>
-        </div>
-
-        {/*top in the href don't know what is that thing*/}
-
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-lg-5 me-lg-auto">
-            <li className="nav-item">
-              <Link to="/#section_1" className="nav-link click-scroll">
-                Home
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link to="/#section_2" className="nav-link click-scroll">
-                About
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <div>
-                <Link to="/jobs" className="nav-link">
+      <nav className={`navbar navbar-expand-lg ${styles.navbar}`}>
+        <div className="container">
+          <Link to="/" className={`navbar-brand ${styles.navbarBrand}`}>
+            <div className={styles.logoContainer}>
+              <img src="/asset/images/icons/favicon-32x32.png" alt="TalentShift" className={styles.logo} />
+            </div>
+            <span className={styles.brandText}>TalentShift</span>
+          </Link>
+          <div className="d-lg-none ms-auto me-4">
+            <Link
+                to={userData ? (userData.role === "HIRER" ? "/enterprise-profile-page" : "/profile-page") : "/login"}
+                className={styles.mobileProfileIcon}
+            >
+              <i className="bi bi-person"></i>
+            </Link>
+          </div>
+          <button
+              className={`navbar-toggler ${styles.navbarToggler}`}
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+          >
+            <span className={styles.navbarTogglerIcon}></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav ms-lg-5 me-lg-auto">
+              <li className="nav-item">
+                <Link to="/#section_1" className={`nav-link ${styles.navLink}`}>
+                  Home
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/jobs" className={`nav-link ${styles.navLink}`}>
                   Jobs
                 </Link>
-              </div>
-            </li>
-
-            <li className="nav-item">
-              <div>
-                <Link to="/job-posting" className="nav-link">
-                  Post Job
-                </Link>
-              </div>
-            </li>
-
-            {/* <li className="nav-item">
-              <Link to="/#section_5" className="nav-link click-scroll">
-                Contact
-              </Link>
-            </li>
-
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle"
-                href="#"
-                id="navbarLightDropdownMenuLink"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Pages
-              </a>
-
-              <ul
-                className="dropdown-menu dropdown-menu-light"
-                aria-labelledby="navbarLightDropdownMenuLink"
-              >
-                <li>
-                  <Link to="/jobs" className="dropdown-item">
-                    Jobs
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="dropdown-item">
-                    Contact Form
-                  </Link>
-                </li>
-              </ul>
-            </li> */}
-          </ul>
-
-          <div className="d-none d-lg-block">
-            {user ? (
-              <div className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle text-white"
-                  href="#"
-                  id="userDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Welcome, Nguyen Van A {/* Show user's name */}
-                </a>
-                <ul
-                  className="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="userDropdown"
-                >
-                  <li>
-                    <Link to="/profile-page" className="dropdown-item">
-                      Profile
+              </li>
+              {userData && userData.role === "HIRER" && (
+                  <li className="nav-item">
+                    <Link to="/job-posting" className={`nav-link ${styles.navLink}`}>
+                      Post Job
                     </Link>
                   </li>
-                  <li>
-                    <button className="dropdown-item" onClick={logout}>
-                      Logout
-                    </button>
+              )}
+              {userData && userData.role === "FREELANCER" && (
+                  <li className="nav-item">
+                    <Link to="/profile-page?tab=applied" className={`nav-link ${styles.navLink}`}>
+                      Applied Jobs
+                    </Link>
                   </li>
-                </ul>
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                className="navbar-icon bi-person smoothscroll"
-              ></Link>
-            )}
+              )}
+              {userData && (
+                  <li className="nav-item">
+                    <Link to="/payment/plan" className={`nav-link ${styles.navLink}`}>
+                      Pricing
+                    </Link>
+                  </li>
+              )}
+            </ul>
+            <div className="d-none d-lg-block">
+              {userData ? (
+                  <div className={`nav-item dropdown ${styles.userDropdown}`}>
+                    <a
+                        className={`nav-link dropdown-toggle ${styles.dropdownToggle}`}
+                        href="#"
+                        id="userDropdown"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                      <div className={styles.userInfo}>
+                        <div className={styles.userDetails}>
+                          <div className={styles.userName}>
+                            {userData.role === "HIRER"
+                                ? userData.companyName
+                                : userData.role === "FREELANCER"
+                                    ? userData.fullName
+                                    : "User"}
+                            {userData.premium ? (
+                                <span className={styles.premiumBadge}>PRO</span>
+                            ) : (
+                                <span className={styles.freeBadge}>FREE</span>
+                            )}
+                          </div>
+                          <div className={styles.userBalance}>
+                            Balance: <span className={styles.balanceAmount}>{formatVND(userData.balance)}</span>
+                          </div>
+                        </div>
+                        {hasCustomAvatar() ? (
+                            <img
+                                src={
+                                  userData.role === "HIRER"
+                                      ? userData.logoPath || "/asset/images/default-company-logo.png"
+                                      : userData.avatar || "/asset/images/default-profile.jpg"
+                                }
+                                alt="avatar"
+                                className={styles.userAvatar}
+                            />
+                        ) : (
+                            <div className={styles.defaultAvatar}>{getAvatarLetter()}</div>
+                        )}
+                      </div>
+                    </a>
+                    <ul className={`dropdown-menu dropdown-menu-end ${styles.dropdownMenu}`} aria-labelledby="userDropdown">
+                      <li>
+                        <Link
+                            to={userData.role === "HIRER" ? "/enterprise-profile-page" : "/profile-page"}
+                            className={`dropdown-item ${styles.dropdownItem}`}
+                        >
+                          <i className="bi bi-person me-2"></i>
+                          Profile
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/payment" className={`dropdown-item ${styles.dropdownItem}`}>
+                          <i className="bi bi-wallet2 me-2"></i>
+                          Balance: <span className={styles.balanceAmount}>{formatVND(userData.balance)}</span>
+                        </Link>
+                      </li>
+                      {!userData.premium && (
+                          <li>
+                            <Link to="/payment/plan" className={`dropdown-item ${styles.dropdownItem} ${styles.upgradeItem}`}>
+                              <i className="bi bi-star me-2"></i>
+                              Upgrade Account
+                            </Link>
+                          </li>
+                      )}
+                      <li>
+                        <button className={`dropdown-item ${styles.dropdownItem} ${styles.logoutItem}`} onClick={logout}>
+                          <i className="bi bi-box-arrow-right me-2"></i>
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+              ) : (
+                  <Link to="/login" className={styles.loginIcon}>
+                    <i className="bi bi-person"></i>
+                  </Link>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
-  );
+      </nav>
+  )
 }
-
-export default Navbar;

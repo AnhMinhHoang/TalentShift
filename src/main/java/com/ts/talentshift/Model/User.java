@@ -1,7 +1,7 @@
 package com.ts.talentshift.Model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.Role;
 import com.ts.talentshift.Model.Freelancer.*;
@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,27 +17,30 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "userId"     // or "userId" for User, "id" for Skill/Job
-)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    
+
     @NaturalId
     @Column(unique = true)
     private String email;
 
-    private String fullName;
+    private String fullName = "User";
     private String gender;
     private String avatar;
     private String password;
     private String phone;
+    private boolean premium = false;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -48,7 +52,6 @@ public class User {
     private LocalDate birthDate;
 
     @ManyToMany(mappedBy = "users", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-//    @JsonManagedReference("skills")
     private List<Skill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -64,17 +67,21 @@ public class User {
     private List<Link> links = new ArrayList<>();
 
     // Hirer fields
-    private String companyName;
+    private String companyName = "Company A";
 
     @Column(length = 1000)
     private String description;
 
     private String contactLink;
+    @Column(length = 1024)
     private String logoPath;
     private String registrationFilePath;
-    
+
     @Column(nullable = false)
     private boolean verified = false;
+
+    @Column(nullable = false)
+    private boolean isFillingForm = false;
 
     // Helper methods to manage bidirectional relationships
     public void addSkill(Skill skill) {

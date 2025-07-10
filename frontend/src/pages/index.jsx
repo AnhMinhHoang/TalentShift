@@ -1,13 +1,12 @@
-import React from "react"
-import { Link } from "react-router-dom";
-import ComboBox from "./dropDownCombobox.jsx";
-import ImageCarousel from "./image-carousel.jsx"
+"use client"
 
-const options = [
-  { value: "react", label: "React" },
-  { value: "vue", label: "Vue" },
-  { value: "angular", label: "Angular" },
-];
+import { useState, useEffect, useRef, useCallback } from "react"
+import { Link } from "react-router-dom"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
+import Particles from "react-particles"
+import { loadSlim } from "tsparticles-slim"
+import styles from "./Homepage/style/index.module.css"
+
 const carouselImages = [
   {
     src: "/asset/images/first-slide.jpg",
@@ -34,677 +33,870 @@ const carouselImages = [
     description: "Expand your knowledge and skills with our educational resources and career development paths.",
   },
 ]
-function index() {
+
+const faqData = [
+  {
+    id: "what-is",
+    title: "What is TalentShift?",
+    content:
+      "TalentShift is an online platform designed specifically for students and freelancers to connect with employers globally. It allows you to find freelance jobs, showcase your skills, and create professional profiles that stand out in the competitive market.",
+    icon: "bi-question-circle",
+  },
+  {
+    id: "how-to-find",
+    title: "How to find a job or project?",
+    content:
+      "You can search for freelance opportunities by using keywords or categories that match your skills and interests. Create your profile, explore various job listings, and directly apply to the ones that best fit your expertise. Our AI-powered matching system helps connect you with the right opportunities.",
+    icon: "bi-search",
+  },
+  {
+    id: "edit-profile",
+    title: "Can I edit my profile after creating it?",
+    content:
+      "You can update your profile anytime to reflect your latest skills, experience, or portfolio. Keeping your profile up-to-date helps you stand out to potential employers and increases your chances of landing great projects.",
+    icon: "bi-person",
+  },
+  {
+    id: "payment-security",
+    title: "How secure are payments?",
+    content:
+      "We use industry-standard encryption and secure payment gateways to ensure all transactions are safe. Our escrow system protects both freelancers and employers, releasing payments only when work is completed satisfactorily.",
+    icon: "bi-shield-check",
+  },
+  {
+    id: "support",
+    title: "What kind of support do you offer?",
+    content:
+      "We provide 24/7 customer support through live chat, email, and phone. Our dedicated support team helps with technical issues, account management, dispute resolution, and general platform guidance.",
+    icon: "bi-headset",
+  },
+]
+
+const FloatingElement = ({ children, delay = 0, direction = "up" }) => {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      y: direction === "up" ? 50 : direction === "down" ? -50 : 0,
+      x: direction === "left" ? 50 : direction === "right" ? -50 : 0,
+      scale: 0.8,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      x: 0,
+      scale: 1,
+      transition: {
+        duration: 0.8,
+        delay: delay,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      },
+    },
+  }
+
   return (
-      <main>
-        <section className="hero-section d-flex justify-content-center align-items-center" id="section_1">
-          <div className="container">
-            <div className="row">
-              <div className="col-lg-8 col-12 mx-auto">
-                <h1 className="text-white text-center">Discover. Learn. Enjoy</h1>
-                <h6 className="text-center">platform for creatives around the world</h6>
-                <form method="get" className="custom-form mt-4 pt-2 mb-lg-0 mb-5" role="search">
-                  <div className="input-group input-group-lg">
-                                    <span className="input-group-text bi-search" id="basic-addon1">
-                                    </span>
-                    <input name="keyword" type="search" className="form-control" id="keyword"
-                           placeholder="Search for ..." aria-label="Search"/>
-                    <ComboBox options={options}></ComboBox>
-                    <button type="submit" className="form-control" style={{ paddingLeft:"5px"}}>Search</button>
-                  </div>
-                </form>
-              </div>
+    <motion.div ref={ref} initial="hidden" animate={isInView ? "visible" : "hidden"} variants={variants}>
+      {children}
+    </motion.div>
+  )
+}
+
+const ParallaxElement = ({ children, speed = 0.5 }) => {
+  const { scrollY } = useScroll()
+  const y = useTransform(scrollY, [0, 1000], [0, -1000 * speed])
+
+  return <motion.div style={{ y }}>{children}</motion.div>
+}
+
+const CountUpAnimation = ({ end, duration = 2 }) => {
+  const [count, setCount] = useState(0)
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+
+  useEffect(() => {
+    if (isInView) {
+      let startTime = null
+      const animate = (currentTime) => {
+        if (startTime === null) startTime = currentTime
+        const progress = Math.min((currentTime - startTime) / (duration * 1000), 1)
+        setCount(Math.floor(progress * end))
+        if (progress < 1) {
+          requestAnimationFrame(animate)
+        }
+      }
+      requestAnimationFrame(animate)
+    }
+  }, [isInView, end, duration])
+
+  return <span ref={ref}>{count.toLocaleString()}</span>
+}
+
+function Index() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [scrollY, setScrollY] = useState(0)
+  const [activeFaq, setActiveFaq] = useState(0)
+  const { scrollYProgress } = useScroll()
+
+  const particlesInit = useCallback(async (engine) => {
+    await loadSlim(engine)
+  }, [])
+
+  const particlesLoaded = useCallback(async (container) => {
+    // Particles loaded callback
+  }, [])
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY)
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("mousemove", handleMouseMove)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("mousemove", handleMouseMove)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isAutoPlaying) return
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselImages.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [isAutoPlaying])
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselImages.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)
+  }
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index)
+  }
+
+  return (
+    <main className={styles.mainContainer}>
+      {/* Particle Background */}
+      <Particles
+        id="tsparticles"
+        init={particlesInit}
+        loaded={particlesLoaded}
+        options={{
+          background: {
+            color: {
+              value: "transparent",
+            },
+          },
+          fpsLimit: 120,
+          interactivity: {
+            events: {
+              onClick: {
+                enable: true,
+                mode: "push",
+              },
+              onHover: {
+                enable: true,
+                mode: "repulse",
+              },
+              resize: true,
+            },
+            modes: {
+              push: {
+                quantity: 4,
+              },
+              repulse: {
+                distance: 200,
+                duration: 0.4,
+              },
+            },
+          },
+          particles: {
+            color: {
+              value: ["#80d0c7", "#13547a"],
+            },
+            links: {
+              color: "#80d0c7",
+              distance: 150,
+              enable: true,
+              opacity: 0.2,
+              width: 1,
+            },
+            move: {
+              direction: "none",
+              enable: true,
+              outModes: {
+                default: "bounce",
+              },
+              random: false,
+              speed: 1,
+              straight: false,
+            },
+            number: {
+              density: {
+                enable: true,
+                area: 800,
+              },
+              value: 80,
+            },
+            opacity: {
+              value: 0.3,
+            },
+            shape: {
+              type: "circle",
+            },
+            size: {
+              value: { min: 1, max: 5 },
+            },
+          },
+          detectRetina: true,
+        }}
+        className={styles.particlesContainer}
+      />
+
+      {/* Floating Background Elements */}
+      <div className={styles.floatingBg}>
+        <motion.div
+          className={styles.floatingShape}
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -100, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "linear",
+          }}
+        />
+        <motion.div
+          className={`${styles.floatingShape} ${styles.shape2}`}
+          animate={{
+            x: [0, -150, 0],
+            y: [0, 150, 0],
+            rotate: [360, 180, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "linear",
+          }}
+        />
+        <motion.div
+          className={`${styles.floatingShape} ${styles.shape3}`}
+          animate={{
+            x: [0, 80, 0],
+            y: [0, -80, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+
+      {/* Progress Bar */}
+      <motion.div className={styles.progressBar} style={{ scaleX: scrollYProgress }} />
+
+      {/* Hero Section with Enhanced Carousel */}
+      <section className={`${styles.heroSection} position-relative overflow-hidden`} id="section_1">
+        <div className={styles.carouselContainer}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              className={`${styles.carouselSlide} ${styles.active}`}
+              style={{ backgroundImage: `url(${carouselImages[currentSlide].src})` }}
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 1 }}
+            >
+              <div className={styles.slideOverlay}></div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Enhanced Carousel Controls */}
+        <motion.button
+          className={`${styles.carouselBtn} ${styles.prevBtn}`}
+          onClick={prevSlide}
+          onMouseEnter={() => setIsAutoPlaying(false)}
+          onMouseLeave={() => setIsAutoPlaying(true)}
+          whileHover={{ scale: 1.1, x: -5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <i className="bi bi-chevron-left"></i>
+        </motion.button>
+        <motion.button
+          className={`${styles.carouselBtn} ${styles.nextBtn}`}
+          onClick={nextSlide}
+          onMouseEnter={() => setIsAutoPlaying(false)}
+          onMouseLeave={() => setIsAutoPlaying(true)}
+          whileHover={{ scale: 1.1, x: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <i className="bi bi-chevron-right"></i>
+        </motion.button>
+
+        {/* Enhanced Carousel Indicators */}
+        <div className={styles.carouselIndicators}>
+          {carouselImages.map((_, index) => (
+            <motion.button
+              key={index}
+              className={`${styles.indicator} ${index === currentSlide ? styles.active : ""}`}
+              onClick={() => goToSlide(index)}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+            />
+          ))}
+        </div>
+
+        {/* Parallax Hero Content */}
+        <div className="container position-relative" style={{ zIndex: 10 }}>
+          <div className="row min-vh-100 align-items-center">
+            <div className="col-lg-8 col-12 mx-auto text-center">
+              <ParallaxElement speed={0.3}>
+                <motion.div
+                  className={styles.heroContent}
+                  initial={{ opacity: 0, y: 100 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                >
+                  <motion.h1
+                    className={`text-white mb-4 ${styles.heroTitle}`}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.7 }}
+                  >
+                    {carouselImages[currentSlide].caption}
+                  </motion.h1>
+                  <motion.p
+                    className={`text-white mb-5 ${styles.heroDescription}`}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.9 }}
+                  >
+                    {carouselImages[currentSlide].description}
+                  </motion.p>
+                  <motion.div
+                    className={styles.heroButtons}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 1.1 }}
+                  >
+                    <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.95 }}>
+                      <Link to="/jobs" className={`btn ${styles.primaryBtn} me-3`}>
+                        <span>Explore Opportunities</span>
+                        <i className="bi bi-arrow-right ms-2"></i>
+                      </Link>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.95 }}>
+                      <Link to="/register" className={`btn ${styles.secondaryBtn}`}>
+                        Join TalentShift
+                      </Link>
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
+              </ParallaxElement>
             </div>
           </div>
-        </section>
+        </div>
 
-            <section className="featured-section py-5" style={{ background: "rgba(128, 208, 199, 0.2)" }}>
-              <div className="container">
-                <div className="row justify-content-center">
-                  {/* For Employers Card */}
-                  <div className="col-lg-5 col-md-6 col-12 mb-4 mb-lg-0" style={{ paddingRight: "10px" }}>
-                    <div 
-                      className="custom-block bg-white"
-                      style={{
-                        height: "auto", 
-                        minHeight: "px",
-                        borderRadius: "25px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                        overflow: "hidden",
-                        display: "flex",
-                        flexDirection: "column"
+        {/* Floating Stats with Enhanced Animations */}
+        <motion.div
+          className={styles.floatingStats}
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.5 }}
+        >
+          <div className="container">
+            <div className="row">
+              {[
+                { number: 2500, label: "Active Jobs", icon: "bi-briefcase", delay: 0 },
+                { number: 1200, label: "Companies", icon: "bi-building", delay: 0.1 },
+                { number: 15000, label: "Freelancers", icon: "bi-people", delay: 0.2 },
+                { number: 98, label: "Success Rate", icon: "bi-graph-up", delay: 0.3, suffix: "%" },
+              ].map((stat, index) => (
+                <div key={index} className="col-lg-3 col-md-6 col-6 mb-3">
+                  <FloatingElement delay={stat.delay}>
+                    <motion.div
+                      className={styles.statCard}
+                      whileHover={{
+                        scale: 1.05,
+                        y: -10,
+                        boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
                       }}
+                      transition={{ type: "spring", stiffness: 300 }}
                     >
-                      <a href="#" style={{ textDecoration: "none", color: "inherit", height: "100%" }}>
-                        <div className="d-flex p-30 h-40">
-                          <div style={{ flex: "1" }}>
-                            <h5 className="mb-4" style={{ color: "#13547a" }}>For Employers</h5>
-                            <p className="mb-4">Hire talented freelancers from various fields. Post your job today and connect with skilled professionals.</p>
-                            <div style={{ marginTop: "auto" }}>
-                              <Link 
-                                to="/topic-detail" 
-                                className="btn custom-btn"
-                                style={{
-                                  background: "#80d0c7",
-                                  color: "white",
-                                  borderRadius: "25px",
-                                  padding: "8px 20px",
-                                }}
-                              >
-                                Post Your Job
-                              </Link>
-                            </div>
-                          </div>
-                          <div className="ms-3 d-flex align-items-center">
-                            <img 
-                              src="/asset/images/topics/banner-home-01 (1).svg" 
-                              alt="For Employers"
-                              style={{ maxWidth: "100%", maxHeight: "120px" }}
-                            />
-                          </div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* For Candidate Card */}
-                  <div className="col-lg-5 col-md-6 col-12 mb-4 mb-lg-0" style={{ paddingLeft: "10px" }}>
-                    <div 
-                      className="custom-block bg-white"
-                      style={{
-                        height: "auto", 
-                        minHeight: "300px",
-                        borderRadius: "25px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                        overflow: "hidden",
-                        display: "flex",
-                        flexDirection: "column"
-                      }}
-                    >
-                      <a href="#" style={{ textDecoration: "none", color: "inherit", height: "100%" }}>
-                        <div className="d-flex p-30 h-40">
-                          <div style={{ flex: "1" }}>
-                            <h5 className="mb-4" style={{ color: "#13547a" }}>For Candidate</h5>
-                            <p className="mb-4">Showcase your skills, connect with employers, and find freelance projects that match your expertise.</p>
-                            <div style={{ marginTop: "auto" }}>
-                              <Link 
-                                to="/topic-detail" 
-                                className="btn custom-btn"
-                                style={{
-                                  background: "#80d0c7",
-                                  color: "white",
-                                  borderRadius: "25px",
-                                  padding: "8px 20px",
-                                }}
-                              >
-                                Post Your CV
-                              </Link>
-                            </div>
-                          </div>
-                          <div className="ms-3 d-flex align-items-center">
-                            <img 
-                              src="/asset/images/topics/banner-home-02.svg" 
-                              alt="For Candidate"
-                              style={{ maxWidth: "100%", maxHeight: "120px" }}
-                            />
-                          </div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
+                      <motion.div
+                        className={styles.statIcon}
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <i className={stat.icon}></i>
+                      </motion.div>
+                      <h3>
+                        <CountUpAnimation end={stat.number} />
+                        {stat.suffix || "+"}
+                      </h3>
+                      <p>{stat.label}</p>
+                    </motion.div>
+                  </FloatingElement>
                 </div>
-              </div>
-            </section>
+              ))}
+            </div>
+          </div>
+        </motion.div>
 
-        <section className="carousel-section py-5">
+        {/* Scroll Indicator */}
+        <motion.div
+          className={styles.scrollIndicator}
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+        >
+          <i className="bi bi-chevron-down"></i>
+        </motion.div>
+      </section>
+
+      {/* Enhanced Featured Section */}
+      <section className={`${styles.featuredSection} py-5`}>
         <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <h2 className="text-center mb-4">Elevate Your Career</h2>
-              <ImageCarousel images={carouselImages} />
+          <div className="row justify-content-center">
+            <div className="col-lg-5 col-md-6 col-12 mb-4 mb-lg-0">
+              <FloatingElement delay={0.2} direction="left">
+                <motion.div
+                  className={`${styles.featureCard} ${styles.employerCard} h-100`}
+                  whileHover={{
+                    scale: 1.02,
+                    y: -15,
+                    rotateY: 5,
+                  }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <motion.div className={styles.cardIcon} whileHover={{ scale: 1.2, rotate: 10 }}>
+                    <i className="bi bi-briefcase"></i>
+                  </motion.div>
+                  <div className={styles.cardContent}>
+                    <h5>For Employers</h5>
+                    <p>
+                      Hire talented freelancers from various fields. Post your job today and connect with skilled
+                      professionals who can bring your vision to life.
+                    </p>
+                    <motion.div whileHover={{ x: 5 }} whileTap={{ scale: 0.95 }}>
+                      <Link to="/post-job" className={`btn ${styles.cardBtn}`}>
+                        Post Your Job
+                        <i className="bi bi-arrow-right ms-2"></i>
+                      </Link>
+                    </motion.div>
+                  </div>
+                  <motion.div className={styles.cardImage} whileHover={{ scale: 1.1, rotate: 5 }}>
+                    <img src="/asset/images/topics/banner-home-01 (1).svg" alt="For Employers" />
+                  </motion.div>
+                  <div className={styles.cardGlow}></div>
+                </motion.div>
+              </FloatingElement>
+            </div>
+
+            <div className="col-lg-5 col-md-6 col-12 mb-4 mb-lg-0">
+              <FloatingElement delay={0.4} direction="right">
+                <motion.div
+                  className={`${styles.featureCard} ${styles.candidateCard} h-100`}
+                  whileHover={{
+                    scale: 1.02,
+                    y: -15,
+                    rotateY: -5,
+                  }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <motion.div className={styles.cardIcon} whileHover={{ scale: 1.2, rotate: -10 }}>
+                    <i className="bi bi-person-check"></i>
+                  </motion.div>
+                  <div className={styles.cardContent}>
+                    <h5>For Candidates</h5>
+                    <p>
+                      Showcase your skills, connect with employers, and find freelance projects that match your
+                      expertise. Build your career with confidence.
+                    </p>
+                    <motion.div whileHover={{ x: 5 }} whileTap={{ scale: 0.95 }}>
+                      <Link to="/create-profile" className={`btn ${styles.cardBtn}`}>
+                        Create Profile
+                        <i className="bi bi-arrow-right ms-2"></i>
+                      </Link>
+                    </motion.div>
+                  </div>
+                  <motion.div className={styles.cardImage} whileHover={{ scale: 1.1, rotate: -5 }}>
+                    <img src="/asset/images/topics/banner-home-02.svg" alt="For Candidates" />
+                  </motion.div>
+                  <div className={styles.cardGlow}></div>
+                </motion.div>
+              </FloatingElement>
             </div>
           </div>
         </div>
       </section>
-        <section className="explore-section section-padding" id="section_2">
 
-          <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="tab-content" id="myTabContent">
-                  <div className="tab-pane fade show active" id="design-tab-pane" role="tabpanel"
-                       aria-labelledby="design-tab" tabIndex="0">
-                    <div className="row">
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-0">
-                        <div className="custom-block bg-white ">
-                        <img src="/asset/images/topics/undraw_Remote_design_team_re_urdx.png"
-                          className="custom-block-image img-fluid" alt=""/>
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Reliable Dealings</h5>
-                                <p className="mb-0">We ensure transparent and trustworthy interactions, helping you connect with the right professionals seamlessly.</p>
-                              </div>
-                            </div>
-                          </Link>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-0">
-                        <div className="custom-block bg-white ">
-                        <img src="/asset/images/topics/undraw_Redesign_feedback_re_jvm0.png"
-                          className="custom-block-image img-fluid" alt=""/>
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Data Secured</h5>
-                                <p className="mb-0">Your information is protected with top-tier security measures, ensuring privacy and safeguarding your data.</p>
-                              </div>
-
-                            </div>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12">
-                        <div className="custom-block bg-white ">
-                        <img src="/asset/images/topics/colleagues-working-cozy-office-medium-shot.png"
-                          className="custom-block-image img-fluid" alt=""/>
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Live Chat Support 24</h5>
-                                <p className="mb-0">Get instant assistance anytime with our 24/7 live chat support, ready to help with all your queries.</p>
-                              </div>
-                            </div>
-
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="tab-pane fade" id="marketing-tab-pane" role="tabpanel" aria-labelledby="marketing-tab"
-                       tabIndex="0">
-                    <div className="row">
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Advertising</h5>
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-                              <span className="badge bg-advertising rounded-pill ms-auto">30</span>
-                            </div>
-                            <img src="/asset/images/topics/undraw_online_ad_re_ol62.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Video Content</h5>
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-                              <span className="badge bg-advertising rounded-pill ms-auto">65</span>
-                            </div>
-                            <img src="/asset/images/topics/undraw_Group_video_re_btu7.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Viral Tweet</h5>
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-                              <span className="badge bg-advertising rounded-pill ms-auto">50</span>
-                            </div>
-                            <img src="/asset/images/topics/undraw_viral_tweet_gndb.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="tab-pane fade" id="finance-tab-pane" role="tabpanel" aria-labelledby="finance-tab"
-                       tabIndex="0">
-                    <div className="row">
-                      <div className="col-lg-6 col-md-6 col-12 mb-4 mb-lg-0">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Investment</h5>
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-                              <span className="badge bg-finance rounded-pill ms-auto">30</span>
-                            </div>
-                            <img src="/asset/images/topics/undraw_Finance_re_gnv2.png" className="custom-block-image img-fluid"
-                                 alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-6 col-md-6 col-12">
-                        <div className="custom-block custom-block-overlay">
-                          <div className="d-flex flex-column h-100">
-                            <img
-                                src="/asset/images/businesswoman-using-tablet-analysis-graph-company-finance-strategy-statistics-success-concept-planning-future-office-room.jpg"
-                                className="custom-block-image img-fluid" alt=""/>
-                            <div className="custom-block-overlay-text d-flex">
-                              <div>
-                                <h5 className="text-white mb-2">Finance</h5>
-                                <p className="text-white">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sint
-                                  animi necessitatibus aperiam repudiandae nam omnis</p>
-                                <Link to="/topic-detail" className="btn custom-btn mt-2 mt-lg-3">Learn More</Link>
-                              </div>
-                              <span className="badge bg-finance rounded-pill ms-auto">25</span>
-                            </div>
-                            <div className="social-share d-flex">
-                              <p className="text-white me-4">Share:</p>
-                              <ul className="social-icon">
-                                <li className="social-icon-item">
-                                  <a href="#" className="social-icon-link bi-twitter"></a>
-                                </li>
-                                <li className="social-icon-item">
-                                  <a href="#" className="social-icon-link bi-facebook"></a>
-                                </li>
-                                <li className="social-icon-item">
-                                  <a href="#" className="social-icon-link bi-pinterest"></a>
-                                </li>
-                              </ul>
-                              <a href="#" className="custom-icon bi-bookmark ms-auto"></a>
-                            </div>
-                            <div className="section-overlay"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="tab-pane fade" id="music-tab-pane" role="tabpanel" aria-labelledby="music-tab"
-                       tabIndex="0">
-                    <div className="row">
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Composing Song</h5>
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-                              <span className="badge bg-music rounded-pill ms-auto">45</span>
-                            </div>
-
-                            <img src="/asset/images/topics/undraw_Compose_music_re_wpiw.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Online Music</h5>
-
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-
-                              <span className="badge bg-music rounded-pill ms-auto">45</span>
-                            </div>
-
-                            <img src="/asset/images/topics/undraw_happy_music_g6wc.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-4 col-md-6 col-12">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Podcast</h5>
-
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-
-                              <span className="badge bg-music rounded-pill ms-auto">20</span>
-                            </div>
-
-                            <img src="/asset/images/topics/undraw_Podcast_audience_re_4i5q.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="tab-pane fade" id="education-tab-pane" role="tabpanel" aria-labelledby="education-tab"
-                       tabIndex="0">
-                    <div className="row">
-                      <div className="col-lg-6 col-md-6 col-12 mb-4 mb-lg-3">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Graduation</h5>
-
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-
-                              <span className="badge bg-education rounded-pill ms-auto">80</span>
-                            </div>
-
-                            <img src="/asset/images/topics/undraw_Graduation_re_gthn.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-6 col-md-6 col-12">
-                        <div className="custom-block bg-white shadow-lg">
-                          <Link to="/topic-detail">
-                            <div className="d-flex">
-                              <div>
-                                <h5 className="mb-2">Educator</h5>
-
-                                <p className="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                              </div>
-
-                              <span className="badge bg-education rounded-pill ms-auto">75</span>
-                            </div>
-
-                            <img src="/asset/images/topics/undraw_Educator_re_ju47.png"
-                                 className="custom-block-image img-fluid" alt=""/>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </section>
-
-          <section className="popular-category-section section-padding">
-            <div className="container">
-              <div className="row mb-4">
-                <div className="col-8">
-                  <h2>Popular category</h2>
-                  <p className="text-muted">2025 jobs live - 293 added today.</p>
-                </div>
-                <div className="col-4 text-end d-flex align-items-center justify-content-end">
-                  <Link to="/" className="view-all" style={{ color: "#13547a" }}>
-                    View all categories
-                  </Link>
-                </div>
-              </div>
-
-              <div className="row position-relative">
-                <button
-                  className="category-nav-btn prev-btn"
-                  style={{
-                    position: "absolute",
-                    left: "-15px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 10,
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    background: "white",
-                    border: "none",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <i className="bi bi-chevron-left"></i>
-                </button>
-
-                <div className="col-lg-3 col-md-6 col-12 mb-4">
-                  <div className="custom-block bg-white shadow-sm" style={{ borderRadius: "10px", padding: "20px" }}>
-                    <div
-                      className="category-icon d-flex align-items-center justify-content-center mb-3"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        backgroundColor: "#13547a",
-                      }}
-                    >
-                      <i className="bi bi-code-slash text-white"></i>
-                    </div>
-                    <h5 className="mb-1">Development & IT</h5>
-                    <p className="text-muted small mb-2">18 jobs</p>
-                    <p className="small">Frontend, backend, web and app developer jobs.</p>
-                  </div>
-                </div>
-
-                <div className="col-lg-3 col-md-6 col-12 mb-4">
-                  <div className="custom-block bg-white shadow-sm" style={{ borderRadius: "10px", padding: "20px" }}>
-                    <div
-                      className="category-icon d-flex align-items-center justify-content-center mb-3"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        backgroundColor: "#80d0c7",
-                      }}
-                    >
-                      <i className="bi bi-bar-chart text-white"></i>
-                    </div>
-                    <h5 className="mb-1">Marketing & Sales</h5>
-                    <p className="text-muted small mb-2">8 jobs</p>
-                    <p className="small">Advertising, digital marketing and brand management jobs.</p>
-                  </div>
-                </div>
-
-                <div className="col-lg-3 col-md-6 col-12 mb-4">
-                  <div className="custom-block bg-white shadow-sm" style={{ borderRadius: "10px", padding: "20px" }}>
-                    <div
-                      className="category-icon d-flex align-items-center justify-content-center mb-3"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        backgroundColor: "#13547a",
-                      }}
-                    >
-                      <i className="bi bi-palette text-white"></i>
-                    </div>
-                    <h5 className="mb-1">Design & Creative</h5>
-                    <p className="text-muted small mb-2">13 jobs</p>
-                    <p className="small">Graphic, digital, web, and product design jobs.</p>
-                  </div>
-                </div>
-
-                <div className="col-lg-3 col-md-6 col-12 mb-4">
-                  <div className="custom-block bg-white shadow-sm" style={{ borderRadius: "10px", padding: "20px" }}>
-                    <div
-                      className="category-icon d-flex align-items-center justify-content-center mb-3"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        backgroundColor: "#80d0c7",
-                      }}
-                    >
-                      <i className="bi bi-headset text-white"></i>
-                    </div>
-                    <h5 className="mb-1">Customer Service</h5>
-                    <p className="text-muted small mb-2">9 jobs</p>
-                    <p className="small">Customer experience and account management jobs.</p>
-                  </div>
-                </div>
-
-                <button
-                  className="category-nav-btn next-btn"
-                  style={{
-                    position: "absolute",
-                    right: "-15px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 10,
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    background: "white",
-                    border: "none",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <i className="bi bi-chevron-right"></i>
-                </button>
-              </div>
-            </div>
-          </section>
- 
-
-        <section className="timeline-section section-padding" id="section_3">
-          <div className="section-overlay"></div>
-
-          <div className="container">
-            <div className="row">
-
+      {/* Enhanced Services Section with Equal Height Cards */}
+      <section className={`${styles.servicesSection} section-padding`} id="section_2">
+        <div className="container">
+          <FloatingElement delay={0.2}>
+            <div className="row mb-5">
               <div className="col-12 text-center">
-                <h2 className="text-white mb-4">How does it work?</h2>
-              </div>
-
-              <div className="col-lg-10 col-12 mx-auto">
-                <div className="timeline-container">
-                  <ul className="vertical-scrollable-timeline" id="vertical-scrollable-timeline">
-                    <div className="list-progress">
-                      <div className="inner"></div>
-                    </div>
-
-                    <li>
-                      <h4 className="text-white mb-3">Search for Opportunities</h4>
-
-                      <p className="text-white">Sign up and create a professional profile to showcase your skills, education, and experience. Then, start searching for freelance projects or job listings that match your interests.</p>
-
-                      <div className="icon-holder">
-                        <i className="bi-search"></i>
-                      </div>
-                    </li>
-
-                    <li>
-                      <h4 className="text-white mb-3">Connect &amp; Apply</h4>
-
-                      <p className="text-white">Find exciting opportunities, message employers or clients directly, and apply for the jobs you're passionate about.</p>
-
-                      <div className="icon-holder">
-                        <i className="bi-bookmark"></i>
-                      </div>
-                    </li>
-
-                    <li>
-                      <h4 className="text-white mb-3">Work &amp; Get Paid</h4>
-
-                      <p className="text-white">Complete projects and get paid securely through the platform. Enjoy flexible work and explore new growth opportunities.</p>
-
-                      <div className="icon-holder">
-                        <i className="bi-book"></i>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="col-12 text-center mt-5">
-                <p className="text-white">
-                  Want to learn more?
-                  <a href="#" className="btn custom-btn custom-border-btn ms-3">Check out Youtube</a>
+                <motion.h2
+                  className={styles.sectionTitle}
+                  whileInView={{ scale: [0.8, 1.1, 1] }}
+                  transition={{ duration: 0.6 }}
+                >
+                  Why Choose TalentShift?
+                </motion.h2>
+                <p className={styles.sectionSubtitle}>
+                  Discover what makes us the preferred platform for freelancers and employers
                 </p>
               </div>
             </div>
+          </FloatingElement>
+
+          <div className="row">
+            {[
+              {
+                icon: "bi-shield-check",
+                image: "/asset/images/topics/undraw_Remote_design_team_re_urdx.png",
+                title: "Reliable Dealings",
+                description:
+                  "We ensure transparent and trustworthy interactions, helping you connect with the right professionals seamlessly. Our verification system guarantees quality.",
+                delay: 0.2,
+              },
+              {
+                icon: "bi-lock",
+                image: "/asset/images/topics/undraw_Redesign_feedback_re_jvm0.png",
+                title: "Data Secured",
+                description:
+                  "Your information is protected with top-tier security measures, ensuring privacy and safeguarding your data with enterprise-grade encryption.",
+                delay: 0.4,
+              },
+              {
+                icon: "bi-headset",
+                image: "/asset/images/topics/colleagues-working-cozy-office-medium-shot.png",
+                title: "24/7 Live Support",
+                description:
+                  "Get instant assistance anytime with our 24/7 live chat support, ready to help with all your queries and technical issues around the clock.",
+                delay: 0.6,
+              },
+            ].map((service, index) => (
+              <div key={index} className="col-lg-4 col-md-6 col-12 mb-4">
+                <FloatingElement delay={service.delay}>
+                  <motion.div
+                    className={`${styles.serviceCard} ${styles.equalHeight}`}
+                    whileHover={{
+                      y: -20,
+                      scale: 1.03,
+                      rotateX: 5,
+                    }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <motion.div
+                      className={styles.serviceIcon}
+                      whileHover={{
+                        scale: 1.2,
+                        rotate: 360,
+                        boxShadow: "0 0 30px rgba(128, 208, 199, 0.5)",
+                      }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <i className={service.icon}></i>
+                    </motion.div>
+                    <motion.img
+                      src={service.image}
+                      className={styles.serviceImage}
+                      alt=""
+                      whileHover={{ scale: 1.1, y: -5 }}
+                    />
+                    <div className={styles.serviceContent}>
+                      <h5>{service.title}</h5>
+                      <p>{service.description}</p>
+                    </div>
+                    <div className={styles.serviceGlow}></div>
+                  </motion.div>
+                </FloatingElement>
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
+      {/* Enhanced Categories Section with Equal Height Cards */}
+      <section className={`${styles.categoriesSection} section-padding`}>
+        <div className="container">
+          <FloatingElement delay={0.2}>
+            <div className="row mb-5">
+              <div className="col-lg-8 col-12">
+                <h2 className={styles.sectionTitle}>Popular Categories</h2>
+                <p className={styles.sectionSubtitle}>2025 jobs live - 293 added today.</p>
+              </div>
+              <div className="col-lg-4 col-12 text-lg-end">
+                <motion.div whileHover={{ x: 10 }}>
+                  <Link to="/categories" className={styles.viewAllLink}>
+                    View all categories <i className="bi bi-arrow-right ms-2"></i>
+                  </Link>
+                </motion.div>
+              </div>
+            </div>
+          </FloatingElement>
 
-        <section className="faq-section section-padding" id="section_4">
+          <div className="row">
+            {[
+              {
+                icon: "bi-code-slash",
+                title: "Development & IT",
+                jobs: 18,
+                description:
+                  "Frontend, backend, web and app developer positions with competitive rates and flexible schedules.",
+                gradient: "devIcon",
+                delay: 0.2,
+              },
+              {
+                icon: "bi-bar-chart",
+                title: "Marketing & Sales",
+                jobs: 8,
+                description:
+                  "Digital marketing and brand management roles that help businesses grow and reach new audiences.",
+                gradient: "marketingIcon",
+                delay: 0.3,
+              },
+              {
+                icon: "bi-palette",
+                title: "Design & Creative",
+                jobs: 13,
+                description:
+                  "Graphic, web, and product design opportunities for creative professionals and visual storytellers.",
+                gradient: "designIcon",
+                delay: 0.4,
+              },
+              {
+                icon: "bi-headset",
+                title: "Customer Service",
+                jobs: 9,
+                description:
+                  "Customer experience and support positions that focus on building lasting client relationships.",
+                gradient: "supportIcon",
+                delay: 0.5,
+              },
+            ].map((category, index) => (
+              <div key={index} className="col-lg-3 col-md-6 col-12 mb-4">
+                <FloatingElement delay={category.delay}>
+                  <motion.div
+                    className={`${styles.categoryCard} ${styles.equalHeight}`}
+                    whileHover={{
+                      y: -15,
+                      scale: 1.05,
+                      rotateY: 10,
+                    }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <motion.div
+                      className={`${styles.categoryIcon} ${styles[category.gradient]}`}
+                      whileHover={{
+                        scale: 1.3,
+                        rotate: 360,
+                        boxShadow: "0 0 40px rgba(128, 208, 199, 0.6)",
+                      }}
+                      transition={{ duration: 0.8 }}
+                    >
+                      <i className={category.icon}></i>
+                    </motion.div>
+                    <div className={styles.categoryContent}>
+                      <h5>{category.title}</h5>
+                      <p className={styles.jobCount}>
+                        <CountUpAnimation end={category.jobs} /> jobs available
+                      </p>
+                      <p>{category.description}</p>
+                    </div>
+                    <div className={styles.categoryGlow}></div>
+                  </motion.div>
+                </FloatingElement>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced Timeline Section */}
+      <section className={`${styles.timelineSection} section-padding`} id="section_3">
+        <ParallaxElement speed={0.2}>
           <div className="container">
             <div className="row">
+              <FloatingElement delay={0.2}>
+                <div className="col-12 text-center mb-5">
+                  <motion.h1
+                      className="text-white mb-4"
+                      initial={{ scale: 0.8, y: 0, transform: 'none' }} // Reset initial position and transform
+                      whileInView={{ scale: [0.8, 1.1, 1], y: 0 }} // Animate scale, keep y at 0
+                      viewport={{ once: false, amount: 0.5 }} // Trigger when 50% in view
+                      transition={{ duration: 0.6 }}
+                      style={{ transform: 'none', position: 'relative', fontWeight: 'bold'}} // Override parent transform
+                  >
+                    How TalentShift Works
+                  </motion.h1>
+                  <p className="text-white-50">Simple steps to get started on your freelancing journey</p>
+                </div>
+              </FloatingElement>
 
-              <div className="col-lg-6 col-12">
-                <h2 className="mb-4">Frequently Asked Questions</h2>
-              </div>
-
-              <div className="clearfix"></div>
-
-              <div className="col-lg-5 col-12">
-                <img src="/asset/images/faq_graphic.jpg" className="img-fluid" alt="FAQs"/>
-              </div>
-
-              <div className="col-lg-6 col-12 m-auto">
-                <div className="accordion" id="accordionExample">
-                  <div className="accordion-item">
-                    <h2 className="accordion-header" id="headingOne">
-                      <button className="accordion-button" type="button" data-bs-toggle="collapse"
-                              data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        What is TalentShift?
-                      </button>
-                    </h2>
-
-                    <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne"
-                         data-bs-parent="#accordionExample">
-                      <div className="accordion-body">
-                      TalentShift is an online platform designed specifically for students and freelancers to connect with employers globally. It allows you to find freelance jobs, showcase your skills, and create professional profiles. Whether you're just starting or looking to grow your career, TalentShift provides the perfect place to discover opportunities.
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="accordion-item">
-                    <h2 className="accordion-header" id="headingTwo">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                              data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        How to find a job or project?
-                      </button>
-                    </h2>
-
-                    <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo"
-                         data-bs-parent="#accordionExample">
-                      <div className="accordion-body">
-                      You can search for freelance opportunities by using keywords or categories that match your skills and interests. Create your profile, explore various job listings, and directly apply to the ones that best fit your expertise. Stay connected and responsive to increase your chances of landing your next project.
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="accordion-item">
-                    <h2 className="accordion-header" id="headingThree">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                              data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Can I edit my profile after creating it?
-                      </button>
-                    </h2>
-
-                    <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree"
-                         data-bs-parent="#accordionExample">
-                      <div className="accordion-body">
-                      Absolutely! You can update your profile anytime to reflect your latest skills, experience, or portfolio. Keeping your profile up-to-date helps you stand out to potential employers and ensures you're showcasing your best work.
-                      </div>
-                    </div>
-                  </div>
+              <div className="col-lg-10 col-12 mx-auto">
+                <div className={styles.timelineContainer}>
+                  {[
+                    {
+                      icon: "bi-search",
+                      title: "Search for Opportunities",
+                      description:
+                        "Sign up and create a professional profile to showcase your skills, education, and experience. Then, start searching for freelance projects or job listings that match your interests.",
+                      delay: 0.3,
+                    },
+                    {
+                      icon: "bi-bookmark",
+                      title: "Connect & Apply",
+                      description:
+                        "Find exciting opportunities, message employers or clients directly, and apply for the jobs you're passionate about.",
+                      delay: 0.5,
+                    },
+                    {
+                      icon: "bi-currency-dollar",
+                      title: "Work & Get Paid",
+                      description:
+                        "Complete projects and get paid securely through the platform. Enjoy flexible work and explore new growth opportunities.",
+                      delay: 0.7,
+                    },
+                  ].map((item, index) => (
+                    <FloatingElement key={index} delay={item.delay}>
+                      <motion.div
+                        className={styles.timelineItem}
+                        whileHover={{ x: 20, scale: 1.02 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <motion.div
+                          className={styles.timelineIcon}
+                          whileHover={{
+                            scale: 1.2,
+                            rotate: 360,
+                            boxShadow: "0 0 30px rgba(255, 255, 255, 0.5)",
+                          }}
+                          transition={{ duration: 0.6 }}
+                        >
+                          <i className={item.icon}></i>
+                        </motion.div>
+                        <div className={styles.timelineContent}>
+                          <h4 className="text-white mb-3">{item.title}</h4>
+                          <p className="text-white">{item.description}</p>
+                        </div>
+                      </motion.div>
+                    </FloatingElement>
+                  ))}
                 </div>
               </div>
 
+              <FloatingElement delay={0.9}>
+                <div className="col-12 text-center mt-5">
+                  <p className="text-white mb-4">Ready to get started?</p>
+                  <motion.div whileHover={{ scale: 1.05, y: -5 }} whileTap={{ scale: 0.95 }}>
+                    <Link to="/register" className={`btn ${styles.ctaBtn}`}>
+                      Join TalentShift Today
+                      <i className="bi bi-rocket ms-2"></i>
+                    </Link>
+                  </motion.div>
+                </div>
+              </FloatingElement>
             </div>
           </div>
-        </section>
-      </main>
-);
+        </ParallaxElement>
+      </section>
+
+      {/* Horizontal FAQ Section */}
+      <section className={`${styles.faqSection} section-padding`} id="section_4">
+        <div className="container">
+          <FloatingElement delay={0.2}>
+            <div className="row mb-5">
+              <div className="col-12 text-center">
+                <h2 className={styles.sectionTitle}>Frequently Asked Questions</h2>
+                <p className={styles.sectionSubtitle}>Find answers to common questions about TalentShift</p>
+              </div>
+            </div>
+          </FloatingElement>
+
+          <div className="row">
+            <div className="col-12">
+              <FloatingElement delay={0.4}>
+                <div className={styles.faqContainer}>
+                  {/* FAQ Navigation */}
+                  <div className={styles.faqNav}>
+                    {faqData.map((faq, index) => (
+                      <motion.button
+                        key={index}
+                        className={`${styles.faqNavItem} ${activeFaq === index ? styles.active : ""}`}
+                        onClick={() => setActiveFaq(index)}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <i className={faq.icon}></i>
+                        <span>{faq.title}</span>
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  {/* FAQ Content */}
+                  <div className={styles.faqContent}>
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeFaq}
+                        className={styles.faqAnswer}
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -50 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <div className={styles.faqIcon}>
+                          <i className={faqData[activeFaq].icon}></i>
+                        </div>
+                        <h3>{faqData[activeFaq].title}</h3>
+                        <p>{faqData[activeFaq].content}</p>
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </FloatingElement>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Floating Action Button */}
+      <motion.div
+        className={styles.floatingActionBtn}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 2, type: "spring", stiffness: 300 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        style={{
+          transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`,
+        }}
+      >
+        <Link to="/contact">
+          <i className="bi bi-chat-dots"></i>
+        </Link>
+      </motion.div>
+    </main>
+  )
 }
 
-export default index;
+export default Index

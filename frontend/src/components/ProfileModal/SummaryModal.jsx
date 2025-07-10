@@ -1,34 +1,34 @@
-import React from "react"
-import { useState } from "react"
-import { CustomModal } from "../Modal/CustomModal"
-import styles from "../../pages/userProfile/style/UserProfile.module.css"
+import React from "react";
+import { useState } from "react";
+import { CustomModal } from "../Modal/CustomModal";
+import styles from "../../pages/userProfile/style/UserProfile.module.css";
+import { Check as CheckIcon, Warning as WarningIcon } from "@mui/icons-material";
 
 export const SummaryModal = ({ onClose, summary, onSave }) => {
-    const [formData, setFormData] = useState({ summary: summary || "" })
-    const [isValid, setIsValid] = useState(true)
-    const [showSuccess, setShowSuccess] = useState(false)
+    // Initialize char count excluding newlines
+    const initialCharCount = summary ? summary.replace(/\n/g, "").length : 0;
+    const [formData, setFormData] = useState({ summary: summary || "" });
+    const [isValid, setIsValid] = useState(initialCharCount >= 100);
+    const [charCount, setCharCount] = useState(initialCharCount);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setFormData({ ...formData, [name]: value })
-        setIsValid(true)
-    }
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+        // Count characters excluding newlines
+        const count = value.replace(/\n/g, "").length;
+        setCharCount(count);
+        setIsValid(count >= 100);
+    };
 
     const handleSubmit = (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        if (!formData.summary.trim()) {
-            setIsValid(false)
-            return
+        if (charCount < 100) {
+            setIsValid(false);
+            return;
         }
-
-        setShowSuccess(true)
-
-        // Show success message briefly before closing
-        setTimeout(() => {
-            onSave(formData.summary)
-        }, 1000)
-    }
+        onSave(formData.summary);
+    };
 
     return (
         <CustomModal title="Summary" onClose={onClose}>
@@ -46,24 +46,39 @@ export const SummaryModal = ({ onClose, summary, onSave }) => {
                         onChange={handleInputChange}
                         placeholder="Fill the blank..."
                     ></textarea>
-                    {!isValid && <div className={styles.validationError}>Please provide a summary.</div>}
+
+                    <div>
+                        {charCount < 100 ? (
+                            <WarningIcon fontSize="small" className="me-1" />
+                        ) : (
+                            <CheckIcon fontSize="small" className="me-1" />
+                        )}
+                        {charCount}/100 characters{" "}
+                        {charCount < 100
+                            ? `(${100 - charCount} more needed)`
+                            : "(minimum reached)"}
+                    </div>
+
+                    {!isValid && charCount > 0 && (
+                        <div className={styles.validationError}>
+                            <WarningIcon fontSize="small" className="me-2" />
+                            Please write at least 100 characters (excluding newlines) to provide sufficient information.
+                        </div>
+                    )}
                 </div>
 
-                {showSuccess && (
-                    <div className={`alert alert-success ${styles.alert}`} role="alert">
-                        Summary updated successfully!
-                    </div>
-                )}
-
                 <div className="text-end">
-                    <button type="button" className="btn btn-secondary me-2" onClick={onClose}>
+                    <button type="button"
+                            className="btn btn-secondary me-2" onClick={onClose}>
                         Cancel
                     </button>
-                    <button type="submit" className={`btn ${styles.primaryBtn}`}>
+                    <button type="submit"
+                            disabled={!isValid}
+                            className={`btn ${styles.primaryBtn}`}>
                         Save
                     </button>
                 </div>
             </form>
         </CustomModal>
-    )
-}
+    );
+};

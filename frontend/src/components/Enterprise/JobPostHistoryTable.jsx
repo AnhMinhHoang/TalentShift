@@ -1,6 +1,6 @@
-import React from "react"
-import { useState } from "react"
-import { Table, Badge, Button, Modal, Tabs, Tag, Dropdown } from "antd"
+import React from "react";
+import { useState, useEffect } from "react";
+import { Table, Badge, Button, Modal, Tabs, Tag, Dropdown, DatePicker, Select, Form, Input, notification } from "antd";
 import {
     FaEye,
     FaEdit,
@@ -14,136 +14,201 @@ import {
     FaDollarSign,
     FaFilter,
     FaSearch,
-} from "react-icons/fa"
-import { Link } from "react-router-dom"
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { deleteJob, fetchJobCategories, fetchPublishedJobsByUser, fetchSkills, updateJob } from "../../services/jobService";
+import TextArea from "antd/es/input/TextArea";
+import moment from "moment";
+const { confirm } = Modal;
 
-const { TabPane } = Tabs
+
+const { TabPane } = Tabs;
+const { Option } = Select;
+
+// Skill and category options
 
 const JobPostHistoryTable = () => {
-    const [viewModalVisible, setViewModalVisible] = useState(false)
-    const [selectedJob, setSelectedJob] = useState(null)
-    const [activeTab, setActiveTab] = useState("details")
-    const [searchText, setSearchText] = useState("")
-    const [filterStatus, setFilterStatus] = useState("all")
+    const [viewModalVisible, setViewModalVisible] = useState(false);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [selectedJob, setSelectedJob] = useState(null);
+    const [editingJob, setEditingJob] = useState(null);
+    const [activeTab, setActiveTab] = useState("details");
+    const [searchText, setSearchText] = useState("");
+    const [filterStatus, setFilterStatus] = useState("all");
+    const [jobPosts, setJobPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [form] = Form.useForm();
+    const [categoryOptions, setCategoryOptions] = useState([]);
+    const [skillOptions, setSkillOptions] = useState([]);
 
-    // Sample data for job post history
-    const jobPosts = [
-        {
-            id: 1,
-            title: "Senior Frontend Developer",
-            postDate: "2025-04-15",
-            expiryDate: "2025-05-15",
-            status: "Active",
-            description:
-                "We are looking for a Senior Frontend Developer with 5+ years of experience in React.js, Redux, and TypeScript. The ideal candidate will have a strong understanding of modern web development practices and be able to lead a team of developers.",
-            requirements:
-                "- 5+ years of experience with React.js\n- Strong knowledge of TypeScript\n- Experience with state management libraries\n- Excellent communication skills",
-            location: "San Francisco, CA",
-            salary: "$120,000 - $150,000",
-            applicants: 24,
-            views: 342,
-            featured: true,
-            department: "Engineering",
-            employmentType: "Full-time",
-            skills: ["React", "TypeScript", "Redux", "HTML5", "CSS3"],
-        },
-        {
-            id: 2,
-            title: "Backend Engineer",
-            postDate: "2025-03-22",
-            expiryDate: "2025-04-22",
-            status: "Expired",
-            description:
-                "We are seeking a Backend Engineer to join our growing team. The ideal candidate will have experience with Node.js, Express, and MongoDB.",
-            requirements:
-                "- 3+ years of experience with Node.js\n- Experience with MongoDB\n- Knowledge of RESTful API design\n- Familiarity with cloud services",
-            location: "Remote",
-            salary: "$100,000 - $130,000",
-            applicants: 18,
-            views: 256,
-            featured: false,
-            department: "Engineering",
-            employmentType: "Full-time",
-            skills: ["Node.js", "MongoDB", "Express", "REST API", "AWS"],
-        },
-        {
-            id: 3,
-            title: "UX/UI Designer",
-            postDate: "2025-05-01",
-            expiryDate: "2025-06-01",
-            status: "Active",
-            description:
-                "We are looking for a talented UX/UI Designer to create amazing user experiences. The ideal candidate should have a portfolio of professional design projects.",
-            requirements:
-                "- 3+ years of experience in UX/UI design\n- Proficiency in Figma and Adobe Creative Suite\n- Experience with user research\n- Strong portfolio of work",
-            location: "New York, NY",
-            salary: "$90,000 - $120,000",
-            applicants: 32,
-            views: 410,
-            featured: true,
-            department: "Design",
-            employmentType: "Full-time",
-            skills: ["Figma", "Adobe XD", "UI Design", "User Research", "Prototyping"],
-        },
-        {
-            id: 4,
-            title: "DevOps Engineer",
-            postDate: "2025-02-10",
-            expiryDate: "2025-03-10",
-            status: "Rejected",
-            description:
-                "We are seeking a DevOps Engineer to help us build and maintain our cloud infrastructure. The ideal candidate will have experience with AWS, Docker, and Kubernetes.",
-            requirements:
-                "- 4+ years of experience with AWS\n- Experience with Docker and Kubernetes\n- Knowledge of CI/CD pipelines\n- Scripting skills in Python or Bash",
-            location: "Chicago, IL",
-            salary: "$110,000 - $140,000",
-            applicants: 15,
-            views: 198,
-            featured: false,
-            department: "Operations",
-            employmentType: "Full-time",
-            skills: ["AWS", "Docker", "Kubernetes", "CI/CD", "Python"],
-        },
-        {
-            id: 5,
-            title: "Product Manager",
-            postDate: "2025-04-28",
-            expiryDate: "2025-05-28",
-            status: "Pending",
-            description:
-                "We are looking for a Product Manager to help us define and launch new products. The ideal candidate will have experience with agile methodologies and a track record of successful product launches.",
-            requirements:
-                "- 5+ years of experience in product management\n- Experience with agile methodologies\n- Strong analytical skills\n- Excellent communication skills",
-            location: "Austin, TX",
-            salary: "$130,000 - $160,000",
-            applicants: 8,
-            views: 175,
-            featured: false,
-            department: "Product",
-            employmentType: "Full-time",
-            skills: ["Product Management", "Agile", "Roadmapping", "User Stories", "Market Research"],
-        },
-    ]
+    // Assume you store userId in localStorage under 'userId'
+    const loadCategories = async () => {
+        try {
+            const data = await fetchJobCategories();
+            console.log(data);
+            setCategoryOptions(data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+    const loadSkills = async () => {
+        try {
+            const data = await fetchSkills();
+            console.log(data);
+            setSkillOptions(data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+    const loadJobs = async () => {
+        try {
+            const userId = localStorage.getItem("userId");
+            const data = await fetchPublishedJobsByUser(userId);
+            console.log("Fetched job posts:", data);
+
+            // Map API data to expected frontend structure
+            const mappedData = data.map(job => ({
+                ...job,
+                title: job.jobTitle,
+                department: job.category || "Development",
+                employmentType: job.paymentType,
+                status: job.status || "ACTIVE",
+                applicants: Math.floor(Math.random() * 20),
+                salary: `${job.minBudget} - ${job.maxBudget}`,
+                postDate: job.createdAt || new Date().toISOString(),
+                expiryDate: job.expiredAt || new Date(Date.now() + 90 * 86400000).toISOString(),
+                featured: job.featured || Math.random() > 0.7,
+                skills: job.skills || [],
+                description: job.projectDescription || "No description available",
+                keyResponsibilities: job.keyResponsibilities || ""
+            }));
+
+            setJobPosts(mappedData);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    useEffect(() => {
+        loadJobs();
+        loadSkills();
+        loadCategories();
+    }, []);
 
     const handleView = (job) => {
-        setSelectedJob(job)
-        setViewModalVisible(true)
-        setActiveTab("details")
-    }
+        setSelectedJob(job);
+        setViewModalVisible(true);
+        setActiveTab("details");
+    };
+
+    const handleEdit = (job) => {
+        setEditingJob(job);
+        form.setFieldsValue({
+            jobTitle: job.jobTitle,
+            location: job.location,
+            minBudget: job.minBudget,
+            maxBudget: job.maxBudget,
+            paymentType: job.paymentType,
+            category: job.category,
+            skills: job.skills || [],
+            idealSkills: job.idealSkills || [],
+            keyResponsibilities: job.keyResponsibilities,
+            projectDescription: job.projectDescription,
+            expiredAt: job.expiredAt ? moment(job.expiredAt) : null
+        });
+        setEditModalVisible(true);
+    };
+
+    const handleSaveJob = (values) => {
+        Modal.confirm({
+            title: "Confirm Job Update",
+            content: "Updating this job will set it back to draft. Do you want to continue?",
+            okText: "Yes, Update",
+            cancelText: "Cancel",
+            onOk: async () => {
+                try {
+                    const jobId = editingJob.id;
+
+                    const jobData = {
+                        ...values,
+                        id: jobId,
+                        publishStatus: "DRAFT", // 🔁 Explicitly set back to draft
+                        expiredAt: values.expiredAt ? values.expiredAt.toISOString() : null,
+                    };
+
+                    const updated = await updateJob(jobId, jobData);
+
+                    setEditModalVisible(false);
+                    await loadJobs(); // refresh list
+
+                    notification.success({
+                        message: "Job Updated",
+                        description: "Job post has been successfully updated and moved to draft.",
+                        placement: "topRight",
+                    });
+                } catch (error) {
+                    console.error("Error updating job:", error);
+                    notification.error({
+                        message: "Update Failed",
+                        description: error.message || "Failed to update job post.",
+                        placement: "topRight",
+                    });
+                }
+            }
+        });
+    };
+
+    const handleDeleteJob = (id) => {
+        confirm({
+            title: 'Are you sure you want to delete this job post?',
+            content: 'This action cannot be undone.',
+            okText: 'Yes, Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk: async () => {
+                try {
+                    await deleteJob(id); // call API to delete
+                    // update frontend state after successful delete
+                    const updatedJobs = jobPosts.filter(job => job.id !== id);
+                    setJobPosts(updatedJobs);
+
+                    notification.success({
+                        message: "Job Deleted",
+                        description: "Job post has been successfully deleted.",
+                        placement: "topRight",
+                    });
+                } catch (error) {
+                    notification.error({
+                        message: "Delete Failed",
+                        description: error.message || 'Failed to delete job',
+                        placement: "topRight",
+                    });
+                }
+            }
+        });
+    };
 
     const handleTabChange = (key) => {
-        setActiveTab(key)
-    }
+        setActiveTab(key);
+    };
 
     const filteredJobs = jobPosts.filter((job) => {
         const matchesSearch =
             job.title.toLowerCase().includes(searchText.toLowerCase()) ||
             job.location.toLowerCase().includes(searchText.toLowerCase()) ||
-            job.department.toLowerCase().includes(searchText.toLowerCase())
+            (job.department && job.department.toLowerCase().includes(searchText.toLowerCase()));
 
-        if (filterStatus === "all") return matchesSearch
-        return matchesSearch && job.status.toLowerCase() === filterStatus.toLowerCase()
-    })
+        if (filterStatus === "all") return matchesSearch;
+        return matchesSearch && job.status.toLowerCase() === filterStatus.toLowerCase();
+    });
 
     const columns = [
         {
@@ -173,8 +238,8 @@ const JobPostHistoryTable = () => {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
-                })
-                return <span>{formattedDate}</span>
+                });
+                return <span>{formattedDate}</span>;
             },
         },
         {
@@ -182,36 +247,31 @@ const JobPostHistoryTable = () => {
             dataIndex: "status",
             key: "status",
             render: (status) => {
-                let color = ""
+                let color = "";
+                let displayStatus = status;
+
                 switch (status) {
-                    case "Active":
-                        color = "success"
-                        break
-                    case "Expired":
-                        color = "warning"
-                        break
-                    case "Rejected":
-                        color = "error"
-                        break
-                    case "Pending":
-                        color = "processing"
-                        break
+                    case "ACTIVE":
+                        color = "success";
+                        displayStatus = "Active";
+                        break;
+                    case "EXPIRED":
+                        color = "warning";
+                        displayStatus = "Expired";
+                        break;
+                    case "REJECTED":
+                        color = "error";
+                        displayStatus = "Rejected";
+                        break;
+                    case "PENDING":
+                        color = "processing";
+                        displayStatus = "Pending";
+                        break;
                     default:
-                        color = "default"
+                        color = "default";
                 }
-                return <Badge status={color} text={status} />
+                return <Badge status={color} text={displayStatus} />;
             },
-        },
-        {
-            title: "Applicants",
-            dataIndex: "applicants",
-            key: "applicants",
-            render: (count) => (
-                <div className="d-flex align-items-center">
-                    <FaUserCheck className="me-2 text-success" />
-                    <span>{count}</span>
-                </div>
-            ),
         },
         {
             title: "Actions",
@@ -235,22 +295,14 @@ const JobPostHistoryTable = () => {
                                     key: "1",
                                     label: "Edit Job Post",
                                     icon: <FaEdit />,
-                                },
-                                {
-                                    key: "2",
-                                    label: "Duplicate",
-                                    icon: <FaCopy />,
-                                },
-                                {
-                                    key: "3",
-                                    label: "View Analytics",
-                                    icon: <FaChartBar />,
+                                    onClick: () => handleEdit(record)
                                 },
                                 {
                                     key: "4",
                                     label: "Delete",
                                     icon: <FaTrash />,
                                     danger: true,
+                                    onClick: () => handleDeleteJob(record.id)
                                 },
                             ],
                         }}
@@ -267,7 +319,7 @@ const JobPostHistoryTable = () => {
                 </div>
             ),
         },
-    ]
+    ];
 
     return (
         <div className="card shadow-sm border-0">
@@ -284,7 +336,10 @@ const JobPostHistoryTable = () => {
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                             />
-                            <FaSearch className="position-absolute" style={{ right: 10, top: 10, color: "#aaa" }} />
+                            <FaSearch
+                                className="position-absolute"
+                                style={{ right: 10, top: 10, color: "#aaa" }}
+                            />
                         </div>
 
                         <Dropdown
@@ -317,11 +372,16 @@ const JobPostHistoryTable = () => {
                             placement="bottomRight"
                             trigger={["click"]}
                         >
-                            <Button icon={<FaFilter />}>{filterStatus === "all" ? "All Statuses" : filterStatus}</Button>
+                            <Button icon={<FaFilter />}>
+                                {filterStatus === "all" ? "All Statuses" : filterStatus}
+                            </Button>
                         </Dropdown>
 
-                        <Button type="primary" style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}>
-                            <Link to="/job-post">Post New Job</Link>
+                        <Button
+                            type="primary"
+                            style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
+                        >
+                            <Link to="/job-posting">Post New Job</Link>
                         </Button>
                     </div>
                 </div>
@@ -332,10 +392,12 @@ const JobPostHistoryTable = () => {
                     dataSource={filteredJobs}
                     rowKey="id"
                     pagination={{ pageSize: 5 }}
+                    loading={loading}
                     responsive
                     rowClassName={(record) => (record.featured ? "bg-light" : "")}
                 />
 
+                {/* View Job Modal */}
                 <Modal
                     title={null}
                     open={viewModalVisible}
@@ -353,22 +415,34 @@ const JobPostHistoryTable = () => {
                                         <span>{selectedJob.department}</span>
                                         <span>•</span>
                                         <span>{selectedJob.employmentType}</span>
-                                        {selectedJob.featured && <Tag color="#ffc107">Featured</Tag>}
+                                        {selectedJob.featured && (
+                                            <Tag color="#ffc107">Featured</Tag>
+                                        )}
                                     </div>
                                 </div>
                                 <Badge
                                     status={
-                                        selectedJob.status === "Active"
+                                        selectedJob.status === "ACTIVE"
                                             ? "success"
-                                            : selectedJob.status === "Expired"
+                                            : selectedJob.status === "EXPIRED"
                                                 ? "warning"
-                                                : selectedJob.status === "Rejected"
+                                                : selectedJob.status === "REJECTED"
                                                     ? "error"
-                                                    : selectedJob.status === "Pending"
+                                                    : selectedJob.status === "PENDING"
                                                         ? "processing"
                                                         : "default"
                                     }
-                                    text={selectedJob.status}
+                                    text={
+                                        selectedJob.status === "ACTIVE"
+                                            ? "Active"
+                                            : selectedJob.status === "EXPIRED"
+                                                ? "Expired"
+                                                : selectedJob.status === "REJECTED"
+                                                    ? "Rejected"
+                                                    : selectedJob.status === "PENDING"
+                                                        ? "Pending"
+                                                        : selectedJob.status
+                                    }
                                 />
                             </div>
 
@@ -377,15 +451,21 @@ const JobPostHistoryTable = () => {
                                     <div className="row mb-4">
                                         <div className="col-md-6 mb-3">
                                             <div className="d-flex align-items-center">
-                                                <FaCalendarAlt className="me-2 text-primary" style={{ color: "#428A9B" }} />
+                                                <FaCalendarAlt
+                                                    className="me-2 text-primary"
+                                                    style={{ color: "#428A9B" }}
+                                                />
                                                 <div>
                                                     <div className="text-muted small">Posted On</div>
                                                     <div>
-                                                        {new Date(selectedJob.postDate).toLocaleDateString("en-US", {
-                                                            year: "numeric",
-                                                            month: "long",
-                                                            day: "numeric",
-                                                        })}
+                                                        {new Date(selectedJob.postDate).toLocaleDateString(
+                                                            "en-US",
+                                                            {
+                                                                year: "numeric",
+                                                                month: "long",
+                                                                day: "numeric",
+                                                            }
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -397,7 +477,9 @@ const JobPostHistoryTable = () => {
                                                 <div>
                                                     <div className="text-muted small">Expires On</div>
                                                     <div>
-                                                        {new Date(selectedJob.expiryDate).toLocaleDateString("en-US", {
+                                                        {new Date(
+                                                            selectedJob.expiryDate
+                                                        ).toLocaleDateString("en-US", {
                                                             year: "numeric",
                                                             month: "long",
                                                             day: "numeric",
@@ -409,7 +491,10 @@ const JobPostHistoryTable = () => {
 
                                         <div className="col-md-6 mb-3">
                                             <div className="d-flex align-items-center">
-                                                <FaMapMarkerAlt className="me-2" style={{ color: "#428A9B" }} />
+                                                <FaMapMarkerAlt
+                                                    className="me-2"
+                                                    style={{ color: "#428A9B" }}
+                                                />
                                                 <div>
                                                     <div className="text-muted small">Location</div>
                                                     <div>{selectedJob.location}</div>
@@ -419,10 +504,31 @@ const JobPostHistoryTable = () => {
 
                                         <div className="col-md-6 mb-3">
                                             <div className="d-flex align-items-center">
-                                                <FaDollarSign className="me-2" style={{ color: "#428A9B" }} />
+                                                <FaDollarSign
+                                                    className="me-2"
+                                                    style={{ color: "#428A9B" }}
+                                                />
                                                 <div>
-                                                    <div className="text-muted small">Salary Range</div>
-                                                    <div>{selectedJob.salary}</div>
+                                                    <div className="text-muted small">Budget Range</div>
+                                                    <div>${selectedJob.minBudget} - ${selectedJob.maxBudget}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6 mb-3">
+                                            <div className="d-flex align-items-center">
+                                                <div>
+                                                    <div className="text-muted small">Payment Type</div>
+                                                    <div>{selectedJob.employmentType}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6 mb-3">
+                                            <div className="d-flex align-items-center">
+                                                <div>
+                                                    <div className="text-muted small">Category</div>
+                                                    <div>{selectedJob.department}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -431,8 +537,8 @@ const JobPostHistoryTable = () => {
                                     <div className="mb-4">
                                         <h6 className="fw-bold mb-3">Required Skills</h6>
                                         <div className="d-flex flex-wrap gap-2">
-                                            {selectedJob.skills.map((skill) => (
-                                                <Tag key={skill} color="#428A9B">
+                                            {selectedJob.skills.map((skill, index) => (
+                                                <Tag key={index} color="#428A9B">
                                                     {skill}
                                                 </Tag>
                                             ))}
@@ -444,104 +550,42 @@ const JobPostHistoryTable = () => {
                                         <p>{selectedJob.description}</p>
                                     </div>
 
-                                    <div className="mb-4">
-                                        <h6 className="fw-bold mb-3">Requirements</h6>
-                                        <pre
-                                            style={{
-                                                fontFamily: "inherit",
-                                                whiteSpace: "pre-line",
-                                                margin: 0,
-                                            }}
-                                        >
-                                            {selectedJob.requirements}
-                                        </pre>
-                                    </div>
-                                </TabPane>
-
-                                <TabPane tab="Applicants" key="applicants">
-                                    <div className="text-center py-4">
-                                        <div className="display-4 fw-bold text-primary" style={{ color: "#428A9B" }}>
-                                            {selectedJob.applicants}
+                                    {selectedJob.keyResponsibilities && (
+                                        <div className="mb-4">
+                                            <h6 className="fw-bold mb-3">Key Responsibilities</h6>
+                                            <pre
+                                                style={{
+                                                    fontFamily: "inherit",
+                                                    whiteSpace: "pre-line",
+                                                    margin: 0,
+                                                }}
+                                            >
+                                                {selectedJob.keyResponsibilities}
+                                            </pre>
                                         </div>
-                                        <p className="text-muted">Total Applicants</p>
-
-                                        <div className="row mt-4">
-                                            <div className="col-md-4">
-                                                <div className="card border-0 bg-light p-3">
-                                                    <div className="h4 mb-0 text-success">12</div>
-                                                    <div className="text-muted small">Shortlisted</div>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-4">
-                                                <div className="card border-0 bg-light p-3">
-                                                    <div className="h4 mb-0 text-warning">8</div>
-                                                    <div className="text-muted small">In Review</div>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-4">
-                                                <div className="card border-0 bg-light p-3">
-                                                    <div className="h4 mb-0 text-danger">4</div>
-                                                    <div className="text-muted small">Rejected</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <Button
-                                            type="primary"
-                                            className="mt-4"
-                                            style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-                                        >
-                                            View All Applicants
-                                        </Button>
-                                    </div>
-                                </TabPane>
-
-                                <TabPane tab="Analytics" key="analytics">
-                                    <div className="text-center py-4">
-                                        <div className="row">
-                                            <div className="col-md-4 mb-3">
-                                                <div className="card border-0 bg-light p-3">
-                                                    <div className="display-6 fw-bold text-primary" style={{ color: "#428A9B" }}>
-                                                        {selectedJob.views}
-                                                    </div>
-                                                    <div className="text-muted">Total Views</div>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-4 mb-3">
-                                                <div className="card border-0 bg-light p-3">
-                                                    <div className="display-6 fw-bold text-success">{selectedJob.applicants}</div>
-                                                    <div className="text-muted">Applications</div>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-4 mb-3">
-                                                <div className="card border-0 bg-light p-3">
-                                                    <div className="display-6 fw-bold text-warning">
-                                                        {Math.round((selectedJob.applicants / selectedJob.views) * 100)}%
-                                                    </div>
-                                                    <div className="text-muted">Conversion Rate</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <p className="text-muted mt-3">View detailed analytics to optimize your job posting performance</p>
-
-                                        <Button
-                                            type="primary"
-                                            className="mt-3"
-                                            style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-                                        >
-                                            View Full Analytics
-                                        </Button>
-                                    </div>
+                                    )}
                                 </TabPane>
                             </Tabs>
 
                             <div className="d-flex justify-content-between mt-4 pt-3 border-top">
-                                <Button onClick={() => setViewModalVisible(false)}>Close</Button>
+                                <Button onClick={() => setViewModalVisible(false)}>
+                                    Close
+                                </Button>
 
                                 <div className="d-flex gap-2">
-                                    <Button icon={<FaEdit />}>Edit Job</Button>
-                                    <Button type="primary" style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}>
+                                    <Button
+                                        icon={<FaEdit />}
+                                        onClick={() => {
+                                            setViewModalVisible(false);
+                                            handleEdit(selectedJob);
+                                        }}
+                                    >
+                                        Edit Job
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
+                                    >
                                         View Applicants
                                     </Button>
                                 </div>
@@ -549,9 +593,172 @@ const JobPostHistoryTable = () => {
                         </div>
                     )}
                 </Modal>
+
+                {/* Edit Job Modal */}
+                <Modal
+                    title="Edit Job Post"
+                    open={editModalVisible}
+                    onCancel={() => setEditModalVisible(false)}
+                    footer={null}
+                    width={800}
+                >
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={handleSaveJob}
+                        initialValues={{
+                            skills: [],
+                            idealSkills: []
+                        }}
+                    >
+                        <div className="row">
+                            {/* Job Title */}
+                            <div className="col-md-6">
+                                <Form.Item
+                                    label="Job Title"
+                                    name="jobTitle"
+                                    rules={[{ required: true, message: "Please enter job title" }]}
+                                >
+                                    <Input placeholder="e.g. Senior Frontend Developer" />
+                                </Form.Item>
+                            </div>
+
+                            {/* Location */}
+                            <div className="col-md-6">
+                                <Form.Item
+                                    label="Location"
+                                    name="location"
+                                    rules={[{ required: true, message: "Please enter job location" }]}
+                                >
+                                    <Input placeholder="e.g. Remote / New York" />
+                                </Form.Item>
+                            </div>
+
+                            {/* Budget */}
+                            <div className="col-md-3">
+                                <Form.Item
+                                    label="Min Budget ($)"
+                                    name="minBudget"
+                                    rules={[{ required: true, message: "Enter min budget" }]}
+                                >
+                                    <Input type="number" />
+                                </Form.Item>
+                            </div>
+                            <div className="col-md-3">
+                                <Form.Item
+                                    label="Max Budget ($)"
+                                    name="maxBudget"
+                                    rules={[{ required: true, message: "Enter max budget" }]}
+                                >
+                                    <Input type="number" />
+                                </Form.Item>
+                            </div>
+
+                            {/* Payment Type */}
+                            <div className="col-md-3">
+                                <Form.Item
+                                    label="Payment Type"
+                                    name="paymentType"
+                                    rules={[{ required: true, message: "Select payment type" }]}
+                                >
+                                    <Select>
+                                        <Option value="Hourly">Hourly</Option>
+                                        <Option value="Fixed">Fixed</Option>
+                                    </Select>
+                                </Form.Item>
+                            </div>
+
+                            {/* Category */}
+                            <div className="col-md-3">
+                                <Form.Item
+                                    label="Category"
+                                    name="category"
+                                    rules={[{ required: true, message: "Select a category" }]}
+                                >
+                                    <Select placeholder="Select job category">
+                                        {categoryOptions.map((cat) => (
+                                            <Option key={cat} value={cat}>
+                                                {cat}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </div>
+
+                            {/* Skills */}
+                            <div className="col-md-6">
+                                <Form.Item
+                                    label="Required Skills"
+                                    name="skills"
+                                    rules={[{ required: true, message: "Enter required skills" }]}
+                                >
+                                    <Select mode="tags" placeholder="Add skills">
+                                        {skillOptions.map((skill) => (
+                                            <Option key={skill} value={skill}>
+                                                {skill}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </div>
+
+                            {/* Ideal Skills */}
+                            <div className="col-md-6">
+                                <Form.Item label="Ideal Skills" name="idealSkills">
+                                    <Select mode="tags" placeholder="Add ideal skills (optional)" />
+                                </Form.Item>
+                            </div>
+
+                            {/* Responsibilities */}
+                            <div className="col-12">
+                                <Form.Item
+                                    label="Key Responsibilities"
+                                    name="keyResponsibilities"
+                                >
+                                    <TextArea
+                                        rows={3}
+                                        placeholder="List key responsibilities (one per line)"
+                                    />
+                                </Form.Item>
+                            </div>
+
+                            {/* Description */}
+                            <div className="col-12">
+                                <Form.Item
+                                    label="Project Description"
+                                    name="projectDescription"
+                                    rules={[{ required: true, message: "Please enter description" }]}
+                                >
+                                    <TextArea
+                                        rows={4}
+                                        placeholder="Describe the job/project in detail..."
+                                    />
+                                </Form.Item>
+                            </div>
+
+                            {/* Expired At */}
+                            <div className="col-md-6">
+                                <Form.Item label="Expires At" name="expiredAt">
+                                    <DatePicker showTime style={{ width: "100%" }} />
+                                </Form.Item>
+                            </div>
+                        </div>
+
+                        <div className="d-flex justify-content-end gap-2 mt-4">
+                            <Button onClick={() => setEditModalVisible(false)}>Cancel</Button>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
+                            >
+                                Save Changes
+                            </Button>
+                        </div>
+                    </Form>
+                </Modal>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default JobPostHistoryTable
+export default JobPostHistoryTable;

@@ -1,6 +1,6 @@
 import React from "react"
-import { useState } from "react"
-import { Card, Button, notification, Popconfirm, Tag, Tooltip, Modal, Form, Input, Select, Upload } from "antd"
+import { useState, useEffect } from "react"
+import { Card, Button, notification, Popconfirm, Tag, Tooltip, Modal, Form, Input, Select, Upload, Alert, Spin, DatePicker } from "antd"
 import {
     FaEdit,
     FaTrash,
@@ -8,157 +8,202 @@ import {
     FaCalendarAlt,
     FaMapMarkerAlt,
     FaDollarSign,
-    FaBuilding,
     FaPlus,
     FaEye,
     FaClock,
     FaFileAlt,
-    FaUpload,
 } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
+import { deleteJob, fetchDraftJobsByUser, fetchJobCategories, fetchSkills, publishDraftJob, updateJob } from "../../services/jobService"
+import moment from "moment"
+import { useAuth } from "../../pages/AuthContext.jsx";
 
 const { TextArea } = Input
 const { Option } = Select
 
 const DraftJobPostList = () => {
-    const [draftPosts, setDraftPosts] = useState([
-        {
-            id: 1,
-            title: "Full Stack Developer",
-            lastEdited: "2025-05-10",
-            description: "We are looking for a Full Stack Developer with experience in React and Node.js.",
-            requirements:
-                "- 3+ years of experience with React\n- Experience with Node.js and Express\n- Knowledge of MongoDB or SQL databases",
-            location: "Remote",
-            salary: "$90,000 - $120,000",
-            department: "Engineering",
-            employmentType: "Full-time",
-            skills: ["React", "Node.js", "MongoDB", "JavaScript", "TypeScript"],
-        },
-        {
-            id: 2,
-            title: "Data Scientist",
-            lastEdited: "2025-05-08",
-            description:
-                "We are seeking a Data Scientist to join our analytics team. The ideal candidate will have experience with machine learning and data visualization.",
-            requirements:
-                "- Masters or PhD in a quantitative field\n- Experience with Python and R\n- Knowledge of machine learning algorithms\n- Experience with data visualization tools",
-            location: "Boston, MA",
-            salary: "$110,000 - $140,000",
-            department: "Data Science",
-            employmentType: "Full-time",
-            skills: ["Python", "R", "Machine Learning", "SQL", "Data Visualization"],
-        },
-        {
-            id: 3,
-            title: "Marketing Manager",
-            lastEdited: "2025-05-05",
-            description:
-                "We are looking for a Marketing Manager to lead our marketing efforts. The ideal candidate will have experience with digital marketing and campaign management.",
-            requirements:
-                "- 5+ years of experience in marketing\n- Experience with digital marketing platforms\n- Strong analytical skills\n- Excellent communication skills",
-            location: "Seattle, WA",
-            salary: "$100,000 - $130,000",
-            department: "Marketing",
-            employmentType: "Full-time",
-            skills: ["Digital Marketing", "SEO", "Content Strategy", "Analytics", "Social Media"],
-        },
-    ])
+    const [draftPosts, setDraftPosts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [categoryOptions, setCategoryOptions] = useState([]);
+    const [skillOptions, setSkillOptions] = useState([]);
+    const { userData } = useAuth();
+
+    const userId = userData.userId;
+    const loadCategories = async () => {
+        try {
+            const data = await fetchJobCategories();
+            console.log(data);
+            setCategoryOptions(data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+    const loadSkills = async () => {
+        try {
+            const data = await fetchSkills();
+            console.log(data);
+            setSkillOptions(data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+
+    const loadDrafts = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            if (!userId) throw new Error('User ID not found');
+            const drafts = await fetchDraftJobsByUser(userId);
+            console.log(drafts)
+            // Map API data to frontend structure with mock values for missing fields
+            const mappedDrafts = drafts.map(draft => ({
+                ...draft,
+                title: draft.jobTitle || draft.title || "Untitled Job",
+                salary: `${draft.minBudget} - ${draft.maxBudget}`,
+                lastEdited: new Date(Date.now() - Math.floor(Math.random() * 30) * 86400000).toISOString(),
+                skills: draft.skills || [],
+                description: draft.projectDescription || "No description available",
+            }));
+
+            setDraftPosts(mappedDrafts);
+        } catch (err) {
+            setError(err.message || 'Failed to load draft jobs');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadCategories();
+        loadDrafts();
+        loadSkills();
+    }, [userId]);
+
 
     const [editModalVisible, setEditModalVisible] = useState(false)
     const [previewModalVisible, setPreviewModalVisible] = useState(false)
     const [currentDraft, setCurrentDraft] = useState(null)
     const [form] = Form.useForm()
-    const [imageUrl, setImageUrl] = useState(null)
+    const navigate = useNavigate()
+    if (loading) return <Spin tip="Loading draft jobs..." />;
+    if (error) return <Alert message="Error" description={error} type="error" showIcon />;
 
-    const handleDelete = (id) => {
-        setDraftPosts(draftPosts.filter((post) => post.id !== id))
-        notification.success({
-            message: "Draft Deleted",
-            description: "The draft job post has been successfully deleted.",
-            placement: "topRight",
-        })
+    const handleDelete = async (id) => {
+        try {
+            setDraftPosts(draftPosts.filter((post) => post.id !== id))
+            await deleteJob(id); // call backend delete
+            notification.success({
+                message: "Draft Deleted",
+                description: "The draft job post has been successfully deleted.",
+                placement: "topRight",
+            })
+        } catch (error) {
+            notification.error({
+                message: "Delete Failed",
+                description: error.message || "Failed to delete job post.",
+                placement: "topRight",
+            });
+        }
     }
 
     const handlePost = (id) => {
-        // In a real application, this would send the post to the server
-        // and move it from drafts to active posts
-        setDraftPosts(draftPosts.filter((post) => post.id !== id))
-        notification.success({
-            message: "Job Posted",
-            description: "Your job post has been successfully published.",
-            placement: "topRight",
-        })
-    }
+        Modal.confirm({
+            title: "Confirm Publish",
+            content: "Are you sure you want to publish this job post? It will become visible to freelancers.",
+            okText: "Yes, Publish",
+            cancelText: "Cancel",
+            onOk: async () => {
+                try {
+                    await publishDraftJob(id);
+
+                    setDraftPosts(prevDrafts => prevDrafts.filter(post => post.id !== id));
+
+                    notification.success({
+                        message: "Job Posted",
+                        description: "Your job post has been successfully published.",
+                        placement: "topRight",
+                    });
+                } catch (error) {
+                    notification.error({
+                        message: "Publish Failed",
+                        description: error.message || "Failed to publish job post.",
+                        placement: "topRight",
+                    });
+                }
+            },
+        });
+    };
 
     const handleEdit = (id) => {
-        const draft = draftPosts.find((post) => post.id === id)
-        setCurrentDraft(draft)
+        const draft = draftPosts.find((post) => post.id === id);
+        setCurrentDraft(draft);
 
+        // Use same structure as JobPostHistoryTable
         form.setFieldsValue({
-            title: draft.title,
-            department: draft.department,
-            employmentType: draft.employmentType,
+            jobTitle: draft.jobTitle || draft.title,
             location: draft.location,
-            salary: draft.salary,
-            description: draft.description,
-            requirements: draft.requirements,
-            skills: draft.skills,
-        })
+            minBudget: draft.minBudget,
+            maxBudget: draft.maxBudget,
+            paymentType: draft.paymentType,
+            category: draft.category || draft.department,
+            skills: draft.skills || [],
+            idealSkills: draft.idealSkills || [],
+            keyResponsibilities: draft.keyResponsibilities,
+            projectDescription: draft.projectDescription || draft.description,
+            expiredAt: draft.expiredAt ? moment(draft.expiredAt) : null
+        });
 
-        setEditModalVisible(true)
-    }
-
+        setEditModalVisible(true);
+    };
     const handlePreview = (id) => {
         const draft = draftPosts.find((post) => post.id === id)
         setCurrentDraft(draft)
         setPreviewModalVisible(true)
     }
 
-    const handleSaveDraft = (values) => {
-        const updatedDrafts = draftPosts.map((post) => {
-            if (post.id === currentDraft.id) {
-                return {
-                    ...post,
-                    ...values,
-                    lastEdited: new Date().toISOString().split("T")[0],
-                }
-            }
-            return post
-        })
+    const handleSaveDraft = async (values) => {
+        try {
+            const draftId = currentDraft.id;
+            const keyResponsibilities = typeof values.keyResponsibilities === 'string'
+                ? values.keyResponsibilities.split('\n').map(s => s.trim()).filter(Boolean)
+                : values.keyResponsibilities || [];
 
-        setDraftPosts(updatedDrafts)
-        setEditModalVisible(false)
+            const jobData = {
+                ...values,
+                id: draftId,
+                keyResponsibilities,
+                expiredAt: values.expiredAt ? values.expiredAt.toISOString() : null,
+            };
 
-        notification.success({
-            message: "Draft Updated",
-            description: "Your draft job post has been successfully updated.",
-            placement: "topRight",
-        })
-    }
+            const updated = await updateJob(draftId, jobData); // ✅ API call
+
+            await loadDrafts();
+
+            setEditModalVisible(false);
+            notification.success({
+                message: "Draft Updated",
+                description: "Your draft job post has been successfully updated.",
+                placement: "topRight",
+            });
+        } catch (error) {
+            console.error("Error updating draft job:", error);
+            notification.error({
+                message: "Update Failed",
+                description: error.message || "Failed to update draft job post.",
+                placement: "topRight",
+            });
+        }
+    };
 
     const handleCreateNew = () => {
-        setCurrentDraft(null)
-        form.resetFields()
-        setEditModalVisible(true)
-        setImageUrl(null)
+        navigate("/job-posting")
     }
 
-    const handleSaveNew = (values) => {
-        const newDraft = {
-            id: Date.now(),
-            ...values,
-            lastEdited: new Date().toISOString().split("T")[0],
-        }
-
-        setDraftPosts([...draftPosts, newDraft])
-        setEditModalVisible(false)
-
-        notification.success({
-            message: "Draft Created",
-            description: "Your new draft job post has been created.",
-            placement: "topRight",
-        })
-    }
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString("en-US", {
@@ -166,14 +211,6 @@ const DraftJobPostList = () => {
             month: "short",
             day: "numeric",
         })
-    }
-
-    const handleImageChange = (info) => {
-        if (info.file.status !== "uploading") {
-            // In a real app, this would handle the uploaded file
-            // For now, we'll just use a placeholder
-            setImageUrl("/placeholder.svg?height=150&width=150")
-        }
     }
 
     return (
@@ -228,16 +265,12 @@ const DraftJobPostList = () => {
                                     </div>
 
                                     <div className="mb-3">
-                                        <div className="d-flex align-items-center text-muted mb-2 small">
-                                            <FaBuilding className="me-2" style={{ color: "#428A9B" }} />
-                                            <span>
-                                                {post.department} • {post.employmentType}
-                                            </span>
-                                        </div>
-                                        <div className="d-flex align-items-center text-muted mb-2 small">
-                                            <FaMapMarkerAlt className="me-2" style={{ color: "#428A9B" }} />
-                                            <span>{post.location}</span>
-                                        </div>
+                                        {post.location && (
+                                            <div className="d-flex align-items-center text-muted mb-2 small">
+                                                <FaMapMarkerAlt className="me-2" style={{ color: "#428A9B" }} />
+                                                <span>{post.location}</span>
+                                            </div>
+                                        )}
                                         <div className="d-flex align-items-center text-muted mb-2 small">
                                             <FaDollarSign className="me-2" style={{ color: "#428A9B" }} />
                                             <span>{post.salary}</span>
@@ -307,160 +340,162 @@ const DraftJobPostList = () => {
 
                 {/* Edit/Create Modal */}
                 <Modal
-                    title={currentDraft ? "Edit Draft Job Post" : "Create New Draft Job Post"}
+                    title={"Edit Draft Job Post"}
                     open={editModalVisible}
                     onCancel={() => setEditModalVisible(false)}
                     footer={null}
                     width={800}
                 >
-                    <Form form={form} layout="vertical" onFinish={currentDraft ? handleSaveDraft : handleSaveNew}>
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={handleSaveDraft}
+                    >
                         <div className="row">
-                            <div className="col-md-12">
-                                <Form.Item label="Company Logo">
-                                    <Upload
-                                        name="avatar"
-                                        listType="picture-circle"
-                                        className="avatar-uploader"
-                                        showUploadList={false}
-                                        action="/api/upload" // This would be your upload endpoint
-                                        onChange={handleImageChange}
-                                        beforeUpload={() => {
-                                            // Return false to prevent actual upload since we're just handling preview
-                                            return false
-                                        }}
-                                    >
-                                        {imageUrl ? (
-                                            <img
-                                                src={imageUrl || "/placeholder.svg"}
-                                                alt="avatar"
-                                                style={{ width: "100%", borderRadius: "50%" }}
-                                            />
-                                        ) : (
-                                            <div>
-                                                <FaUpload />
-                                                <div style={{ marginTop: 8 }}>Upload</div>
-                                            </div>
-                                        )}
-                                    </Upload>
-                                </Form.Item>
-                            </div>
-
+                            {/* Job Title */}
                             <div className="col-md-6">
                                 <Form.Item
                                     label="Job Title"
-                                    name="title"
+                                    name="jobTitle"
                                     rules={[{ required: true, message: "Please enter job title" }]}
                                 >
                                     <Input placeholder="e.g. Senior Frontend Developer" />
                                 </Form.Item>
                             </div>
 
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Department"
-                                    name="department"
-                                    rules={[{ required: true, message: "Please select department" }]}
-                                >
-                                    <Select placeholder="Select department">
-                                        <Option value="Engineering">Engineering</Option>
-                                        <Option value="Design">Design</Option>
-                                        <Option value="Marketing">Marketing</Option>
-                                        <Option value="Sales">Sales</Option>
-                                        <Option value="Product">Product</Option>
-                                        <Option value="Operations">Operations</Option>
-                                        <Option value="Finance">Finance</Option>
-                                        <Option value="HR">HR</Option>
-                                        <Option value="Data Science">Data Science</Option>
-                                    </Select>
-                                </Form.Item>
-                            </div>
-
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Employment Type"
-                                    name="employmentType"
-                                    rules={[{ required: true, message: "Please select employment type" }]}
-                                >
-                                    <Select placeholder="Select employment type">
-                                        <Option value="Full-time">Full-time</Option>
-                                        <Option value="Part-time">Part-time</Option>
-                                        <Option value="Contract">Contract</Option>
-                                        <Option value="Temporary">Temporary</Option>
-                                        <Option value="Internship">Internship</Option>
-                                    </Select>
-                                </Form.Item>
-                            </div>
-
+                            {/* Location */}
                             <div className="col-md-6">
                                 <Form.Item
                                     label="Location"
                                     name="location"
                                     rules={[{ required: true, message: "Please enter job location" }]}
                                 >
-                                    <Input placeholder="e.g. San Francisco, CA or Remote" />
+                                    <Input placeholder="e.g. Remote / New York" />
                                 </Form.Item>
                             </div>
 
-                            <div className="col-md-6">
+                            {/* Budget */}
+                            <div className="col-md-3">
                                 <Form.Item
-                                    label="Salary Range"
-                                    name="salary"
-                                    rules={[{ required: true, message: "Please enter salary range" }]}
+                                    label="Min Budget"
+                                    name="minBudget"
+                                    rules={[{ required: true, message: "Enter min budget" }]}
                                 >
-                                    <Input placeholder="e.g. $100,000 - $130,000" />
+                                    <Input type="number" />
+                                </Form.Item>
+                            </div>
+                            <div className="col-md-3">
+                                <Form.Item
+                                    label="Max Budget"
+                                    name="maxBudget"
+                                    rules={[{ required: true, message: "Enter max budget" }]}
+                                >
+                                    <Input type="number" />
                                 </Form.Item>
                             </div>
 
-                            <div className="col-md-6">
+                            {/* Payment Type */}
+                            <div className="col-md-3">
                                 <Form.Item
-                                    label="Skills"
-                                    name="skills"
-                                    rules={[{ required: true, message: "Please enter required skills" }]}
+                                    label="Payment Type"
+                                    name="paymentType"
+                                    rules={[{ required: true, message: "Select payment type" }]}
                                 >
-                                    <Select mode="tags" placeholder="Add skills">
-                                        <Option value="React">React</Option>
-                                        <Option value="Node.js">Node.js</Option>
-                                        <Option value="JavaScript">JavaScript</Option>
-                                        <Option value="TypeScript">TypeScript</Option>
-                                        <Option value="Python">Python</Option>
-                                        <Option value="Java">Java</Option>
-                                        <Option value="AWS">AWS</Option>
-                                        <Option value="Docker">Docker</Option>
-                                        <Option value="Kubernetes">Kubernetes</Option>
+                                    <Select>
+                                        <Option value="Hourly">Hourly</Option>
+                                        <Option value="Fixed">Fixed</Option>
                                     </Select>
                                 </Form.Item>
                             </div>
 
-                            <div className="col-12">
+                            {/* Category */}
+                            <div className="col-md-3">
                                 <Form.Item
-                                    label="Job Description"
-                                    name="description"
-                                    rules={[{ required: true, message: "Please enter job description" }]}
+                                    label="Category"
+                                    name="category"
+                                    rules={[{ required: true, message: "Select a category" }]}
                                 >
-                                    <TextArea rows={4} placeholder="Describe the job role and responsibilities..." />
+                                    <Select placeholder="Select job category">
+                                        {categoryOptions.map((cat) => (
+                                            <Option key={cat} value={cat}>
+                                                {cat}
+                                            </Option>
+                                        ))}
+                                    </Select>
                                 </Form.Item>
                             </div>
 
+                            {/* Skills */}
+                            <div className="col-md-6">
+                                <Form.Item
+                                    label="Required Skills"
+                                    name="skills"
+                                    rules={[{ required: true, message: "Enter required skills" }]}
+                                >
+                                    <Select mode="tags" placeholder="Add skills">
+                                        {skillOptions.map((skill) => (
+                                            <Option key={skill} value={skill}>
+                                                {skill}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </div>
+
+                            {/* Ideal Skills */}
+                            <div className="col-md-6">
+                                <Form.Item label="Ideal Skills" name="idealSkills">
+                                    <Select mode="tags" placeholder="Add ideal skills (optional)" />
+                                </Form.Item>
+                            </div>
+
+                            {/* Responsibilities */}
                             <div className="col-12">
                                 <Form.Item
-                                    label="Requirements"
-                                    name="requirements"
-                                    rules={[{ required: true, message: "Please enter job requirements" }]}
+                                    label="Key Responsibilities"
+                                    name="keyResponsibilities"
                                 >
-                                    <TextArea rows={4} placeholder="List the requirements for this position..." />
+                                    <TextArea
+                                        rows={3}
+                                        placeholder="List key responsibilities (one per line)"
+                                    />
+                                </Form.Item>
+                            </div>
+
+                            {/* Description */}
+                            <div className="col-12">
+                                <Form.Item
+                                    label="Project Description"
+                                    name="projectDescription"
+                                    rules={[{ required: true, message: "Please enter description" }]}
+                                >
+                                    <TextArea
+                                        rows={4}
+                                        placeholder="Describe the job/project in detail..."
+                                    />
+                                </Form.Item>
+                            </div>
+
+                            {/* Expired At */}
+                            <div className="col-md-6">
+                                <Form.Item label="Expires At" name="expiredAt">
+                                    <DatePicker showTime style={{ width: "100%" }} />
                                 </Form.Item>
                             </div>
                         </div>
 
                         <div className="d-flex justify-content-end gap-2 mt-4">
                             <Button onClick={() => setEditModalVisible(false)}>Cancel</Button>
-                            <Button type="primary" htmlType="submit" style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
+                            >
                                 {currentDraft ? "Save Changes" : "Create Draft"}
                             </Button>
                         </div>
                     </Form>
                 </Modal>
-
                 {/* Preview Modal */}
                 <Modal
                     title="Job Post Preview"
@@ -499,11 +534,6 @@ const DraftJobPostList = () => {
                         <div>
                             <div className="mb-4">
                                 <h4>{currentDraft.title}</h4>
-                                <div className="d-flex align-items-center text-muted">
-                                    <span>{currentDraft.department}</span>
-                                    <span className="mx-2">•</span>
-                                    <span>{currentDraft.employmentType}</span>
-                                </div>
                             </div>
 
                             <div className="row mb-4">
@@ -516,16 +546,17 @@ const DraftJobPostList = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="col-md-6 mb-2">
-                                    <div className="d-flex align-items-center">
-                                        <FaMapMarkerAlt className="me-2 text-muted" />
-                                        <div>
-                                            <div className="text-muted small">Location</div>
-                                            <div>{currentDraft.location}</div>
+                                {currentDraft.location && (
+                                    <div className="col-md-6 mb-2">
+                                        <div className="d-flex align-items-center">
+                                            <FaMapMarkerAlt className="me-2 text-muted" />
+                                            <div>
+                                                <div className="text-muted small">Location</div>
+                                                <div>{currentDraft.location}</div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
 
                                 <div className="col-md-6 mb-2">
                                     <div className="d-flex align-items-center">
@@ -554,19 +585,6 @@ const DraftJobPostList = () => {
                                 <p>{currentDraft.description}</p>
                             </div>
 
-                            <div className="mb-4">
-                                <h6 className="fw-bold">Requirements</h6>
-                                <pre
-                                    style={{
-                                        fontFamily: "inherit",
-                                        whiteSpace: "pre-line",
-                                        margin: 0,
-                                    }}
-                                >
-                                    {currentDraft.requirements}
-                                </pre>
-                            </div>
-
                             <div className="alert alert-warning">
                                 <div className="d-flex align-items-center">
                                     <FaEdit className="me-2" />
@@ -582,7 +600,7 @@ const DraftJobPostList = () => {
                     )}
                 </Modal>
             </div>
-        </div>
+        </div >
     )
 }
 
