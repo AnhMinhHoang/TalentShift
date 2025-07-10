@@ -14,6 +14,26 @@ export default function Navbar() {
         : (1000000).toLocaleString("vi-VN", { style: "currency", currency: "VND" })
   }
 
+  // Get first letter for avatar
+  const getAvatarLetter = () => {
+    if (userData?.role === "HIRER") {
+      return userData.companyName ? userData.companyName.charAt(0).toUpperCase() : "C"
+    } else if (userData?.role === "FREELANCER") {
+      return userData.fullName ? userData.fullName.charAt(0).toUpperCase() : "U"
+    }
+    return "U"
+  }
+
+  // Check if user has custom avatar
+  const hasCustomAvatar = () => {
+    if (userData?.role === "HIRER") {
+      return userData.logoPath && userData.logoPath !== "/asset/images/default-company-logo.png"
+    } else if (userData?.role === "FREELANCER") {
+      return userData.avatar && userData.avatar !== "/asset/images/default-profile.jpg"
+    }
+    return false
+  }
+
   return (
       <nav className={`navbar navbar-expand-lg ${styles.navbar}`}>
         <div className="container">
@@ -23,7 +43,6 @@ export default function Navbar() {
             </div>
             <span className={styles.brandText}>TalentShift</span>
           </Link>
-
           <div className="d-lg-none ms-auto me-4">
             <Link
                 to={userData ? (userData.role === "HIRER" ? "/enterprise-profile-page" : "/profile-page") : "/login"}
@@ -32,7 +51,6 @@ export default function Navbar() {
               <i className="bi bi-person"></i>
             </Link>
           </div>
-
           <button
               className={`navbar-toggler ${styles.navbarToggler}`}
               type="button"
@@ -44,7 +62,6 @@ export default function Navbar() {
           >
             <span className={styles.navbarTogglerIcon}></span>
           </button>
-
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-lg-5 me-lg-auto">
               <li className="nav-item">
@@ -66,7 +83,7 @@ export default function Navbar() {
               )}
               {userData && userData.role === "FREELANCER" && (
                   <li className="nav-item">
-                    <Link to="/user-profile?tab=applied" className={`nav-link ${styles.navLink}`}>
+                    <Link to="/profile-page?tab=applied" className={`nav-link ${styles.navLink}`}>
                       Applied Jobs
                     </Link>
                   </li>
@@ -79,7 +96,6 @@ export default function Navbar() {
                   </li>
               )}
             </ul>
-
             <div className="d-none d-lg-block">
               {userData ? (
                   <div className={`nav-item dropdown ${styles.userDropdown}`}>
@@ -109,11 +125,19 @@ export default function Navbar() {
                             Balance: <span className={styles.balanceAmount}>{formatVND(userData.balance)}</span>
                           </div>
                         </div>
-                        <img
-                            src={userData.avatar || "/asset/images/default-profile.jpg"}
-                            alt="avatar"
-                            className={styles.userAvatar}
-                        />
+                        {hasCustomAvatar() ? (
+                            <img
+                                src={
+                                  userData.role === "HIRER"
+                                      ? userData.logoPath || "/asset/images/default-company-logo.png"
+                                      : userData.avatar || "/asset/images/default-profile.jpg"
+                                }
+                                alt="avatar"
+                                className={styles.userAvatar}
+                            />
+                        ) : (
+                            <div className={styles.defaultAvatar}>{getAvatarLetter()}</div>
+                        )}
                       </div>
                     </a>
                     <ul className={`dropdown-menu dropdown-menu-end ${styles.dropdownMenu}`} aria-labelledby="userDropdown">
@@ -140,9 +164,6 @@ export default function Navbar() {
                             </Link>
                           </li>
                       )}
-                      <li>
-                        <hr className={styles.dropdownDivider} />
-                      </li>
                       <li>
                         <button className={`dropdown-item ${styles.dropdownItem} ${styles.logoutItem}`} onClick={logout}>
                           <i className="bi bi-box-arrow-right me-2"></i>

@@ -30,6 +30,7 @@ const ExperienceStep = ({
   handleSkip,
   calculateProgress,
   setProgress,
+  showSkipButton,
 }) => {
   // Modal style
   const modalStyle = {
@@ -117,6 +118,10 @@ const ExperienceStep = ({
     }
   };
 
+  // Add validation for required fields
+  const isExperienceValid = currentExperience.jobTitle && currentExperience.companyName && currentExperience.startDate;
+  const isProjectValid = currentProject.name && currentProject.time;
+
   return (
     <div className={styles.stepContent}>
       <h4 className={styles.stepTitle}>
@@ -135,13 +140,15 @@ const ExperienceStep = ({
         >
           <AddIcon fontSize="small" /> Add Experience
         </Button>
-        <Button
-          variant="outline-secondary"
-          onClick={handleSkip}
-          className={styles.skipButton}
-        >
-          Skip this step
-        </Button>
+        {showSkipButton && (
+          <Button
+            variant="outline-secondary"
+            onClick={handleSkip}
+            className={styles.skipButton}
+          >
+            Skip this step
+          </Button>
+        )}
       </div>
 
       {experiences.length === 0 && (
@@ -172,25 +179,25 @@ const ExperienceStep = ({
                         <CalendarIcon fontSize="small" className="me-1" />
                         {exp.startDate
                           ? new Date(exp.startDate).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                              }
-                            )
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                            }
+                          )
                           : ""}{" "}
                         -
                         {exp.isPresent
                           ? " Present"
                           : exp.endDate
-                          ? ` ${new Date(exp.endDate).toLocaleDateString(
+                            ? ` ${new Date(exp.endDate).toLocaleDateString(
                               "en-US",
                               {
                                 year: "numeric",
                                 month: "short",
                               }
                             )}`
-                          : ""}
+                            : ""}
                       </div>
                     </div>
                   </div>
@@ -269,168 +276,116 @@ const ExperienceStep = ({
           </div>
 
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
+            <div className="mb-3">
+              <label htmlFor="jobTitle" className="form-label">
                 <WorkIcon fontSize="small" className="me-2" />
                 Job Title <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
+              </label>
+              <input
                 type="text"
+                className="form-control userProfile_formControl"
+                id="jobTitle"
+                name="jobTitle"
                 value={currentExperience.jobTitle}
-                onChange={(e) =>
-                  setCurrentExperience({
-                    ...currentExperience,
-                    jobTitle: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentExperience({ ...currentExperience, jobTitle: e.target.value })}
                 placeholder="e.g. Senior Web Developer"
-                className={styles.formControl}
                 required
               />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="companyName" className="form-label">
                 <BusinessIcon fontSize="small" className="me-2" />
                 Company Name <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
+              </label>
+              <input
                 type="text"
+                className="form-control userProfile_formControl"
+                id="companyName"
+                name="companyName"
                 value={currentExperience.companyName}
-                onChange={(e) =>
-                  setCurrentExperience({
-                    ...currentExperience,
-                    companyName: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentExperience({ ...currentExperience, companyName: e.target.value })}
                 placeholder="e.g. Acme Corporation"
-                className={styles.formControl}
                 required
               />
-            </Form.Group>
-
+            </div>
+            <div className="form-check mb-3">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="currentlyWork"
+                checked={currentExperience.isPresent}
+                onChange={e => setCurrentExperience({ ...currentExperience, isPresent: e.target.checked, endDate: e.target.checked ? null : currentExperience.endDate })}
+              />
+              <label className="form-check-label" htmlFor="currentlyWork">
+                I currently work here
+              </label>
+            </div>
             <div className="row mb-3">
               <div className="col-md-6">
-                <Form.Label className={styles.formLabel}>
+                <label htmlFor="startDate" className="form-label">
                   <CalendarIcon fontSize="small" className="me-2" />
-                  Start Date
-                </Form.Label>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    value={currentExperience.startDate}
-                    onChange={(date) =>
-                      setCurrentExperience({
-                        ...currentExperience,
-                        startDate: date,
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        margin="normal"
-                        className={styles.dateInput}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
+                  Start Date <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="date"
+                  className="form-control userProfile_formControl"
+                  id="startDate"
+                  name="startDate"
+                  value={currentExperience.startDate || ''}
+                  onChange={e => setCurrentExperience({ ...currentExperience, startDate: e.target.value })}
+                  required
+                />
               </div>
-
               {!currentExperience.isPresent && (
                 <div className="col-md-6">
-                  <Form.Label className={styles.formLabel}>
+                  <label htmlFor="endDate" className="form-label">
                     <CalendarIcon fontSize="small" className="me-2" />
-                    End Date
-                  </Form.Label>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      value={currentExperience.endDate}
-                      onChange={(date) =>
-                        setCurrentExperience({
-                          ...currentExperience,
-                          endDate: date,
-                        })
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          fullWidth
-                          margin="normal"
-                          className={styles.dateInput}
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
+                    End Date <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control userProfile_formControl"
+                    id="endDate"
+                    name="endDate"
+                    value={currentExperience.endDate || ''}
+                    onChange={e => setCurrentExperience({ ...currentExperience, endDate: e.target.value })}
+                    required
+                  />
                 </div>
               )}
             </div>
-
-            <Form.Group className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label="I currently work here"
-                checked={currentExperience.isPresent}
-                onChange={(e) =>
-                  setCurrentExperience({
-                    ...currentExperience,
-                    isPresent: e.target.checked,
-                    endDate: null,
-                  })
-                }
-                className={styles.checkbox}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
+            <div className="mb-3">
+              <label htmlFor="description" className="form-label">
                 <DescriptionIcon fontSize="small" className="me-2" />
                 Description
-              </Form.Label>
-              <Form.Control
-                as="textarea"
+              </label>
+              <textarea
+                className="form-control userProfile_formControl"
+                id="description"
+                name="description"
                 rows={4}
                 value={currentExperience.description}
-                onChange={(e) =>
-                  setCurrentExperience({
-                    ...currentExperience,
-                    description: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentExperience({ ...currentExperience, description: e.target.value })}
                 placeholder="Describe your responsibilities and achievements..."
-                className={styles.formControl}
               />
-              <Form.Text className="text-muted">
-                Highlight your key responsibilities, achievements, and skills
-                gained.
-              </Form.Text>
-            </Form.Group>
-
-            <div className={`${styles.projectsSection} mt-4 mb-3`}>
-              <h5 className={styles.sectionTitle}>Projects</h5>
-              <p className={styles.sectionDescription}>
-                Add notable projects you worked on during this role
-              </p>
-
+            </div>
+            {/* Projects Section */}
+            <div className="mb-3">
+              <label className="form-label">Projects</label>
               {currentExperience.projects.length > 0 && (
-                <div className={styles.projectsList}>
+                <div className="mb-3">
                   {currentExperience.projects.map((project, index) => (
-                    <div key={index} className={styles.projectItemInModal}>
-                      <h6>{project.name}</h6>
-                      <p className="mb-0">{project.description}</p>
-                      {project.link && (
-                        <small className="text-primary">
-                          <LinkIcon fontSize="small" className="me-1" />
-                          {project.link}
-                        </small>
-                      )}
+                    <div key={index} className="border p-2 rounded mb-2">
+                      <div className="fw-bold">{project.name}</div>
+                      <div className="small text-muted">{project.time}</div>
+                      <div>{project.description}</div>
                     </div>
                   ))}
                 </div>
               )}
-
               <Button
                 variant="outline-primary"
-                className={`d-flex align-items-center gap-1 mt-3 ${styles.skipButton}`}
+                className="d-flex align-items-center gap-1 mt-3"
                 onClick={handleOpenProjectModal}
               >
                 <AddIcon fontSize="small" /> Add Project
@@ -449,6 +404,7 @@ const ExperienceStep = ({
               variant="primary"
               onClick={handleSaveExperience}
               className={styles.nextButton}
+              disabled={!isExperienceValid}
             >
               Save Experience
             </Button>
@@ -471,71 +427,52 @@ const ExperienceStep = ({
               Showcase a notable project from this work experience
             </p>
           </div>
-
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
+            <div className="mb-3">
+              <label htmlFor="projectName" className="form-label">
                 Project Name <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
+              </label>
+              <input
                 type="text"
+                className="form-control userProfile_formControl"
+                id="projectName"
+                name="name"
                 value={currentProject.name}
-                onChange={(e) =>
-                  setCurrentProject({
-                    ...currentProject,
-                    name: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentProject({ ...currentProject, name: e.target.value })}
                 placeholder="e.g. Company Website Redesign"
-                className={styles.formControl}
                 required
               />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
-                Description <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                as="textarea"
+            </div>
+            <div className="mb-3">
+              <label htmlFor="projectTime" className="form-label">
+                Project Time <span className="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-control userProfile_formControl"
+                id="projectTime"
+                name="time"
+                value={currentProject.time || ''}
+                onChange={e => setCurrentProject({ ...currentProject, time: e.target.value })}
+                placeholder="MM-YYYY - MM-YYYY"
+                required
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="projectDescription" className="form-label">
+                Description
+              </label>
+              <textarea
+                className="form-control userProfile_formControl"
+                id="projectDescription"
+                name="description"
                 rows={3}
                 value={currentProject.description}
-                onChange={(e) =>
-                  setCurrentProject({
-                    ...currentProject,
-                    description: e.target.value,
-                  })
-                }
+                onChange={e => setCurrentProject({ ...currentProject, description: e.target.value })}
                 placeholder="Describe the project, your role, and the outcome..."
-                className={styles.formControl}
-                required
               />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className={styles.formLabel}>
-                <LinkIcon fontSize="small" className="me-2" />
-                Project Link (Optional)
-              </Form.Label>
-              <Form.Control
-                type="url"
-                value={currentProject.link}
-                onChange={(e) =>
-                  setCurrentProject({
-                    ...currentProject,
-                    link: e.target.value,
-                  })
-                }
-                placeholder="https://example.com"
-                className={styles.formControl}
-              />
-              <Form.Text className="text-muted">
-                Add a link to the live project, GitHub repository, or portfolio
-                page.
-              </Form.Text>
-            </Form.Group>
+            </div>
           </Form>
-
           <div className={styles.modalActions}>
             <Button
               variant="outline-secondary"
@@ -547,6 +484,7 @@ const ExperienceStep = ({
               variant="primary"
               onClick={handleSaveProject}
               className={styles.nextButton}
+              disabled={!isProjectValid}
             >
               Add Project
             </Button>

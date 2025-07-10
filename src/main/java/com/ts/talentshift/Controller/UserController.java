@@ -12,13 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
-    private final FreelancerService freelancerService;
-    private final HirerService hirerService;
 
-    public UserController(UserService userService, FreelancerService freelancerService, HirerService hirerService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.freelancerService = freelancerService;
-        this.hirerService = hirerService;
     }
 
     @GetMapping("/{userId}")
@@ -33,36 +29,6 @@ public class UserController {
     @PutMapping("/{userId}/profile")
     public ResponseEntity<User> updateBasicProfile(@PathVariable Long userId, @RequestBody User updatedUser) {
         User updated = userService.updateBasicProfile(userId, updatedUser);
-        if (updated != null) {
-            return ResponseEntity.ok(updated);
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @PutMapping("/{userId}/freelancer")
-    public ResponseEntity<User> updateFreelancerProfile(@PathVariable Long userId, @RequestBody User updatedUser) {
-        User updated = freelancerService.updateFreelancerProfile(userId, updatedUser);
-        if (updated != null) {
-            return ResponseEntity.ok(updated);
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @PutMapping(value = "/{userId}/hirer", consumes = "multipart/form-data")
-    public ResponseEntity<User> updateHirerProfile(
-            @PathVariable Long userId,
-            @RequestParam("companyName") String companyName,
-            @RequestParam("description") String description,
-            @RequestParam("contactLink") String contactLink,
-            @RequestParam(value = "logo", required = false) MultipartFile logo,
-            @RequestParam("registrationFile") MultipartFile registrationFile) {
-
-        User updatedUser = new User();
-        updatedUser.setCompanyName(companyName);
-        updatedUser.setDescription(description);
-        updatedUser.setContactLink(contactLink);
-
-        User updated = hirerService.updateHirerProfile(userId, updatedUser, logo, registrationFile);
         if (updated != null) {
             return ResponseEntity.ok(updated);
         }

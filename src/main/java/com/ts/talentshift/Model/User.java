@@ -17,6 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
@@ -78,6 +79,9 @@ public class User {
 
     @Column(nullable = false)
     private boolean verified = false;
+
+    @Column(nullable = false)
+    private boolean isFillingForm = false;
 
     // Helper methods to manage bidirectional relationships
     public void addSkill(Skill skill) {

@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if user is already logged in
+    setLoading(true);
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
     if (storedUser && token) {
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem("userId");
           delete axios.defaults.headers.common["Authorization"];
         })
-        .finally(() => setLoading(false)); // ✅ loading complete
+        .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }) => {
         }
       })();
     } else {
-      setUserData(null); // Clear old data if user is null
+      setUserData(null);
     }
   }, [user]);
 
@@ -52,7 +53,6 @@ export const AuthProvider = ({ children }) => {
     try {
       let response;
       if (google) {
-        // Google login: fetch user by email
         response = await axios.post("http://localhost:8080/auth/google-login", { email });
       } else {
         response = await axios.post("http://localhost:8080/auth/login", {
@@ -68,7 +68,6 @@ export const AuthProvider = ({ children }) => {
         id,
       } = response.data;
 
-      //store user and token
       const userInfo = {
         token,
         email: userEmail,
@@ -80,7 +79,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userInfo));
       localStorage.setItem("token", token);
 
-      //set axios default header for future requests
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       await getUserById(userInfo.id);
     } catch (error) {
@@ -93,7 +91,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, role, fullName) => {
     try {
       const response = await axios.post("http://localhost:8080/auth/register", {
-        fullName, // Empty fullName since it will be set in RegisterAdditional
+        fullName,
         email,
         password,
         role,
@@ -107,7 +105,6 @@ export const AuthProvider = ({ children }) => {
         role: userRole,
       } = response.data;
 
-      // Store user data and token
       const userData = {
         token,
         email: userEmail,
@@ -119,7 +116,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", token);
 
-      // Set axios default header for future requests
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       await getUserById(userId);
       return response.data;
@@ -141,14 +137,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    setUser(null);
-    setUserData(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userId");
-    delete axios.defaults.headers.common["Authorization"];
-    navigate("/login");
+    setLoading(true);
+    try {
+      navigate("/login");
+      setTimeout(() => {
+        setUser(null);
+        setUserData(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userId");
+        delete axios.defaults.headers.common["Authorization"];
+        setLoading(false);
+      }, 100); // small delay allows navigation to complete
+    } catch (e) {
+      setLoading(false);
+    }
   };
 
   return (

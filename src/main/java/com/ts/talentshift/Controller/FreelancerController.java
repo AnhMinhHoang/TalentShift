@@ -8,6 +8,7 @@ import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.UserRepository;
 import com.ts.talentshift.Service.FreelancerService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/freelancers")
 public class FreelancerController {
@@ -32,6 +34,39 @@ public class FreelancerController {
     public FreelancerController(FreelancerService freelancerService, UserRepository userRepository) {
         this.freelancerService = freelancerService;
         this.userRepository = userRepository;
+    }
+
+    @PutMapping("/{userId}/freelancer")
+    public ResponseEntity<User> updateFreelancerProfile(
+            @PathVariable Long userId,
+            @ModelAttribute User updatedUser,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile) {
+
+        //log updatedUser model attribute for debugging
+        log.info("Updating freelancer profile for userId: {}", updatedUser.toString());
+
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            try {
+                String avatarPath = saveAvatarFile(avatarFile);
+                updatedUser.setAvatar(avatarPath); // Set the new avatar path
+            } catch (IOException e) {
+                return ResponseEntity.status(500).build(); // Internal server error if file save fails
+            }
+        } else {
+            // If no new avatar is uploaded, retain the existing one
+            Optional<User> existingUser = userRepository.findById(userId);
+            if (existingUser.isPresent()) {
+                updatedUser.setAvatar(existingUser.get().getAvatar());
+            } else {
+                updatedUser.setAvatar(null); // Or handle as needed
+            }
+        }
+
+        User updated = freelancerService.updateFreelancerProfile(userId, updatedUser);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/sidebar/{userId}")

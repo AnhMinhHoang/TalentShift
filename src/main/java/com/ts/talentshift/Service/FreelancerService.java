@@ -51,31 +51,50 @@ public class FreelancerService {
                     existingUser.setBio(updatedUser.getBio());
                     existingUser.setLocation(updatedUser.getLocation());
                     existingUser.setBirthDate(updatedUser.getBirthDate());
+                    existingUser.setPhone(updatedUser.getPhone());
+                    existingUser.setFullName(updatedUser.getFullName());
+                    existingUser.setAvatar(updatedUser.getAvatar());
+                    existingUser.setFillingForm(true);
 
                     // Clear existing collections
-                    existingUser.getSkills().clear();
                     existingUser.getExperiences().clear();
                     existingUser.getEducations().clear();
                     existingUser.getCertificates().clear();
                     existingUser.getLinks().clear();
 
-                    // Add new items using helper methods to maintain bidirectional relationships
+                    // Step 1: Remove user from existing skills' users lists to sync the relationship
+                    for (Skill skill : new ArrayList<>(existingUser.getSkills())) {
+                        skill.getUsers().remove(existingUser);
+                    }
+                    existingUser.getSkills().clear();
+
+                    // Step 2: Process updated skills
                     if (updatedUser.getSkills() != null) {
-                        updatedUser.getSkills().forEach(skill -> {
-                            // Add existingUser to the skill's users list
-                            if (!skill.getUsers().contains(existingUser)) {
-                                skill.getUsers().add(existingUser);
+                        for (Skill updatedSkill : updatedUser.getSkills()) {
+                            // Find existing skill by name and type
+                            Skill existingSkill = skillRepository.findBySkillNameAndSkillType(
+                                    updatedSkill.getSkillName(), updatedSkill.getSkillType());
+                            if (existingSkill == null) {
+                                // If not found, create a new skill
+                                existingSkill = new Skill();
+                                existingSkill.setSkillName(updatedSkill.getSkillName());
+                                existingSkill.setSkillType(updatedSkill.getSkillType());
+                                existingSkill.setUsers(new ArrayList<>());
                             }
-                            // Add skill to existingUser's skills list
-                            if (!existingUser.getSkills().contains(skill)) {
-                                existingUser.getSkills().add(skill);
+
+                            // Add skill to user and user to skill, avoiding duplicates
+                            if (!existingUser.getSkills().contains(existingSkill)) {
+                                existingUser.getSkills().add(existingSkill);
                             }
-                        });
+                            if (!existingSkill.getUsers().contains(existingUser)) {
+                                existingSkill.getUsers().add(existingUser);
+                            }
+                        }
                     }
 
+                    // Add new items for other collections using helper methods
                     if (updatedUser.getExperiences() != null) {
                         updatedUser.getExperiences().forEach(experience -> {
-                            // Clear and update projects for each experience
                             if (experience.getProjects() != null) {
                                 experience.getProjects().forEach(project -> {
                                     project.setExperience(experience);
@@ -107,6 +126,7 @@ public class FreelancerService {
                         });
                     }
 
+                    // Save the user (cascades to skills and other collections)
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);

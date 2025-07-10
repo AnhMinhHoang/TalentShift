@@ -9,8 +9,6 @@ import { useAuth } from "./pages/AuthContext.jsx";
 import { App as AntdApp } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import Index from "./pages/index";
-import Navbar from "./components/Navbar/Navbar";
-import Footer from "./components/Footer/Footer";
 import JobDetail from "./pages/Job/JobDetail.jsx";
 import JobListing from "./pages/Job/JobListing.jsx";
 import Contact from "./pages/Contact.jsx";
@@ -32,6 +30,7 @@ import Unauthorized from "./pages/Authentication/Unauthorized.jsx";
 import RoleBasedOutlet from "./components/RoleBasedOutlet";
 import PrivateOutlet from "./components/PrivateOutlet..jsx";
 import MainLayout from "./components/MainLayout";
+import FillFormVerifiedOutlet from "./components/FillFormVerifiedOutlet.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -49,41 +48,62 @@ function App() {
   if (loading) return <Loading isLoading={true} />;
 
   return (
-    <AntdApp>
-      <ScrollToTop />
-      <ScrollToAnchor />
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route element={<PrivateOutlet />}>
-            <Route path="/payment" element={<Payment />} />
-            <Route path='/payment/plan' element={<Plan />} />
-            <Route path='/transaction-result' element={<TransactionResult />} />
+      <AntdApp>
+        <ScrollToTop />
+        <ScrollToAnchor />
+        <Routes>
+          {/* Route without layout (unauth fallback) */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* All routes inside main layout */}
+          <Route element={<MainLayout />}>
+
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/jobs" element={<JobListing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/job-detail" element={<JobDetail />} />
+            <Route path="/job-detail/:id" element={<JobDetail />} />
+            <Route path="/contact" element={<Contact />} />
+
+            {/* Private routes: user must be logged in */}
+            <Route element={<PrivateOutlet />}>
+
+              {/* Verified users only */}
+              <Route element={<FillFormVerifiedOutlet />}>
+                {/* Payment-related routes */}
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/payment/plan" element={<Plan />} />
+                <Route path="/transaction-result" element={<TransactionResult />} />
+
+                {/* HIRER-only routes */}
+                <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
+                  <Route path="/job-posting" element={<JobPost />} />
+                  <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
+                </Route>
+
+                {/* FREELANCER-only routes */}
+                <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
+                  <Route path="/job-apply" element={<JobApply />} />
+                  <Route path="/profile-page" element={<JobTracker />} />
+                </Route>
+              </Route>
+
+              {/* Authenticated HIRER but not yet verified */}
+              <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
+                <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
+              </Route>
+
+              {/* Authenticated FREELANCER but not yet verified */}
+              <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
+                <Route path="/register-additional" element={<RegisterAdditional />} />
+              </Route>
+
+            </Route>
           </Route>
-          {/* HIRER-only routes */}
-          <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
-            <Route path="/job-posting" element={<JobPost />} />
-            <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
-            <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
-          </Route>
-          {/* FREELANCER-only routes */}
-          <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
-            <Route path="/job-apply" element={<JobApply />} />
-            <Route path="/profile-page" element={<JobTracker />} />
-            <Route path="/register-additional" element={<RegisterAdditional />} />
-          </Route>
-          {/*Unauthenticated routes*/}
-          <Route path="/" element={<Index />} />
-          <Route path="/jobs" element={<JobListing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/job-detail" element={<JobDetail />} />
-          <Route path="/job-detail/:id" element={<JobDetail />} />
-          <Route path="/contact" element={<Contact />} />
-        </Route>
-        {/* Fallback for unauthorized access, no layout */}
-        <Route path="/unauthorized" element={<Unauthorized />} />
-      </Routes>
-    </AntdApp>
+        </Routes>
+      </AntdApp>
   );
 }
 

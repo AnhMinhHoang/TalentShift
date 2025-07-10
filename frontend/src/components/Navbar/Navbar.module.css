@@ -228,7 +228,7 @@
 }
 
 .balanceAmount {
-    color: var(--secondary-color, #80d0c7);
+    color: #31efdf;
     font-weight: 600;
 }
 
@@ -240,6 +240,24 @@
     border: 2px solid var(--secondary-color, #80d0c7);
     background: var(--section-bg-color, #f0f8ff);
     box-shadow: 0 2px 8px rgba(19, 84, 122, 0.3);
+}
+
+/* Default Avatar with Gradient Background */
+.defaultAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom right, #428a9b, #266987);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white-color, #ffffff);
+    font-weight: 700;
+    font-size: 16px;
+    border: 2px solid var(--secondary-color, #80d0c7);
+    box-shadow: 0 2px 8px rgba(19, 84, 122, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .dropdownMenu {
@@ -316,12 +334,10 @@
     .navbar {
         padding: 0.5rem 0;
     }
-
     .navLink {
         margin: 0.25rem 0;
         text-align: center;
     }
-
     .navLink::after {
         display: none;
     }
@@ -331,12 +347,10 @@
     .brandText {
         font-size: 1.25rem;
     }
-
     .logoContainer {
         width: 36px;
         height: 36px;
     }
-
     .logo {
         width: 20px;
         height: 20px;

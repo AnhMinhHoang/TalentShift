@@ -127,20 +127,20 @@ export default function Footer({ pageIcon }) {
 
           <Row className="py-3">
             <Col md={6} className="text-center text-md-start">
-              <p className={`mb-0 ${styles.copyright}`}>
+              <p className={`mb-0 ${styles.copyright} text-white-50`}>
                 &copy; {new Date().getFullYear()} TalentShift. All rights reserved.
               </p>
             </Col>
             <Col md={6} className="text-center text-md-end">
               <ul className={styles.legalLinks}>
                 <li>
-                  <Link to="/privacy">Privacy Policy</Link>
+                  <Link to="/privacy" className="text-white-50">Privacy Policy</Link>
                 </li>
                 <li>
-                  <Link to="/terms">Terms of Service</Link>
+                  <Link to="/terms" className="text-white-50">Terms of Service</Link>
                 </li>
                 <li>
-                  <Link to="/cookies">Cookie Policy</Link>
+                  <Link to="/cookies" className="text-white-50">Cookie Policy</Link>
                 </li>
               </ul>
             </Col>

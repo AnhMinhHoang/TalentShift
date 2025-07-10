@@ -8,8 +8,7 @@ import axios from "axios";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth();
-  const { login } = useAuth();
+  const { register, login, userData } = useAuth();
   const emailRef = useRef(null);
   const [formData, setFormData] = useState({
     email: "",
@@ -80,6 +79,31 @@ export default function Register() {
     setError("");
   };
 
+  const handleNavigate = () => {
+    if (userData && userData.verified) {
+      openNotification(
+          "success",
+          "Login successful!",
+          "top",
+          "Redirecting to Homepage!"
+      );
+      navigate("/");
+    }
+    else if(userData && !userData.verified) {
+      openNotification(
+          "warning",
+          "Account not verified",
+          "top",
+          "Please fill in all of your neccessary information before continue using our service!"
+      );
+      if (userData.role === "FREELANCER") {
+        navigate("/register-additional");
+      } else if (userData.role === "HIRER") {
+        navigate("/hirer-additional");
+      }
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -141,8 +165,7 @@ export default function Register() {
       const data = await response.data;
       if (data.exists) {
         await login(email, null, true);
-        openNotification('success', 'Login successful!', 'top', 'Redirecting to Homepage!');
-        navigate('/');
+        handleNavigate();
       } else {
         const payload = {
           email: userInfo.email,

@@ -16,6 +16,7 @@ import {
 import { useNavigate } from "react-router-dom"
 import { deleteJob, fetchDraftJobsByUser, fetchJobCategories, fetchSkills, publishDraftJob, updateJob } from "../../services/jobService"
 import moment from "moment"
+import { useAuth } from "../../pages/AuthContext.jsx";
 
 const { TextArea } = Input
 const { Option } = Select
@@ -26,9 +27,9 @@ const DraftJobPostList = () => {
     const [error, setError] = useState(null);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [skillOptions, setSkillOptions] = useState([]);
+    const { userData } = useAuth();
 
-    // Assume you store userId in localStorage under 'userId'
-    const userId = localStorage.getItem('userId');
+    const userId = userData.userId;
     const loadCategories = async () => {
         try {
             const data = await fetchJobCategories();
@@ -226,92 +227,7 @@ const DraftJobPostList = () => {
                 </Button>
             </div>
             <div className="card-body">
-                {/* Filter UI */}
-                <div className="mb-4">
-                    <Row className="g-2">
-                        <Col md={3} sm={6} xs={12}>
-                            <Input
-                                placeholder="Filter by Title"
-                                value={filterTitle}
-                                onChange={e => setFilterTitle(e.target.value)}
-                                allowClear
-                            />
-                        </Col>
-                        <Col md={2} sm={6} xs={12}>
-                            <Select
-                                placeholder="Department"
-                                value={filterDepartment || undefined}
-                                onChange={value => setFilterDepartment(value)}
-                                allowClear
-                                style={{ width: "100%" }}
-                            >
-                                <Option value="Engineering">Engineering</Option>
-                                <Option value="Design">Design</Option>
-                                <Option value="Marketing">Marketing</Option>
-                                <Option value="Sales">Sales</Option>
-                                <Option value="Product">Product</Option>
-                                <Option value="Operations">Operations</Option>
-                                <Option value="Finance">Finance</Option>
-                                <Option value="HR">HR</Option>
-                                <Option value="Data Science">Data Science</Option>
-                            </Select>
-                        </Col>
-                        <Col md={2} sm={6} xs={12}>
-                            <Select
-                                placeholder="Employment Type"
-                                value={filterEmploymentType || undefined}
-                                onChange={value => setFilterEmploymentType(value)}
-                                allowClear
-                                style={{ width: "100%" }}
-                            >
-                                <Option value="Full-time">Full-time</Option>
-                                <Option value="Part-time">Part-time</Option>
-                                <Option value="Contract">Contract</Option>
-                                <Option value="Temporary">Temporary</Option>
-                                <Option value="Internship">Internship</Option>
-                            </Select>
-                        </Col>
-                        <Col md={3} sm={6} xs={12}>
-                            <Input
-                                placeholder="Filter by Location"
-                                value={filterLocation}
-                                onChange={e => setFilterLocation(e.target.value)}
-                                allowClear
-                            />
-                        </Col>
-                        <Col md={2} sm={12} xs={12}>
-                            <Select
-                                mode="tags"
-                                placeholder="Skills"
-                                value={filterSkills}
-                                onChange={setFilterSkills}
-                                allowClear
-                                style={{ width: "100%" }}
-                            >
-                                <Option value="React">React</Option>
-                                <Option value="Node.js">Node.js</Option>
-                                <Option value="JavaScript">JavaScript</Option>
-                                <Option value="TypeScript">TypeScript</Option>
-                                <Option value="Python">Python</Option>
-                                <Option value="Java">Java</Option>
-                                <Option value="AWS">AWS</Option>
-                                <Option value="Docker">Docker</Option>
-                                <Option value="Kubernetes">Kubernetes</Option>
-                                <Option value="R">R</Option>
-                                <Option value="Machine Learning">Machine Learning</Option>
-                                <Option value="SQL">SQL</Option>
-                                <Option value="Data Visualization">Data Visualization</Option>
-                                <Option value="Digital Marketing">Digital Marketing</Option>
-                                <Option value="SEO">SEO</Option>
-                                <Option value="Content Strategy">Content Strategy</Option>
-                                <Option value="Analytics">Analytics</Option>
-                                <Option value="Social Media">Social Media</Option>
-                            </Select>
-                        </Col>
-                    </Row>
-                </div>
-                {/* End Filter UI */}
-                {filteredPosts.length === 0 ? (
+                {draftPosts.length === 0 ? (
                     <div className="text-center py-5">
                         <div className="mb-3" style={{ fontSize: "3rem", color: "#ddd" }}>
                             <FaFileAlt />
@@ -329,7 +245,7 @@ const DraftJobPostList = () => {
                     </div>
                 ) : (
                     <div className="row">
-                        {filteredPosts.map((post) => (
+                        {draftPosts.map((post) => (
                             <div key={post.id} className="col-md-6 col-lg-4 mb-4">
                                 <Card
                                     className="h-100 shadow-sm hover-shadow"

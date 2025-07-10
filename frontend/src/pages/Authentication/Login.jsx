@@ -9,7 +9,7 @@ import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, register } = useAuth();
+  const { login, register, userData } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -46,6 +46,31 @@ export default function Login() {
     });
   };
 
+  const handleNavigate = () => {
+    if (userData && userData.verified) {
+      openNotification(
+          "success",
+          "Login successful!",
+          "top",
+          "Redirecting to Homepage!"
+      );
+      navigate("/");
+    }
+    else if(userData && !userData.verified) {
+      openNotification(
+          "warning",
+          "Account not verified",
+          "top",
+          "Please fill in all of your neccessary information before continue using our service!"
+      );
+      if (userData.role === "FREELANCER") {
+        navigate("/register-additional");
+      } else if (userData.role === "HIRER") {
+        navigate("/hirer-additional");
+      }
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -54,13 +79,7 @@ export default function Login() {
     try {
       await login(formData.email, formData.password);
       setIsLoading(false);
-      openNotification(
-        "success",
-        "Login successful!",
-        "top",
-        "Redirecting to Homepage!"
-      );
-      navigate("/");
+      handleNavigate();
     } catch (err) {
       setIsLoading(false);
       setError(err.message || "Invalid email or password");
@@ -82,8 +101,7 @@ export default function Login() {
       const data = await response.data;
       if (data.exists) {
         await login(email, null, true);
-        openNotification('success', 'Login successful!', 'top', 'Redirecting to Homepage!');
-        navigate('/');
+        handleNavigate();
       } else {
         setGoogleUser(userInfo);
         setRoleModalVisible(true);
