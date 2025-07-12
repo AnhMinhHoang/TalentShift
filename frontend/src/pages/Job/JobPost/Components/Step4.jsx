@@ -47,21 +47,23 @@ export default function Step4({ formData, onChange, onNext, onBack }) {
       valid = false;
     }
 
-    // Min budget validation
-    if (!formData.minBudget.trim()) {
-      newErrors.minBudget = "Minimum budget is required";
-      valid = false;
-    } else if (!BUDGET_REGEX.test(formData.minBudget)) {
-      newErrors.minBudget = "Must be a positive number";
-      valid = false;
-    } else {
-      const minValue = parseInt(formData.minBudget);
-      if (minValue < MIN_BUDGET) {
-        newErrors.minBudget = `Minimum budget must be at least ${MIN_BUDGET.toLocaleString()} VND`;
+    // Min budget validation (only if not fixed pricing)
+    if (formData.paymentType !== "fixed") {
+      if (!formData.minBudget.trim()) {
+        newErrors.minBudget = "Minimum budget is required";
         valid = false;
-      } else if (minValue > MAX_BUDGET) {
-        newErrors.minBudget = `Maximum budget cannot exceed ${MAX_BUDGET.toLocaleString()} VND`;
+      } else if (!BUDGET_REGEX.test(formData.minBudget)) {
+        newErrors.minBudget = "Must be a positive number";
         valid = false;
+      } else {
+        const minValue = parseInt(formData.minBudget);
+        if (minValue < MIN_BUDGET) {
+          newErrors.minBudget = `Minimum budget must be at least ${MIN_BUDGET.toLocaleString()} VND`;
+          valid = false;
+        } else if (minValue > MAX_BUDGET) {
+          newErrors.minBudget = `Maximum budget cannot exceed ${MAX_BUDGET.toLocaleString()} VND`;
+          valid = false;
+        }
       }
     }
 
@@ -108,9 +110,10 @@ export default function Step4({ formData, onChange, onNext, onBack }) {
   };
 
   const handleBudgetChange = (field, value) => {
-    // Limit input to 9 digits (100,000,000 max)
-    if (value.length <= 9) {
-      onChange(field, value);
+    // Remove all non-digit characters
+    const numericValue = value.replace(/\D/g, "");
+    if (numericValue.length <= 9) {
+      onChange(field, numericValue); // Store raw number (unformatted)
       setTouched({ ...touched, [field]: true });
     }
   };
@@ -134,7 +137,8 @@ export default function Step4({ formData, onChange, onNext, onBack }) {
   };
 
   const formatBudget = (value) => {
-    return parseInt(value || 0).toLocaleString();
+    if (!value) return "";
+    return new Intl.NumberFormat("vi-VN").format(parseInt(value));
   };
 
   // Helper to determine if an error should be shown
@@ -183,29 +187,10 @@ export default function Step4({ formData, onChange, onNext, onBack }) {
             )}
             <div className={styles.paymentOptions}>
               <Card
-                className={`${styles.paymentCard} ${formData.paymentType === "hourly" ? styles.selectedCard : ""
+                  className={`${styles.paymentCard} ${
+                      formData.paymentType === "fixed" ? styles.selectedCard : ""
                   } ${shouldShowError("paymentType") ? styles.errorBorder : ""}`}
-                onClick={() => handlePaymentTypeChange("hourly")}
-              >
-                <CardContent>
-                  <div className={styles.paymentCardContent}>
-                    <div className={styles.paymentIcon}>
-                      <AccessTimeIcon />
-                    </div>
-                    <div className={styles.paymentInfo}>
-                      <Typography variant="h6">Pay by the hour</Typography>
-                      <Typography variant="body2">
-                        Pay for hours worked, best for ongoing projects
-                      </Typography>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card
-                className={`${styles.paymentCard} ${formData.paymentType === "fixed" ? styles.selectedCard : ""
-                  } ${shouldShowError("paymentType") ? styles.errorBorder : ""}`}
-                onClick={() => handlePaymentTypeChange("fixed")}
+                  onClick={() => handlePaymentTypeChange("fixed")}
               >
                 <CardContent>
                   <div className={styles.paymentCardContent}>
@@ -221,111 +206,175 @@ export default function Step4({ formData, onChange, onNext, onBack }) {
                   </div>
                 </CardContent>
               </Card>
+              <Card
+                  className={`${styles.paymentCard} ${styles.disabledCard}`}
+                  // Remove onClick to prevent interaction
+              >
+                <CardContent>
+                  <div className={styles.paymentCardContent}>
+                    <div className={styles.paymentIcon}>
+                      <AccessTimeIcon />
+                    </div>
+                    <div className={styles.paymentInfo}>
+                      <Typography variant="h6">Pay by the hour</Typography>
+                      <Typography variant="body2">
+                        Pay for hours worked, best for ongoing projects
+                      </Typography>
+                      <Typography variant="body2" className={styles.comingSoon}>
+                        Coming soon
+                      </Typography>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
           <div className={styles.formGroup}>
-            <label>What is your estimated budget?*</label>
+            <label>
+              {formData.paymentType === "fixed"
+                  ? "What is your project budget?*"
+                  : "What is your estimated budget?*"}
+            </label>
 
-            {shouldShowRangeError() && (
-              <FormHelperText error className={styles.errorText}>
-                {errors.budgetRange}
-              </FormHelperText>
+            {formData.paymentType === "fixed" ? (
+                <div className={styles.budgetInputs}>
+                  <div className={styles.budgetField}>
+                    <label>Project Budget</label>
+                    <TextField
+                        fullWidth
+                        error={shouldShowError("maxBudget")}
+                        helperText={shouldShowError("maxBudget") ? errors.maxBudget : ""}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#80d0c7",
+                            },
+                          },
+                        }}
+                        value={formatBudget(formData.maxBudget)}
+                        onChange={(e) => handleBudgetChange("maxBudget", e.target.value)}
+                        onBlur={() => handleBlur("maxBudget")}
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                                <InputAdornment position="start">VND</InputAdornment>
+                            ),
+                          },
+                        }}
+                        inputProps={{
+                          inputMode: "numeric",
+                          pattern: "[0-9]*",
+                          min: MIN_BUDGET,
+                          max: MAX_BUDGET
+                        }}
+                    />
+                    <div className={styles.budgetPreview}>
+                      {formData.maxBudget ? (
+                          <>
+                            <span>Amount: </span>
+                            {formatBudget(formData.maxBudget)} VND
+                          </>
+                      ) : (
+                          "Enter project budget"
+                      )}
+                    </div>
+                  </div>
+                </div>
+            ) : (
+                <>
+                  {shouldShowRangeError() && (
+                      <FormHelperText error className={styles.errorText}>
+                        {errors.budgetRange}
+                      </FormHelperText>
+                  )}
+                  <div className={styles.budgetInputs}>
+                    <div className={styles.budgetField}>
+                      <label>Minimum Budget</label>
+                      <TextField
+                          fullWidth
+                          error={shouldShowError("minBudget")}
+                          helperText={shouldShowError("minBudget") ? errors.minBudget : ""}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#80d0c7",
+                              },
+                            },
+                          }}
+                          value={formatBudget(formData.minBudget)}
+                          onChange={(e) => handleBudgetChange("minBudget", e.target.value)}
+                          onBlur={() => handleBlur("minBudget")}
+                          inputProps={{
+                            inputMode: "numeric",
+                            pattern: "[0-9]*",
+                            min: MIN_BUDGET,
+                            max: MAX_BUDGET,
+                          }}
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                  <InputAdornment position="start">VND</InputAdornment>
+                              ),
+                            },
+                          }}
+                      />
+                      <div className={styles.budgetPreview}>
+                        {formData.minBudget ? (
+                            <>
+                              <span>Amount: </span>
+                              {formatBudget(formData.minBudget)} VND
+                            </>
+                        ) : (
+                            "Enter minimum budget"
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={styles.budgetField}>
+                      <label>Maximum Budget</label>
+                      <TextField
+                          fullWidth
+                          error={shouldShowError("maxBudget")}
+                          helperText={shouldShowError("maxBudget") ? errors.maxBudget : ""}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#80d0c7",
+                              },
+                            },
+                          }}
+                          value={formatBudget(formData.maxBudget)}
+                          onChange={(e) => handleBudgetChange("maxBudget", e.target.value)}
+                          onBlur={() => handleBlur("maxBudget")}
+                          inputProps={{
+                            inputMode: "numeric",
+                            pattern: "[0-9]*",
+                            min: MIN_BUDGET,
+                            max: MAX_BUDGET,
+                          }}
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                  <InputAdornment position="start">VND</InputAdornment>
+                              ),
+                            },
+                          }}
+                      />
+                      <div className={styles.budgetPreview}>
+                        {formData.maxBudget ? (
+                            <>
+                              <span>Amount: </span>
+                              {formatBudget(formData.maxBudget)} VND
+                            </>
+                        ) : (
+                            "Enter maximum budget"
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </>
             )}
-
-            <div className={styles.budgetInputs}>
-              <div className={styles.budgetField}>
-                <label>Minimum Budget</label>
-                <TextField
-                  fullWidth
-                  error={shouldShowError("minBudget")}
-                  helperText={shouldShowError("minBudget") ? errors.minBudget : ""}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#80d0c7",
-                      },
-                    },
-                  }}
-                  value={formData.minBudget}
-                  onChange={(e) => handleBudgetChange("minBudget", e.target.value)}
-                  onBlur={() => handleBlur("minBudget")}
-                  slotProps={{
-                    input: {
-                      endAdornment:
-                        formData.paymentType === "hourly" ? (
-                          <InputAdornment position="end">/hr</InputAdornment>
-                        ) : null,
-                      startAdornment: (
-                        <InputAdornment position="start">VND</InputAdornment>
-                      ),
-                    },
-                  }}
-                  type="number"
-                  inputProps={{
-                    min: MIN_BUDGET,
-                    max: MAX_BUDGET
-                  }}
-                />
-                <div className={styles.budgetPreview}>
-                  {formData.minBudget ? (
-                    <>
-                      <span>Amount: </span>
-                      {formatBudget(formData.minBudget)} VND
-                      {formData.paymentType === "hourly" && "/hr"}
-                    </>
-                  ) : (
-                    "Enter minimum budget"
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.budgetField}>
-                <label>Maximum Budget</label>
-                <TextField
-                  fullWidth
-                  error={shouldShowError("maxBudget")}
-                  helperText={shouldShowError("maxBudget") ? errors.maxBudget : ""}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#80d0c7",
-                      },
-                    },
-                  }}
-                  value={formData.maxBudget}
-                  onChange={(e) => handleBudgetChange("maxBudget", e.target.value)}
-                  onBlur={() => handleBlur("maxBudget")}
-                  slotProps={{
-                    input: {
-                      endAdornment:
-                        formData.paymentType === "hourly" ? (
-                          <InputAdornment position="end">/hr</InputAdornment>
-                        ) : null,
-                      startAdornment: (
-                        <InputAdornment position="start">VND</InputAdornment>
-                      ),
-                    },
-                  }}
-                  type="number"
-                  inputProps={{
-                    min: MIN_BUDGET,
-                    max: MAX_BUDGET
-                  }}
-                />
-                <div className={styles.budgetPreview}>
-                  {formData.maxBudget ? (
-                    <>
-                      <span>Amount: </span>
-                      {formatBudget(formData.maxBudget)} VND
-                      {formData.paymentType === "hourly" && "/hr"}
-                    </>
-                  ) : (
-                    "Enter maximum budget"
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className={styles.buttonContainer}>

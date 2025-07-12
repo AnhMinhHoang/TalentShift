@@ -59,8 +59,8 @@ export default function Payment() {
 
         try {
             const apiUrl = paymentMethod === "momo"
-                ? "http://localhost:8080/api/momo/create"
-                : "http://localhost:8080/api/vnpay/create";
+                ? "/api/momo/create"
+                : "/api/vnpay/create";
 
             const response = await axios.post(
                 apiUrl,

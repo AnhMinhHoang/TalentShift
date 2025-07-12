@@ -1,16 +1,16 @@
-import React from "react";
-import { CustomSection } from "../../../components/Section/CustomSection";
+import { CustomSection } from "../../../components/Section/CustomSection"
+import { Award, Plus } from "lucide-react"
 
 export const CertificateSection = ({ certificates, onEdit }) => {
-    const hasCertificates = certificates && certificates.length > 0;
+    const hasCertificates = certificates && certificates.length > 0
 
     const formatDate = (dateString) => {
-        if (!dateString) return "Now";
-        const date = new Date(dateString);
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = String(date.getFullYear()).slice(2);
-        return `${month}-${year}`;
-    };
+        if (!dateString) return "Now"
+        const date = new Date(dateString)
+        const month = String(date.getMonth() + 1).padStart(2, "0")
+        const year = String(date.getFullYear()).slice(2)
+        return `${month}-${year}`
+    }
 
     return (
         <CustomSection title="Certificate" onEdit={onEdit}>
@@ -29,8 +29,18 @@ export const CertificateSection = ({ certificates, onEdit }) => {
                     </div>
                 ))
             ) : (
-                <p className="text-muted fs-5 fst-italic">No certificates added yet. Click edit to add your certifications.</p>
+                <div className="text-center py-4">
+                    <div className="mb-3">
+                        <Award size={48} className="text-muted opacity-50" />
+                    </div>
+                    <h6 className="text-muted mb-2">No Certificates Added</h6>
+                    <p className="text-muted small mb-3">Display your professional certifications and achievements</p>
+                    <button onClick={onEdit} className="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+                        <Plus size={16} />
+                        Add Certificate
+                    </button>
+                </div>
             )}
         </CustomSection>
-    );
-};
+    )
+}

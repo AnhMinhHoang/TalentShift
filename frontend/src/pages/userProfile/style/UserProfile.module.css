@@ -1,64 +1,111 @@
 .profileContainer {
-    background-color: #fff;
-  }
-  
-  .skillBadge {
-    background-color: #e9edef;
-    color: #212529;
-    font-weight: bold;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.25rem;
-  }
-  
-  .primaryBtn {
-    background-color: #428A9B;
-    border-color: #428A9B;
-    color: white;
-  }
-  
-  .primaryBtn:hover {
-    background-color: #266987;
-    border-color: #266987;
-    color: white;
-  }
-  
-  .secondaryBtn {
-    background-color: #266987;
-    border-color: #266987;
-    color: white;
-  }
-  
-  .secondaryBtn:hover {
-    background-color: #1d5266;
-    border-color: #1d5266;
-    color: white;
-  }
-  
-  .formControl:focus {
-    border-color: #428A9B;
-    box-shadow: 0 0 0 0.25rem rgba(66, 138, 155, 0.25);
-  }
-  
-  .modalHeader {
-    background-color: #428A9B;
-    color: white;
-  }
-  
-  .editButton {
-    color: #428A9B;
-  }
-  
-  .editButton:hover {
-    color: #266987;
-  }
-  
-  .alert {
-    margin-top: 1rem;
-  }
-  
-  .validationError {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
-  
+  background-color: #fff;
+}
+
+.skillBadge {
+  background-color: #e9edef;
+  color: #212529;
+  font-weight: bold;
+  padding: 0.6rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+}
+
+.primaryBtn {
+  background-color: #428a9b;
+  border-color: #428a9b;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background-color: #266987;
+  border-color: #266987;
+  color: white;
+}
+
+.secondaryBtn {
+  background-color: #266987;
+  border-color: #266987;
+  color: white;
+}
+
+.secondaryBtn:hover {
+  background-color: #1d5266;
+  border-color: #1d5266;
+  color: white;
+}
+
+.formControl:focus {
+  border-color: #428a9b;
+  box-shadow: 0 0 0 0.25rem rgba(66, 138, 155, 0.25);
+}
+
+.modalHeader {
+  background-color: #428a9b;
+  color: white;
+}
+
+.editButton {
+  color: #428a9b;
+}
+
+.editButton:hover {
+  color: #266987;
+}
+
+.alert {
+  margin-top: 1rem;
+}
+
+.validationError {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Empty state improvements */
+.emptyState {
+  padding: 2rem 1rem;
+  text-align: center;
+  border: 2px dashed #e9ecef;
+  border-radius: 0.5rem;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.emptyState:hover {
+  border-color: #428a9b;
+  background-color: #f0f8ff;
+}
+
+.emptyStateIcon {
+  opacity: 0.6;
+  margin-bottom: 1rem;
+}
+
+.emptyStateTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+}
+
+.emptyStateDescription {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.addButton {
+  background-color: transparent;
+  border: 1px solid #428a9b;
+  color: #428a9b;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover {
+  background-color: #428a9b;
+  color: white;
+}

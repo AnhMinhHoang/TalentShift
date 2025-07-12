@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     if (storedUser && token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      axios.get("http://localhost:8080/auth/checkUser")
+      axios.get("/api/auth/checkUser")
         .then((res) => setUserData(res.data))
         .catch(() => {
           setUser(null);
@@ -53,9 +53,9 @@ export const AuthProvider = ({ children }) => {
     try {
       let response;
       if (google) {
-        response = await axios.post("http://localhost:8080/auth/google-login", { email });
+        response = await axios.post("/api/auth/google-login", { email });
       } else {
-        response = await axios.post("http://localhost:8080/auth/login", {
+        response = await axios.post("/api/auth/login", {
           email,
           password,
         });
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, role, fullName) => {
     try {
-      const response = await axios.post("http://localhost:8080/auth/register", {
+      const response = await axios.post("/api/auth/register", {
         fullName,
         email,
         password,
@@ -127,7 +127,7 @@ export const AuthProvider = ({ children }) => {
 
   const getUserById = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/users/${userId}`);
+      const response = await axios.get(`/api/users/${userId}`);
       setUserData(response.data);
       return response.data;
     } catch (error) {
@@ -156,7 +156,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, getUserById, userData, setUserData, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, getUserById, userData, setUserData, loading, setLoading }}>
       {children}
     </AuthContext.Provider>
   );

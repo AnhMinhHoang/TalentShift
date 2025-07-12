@@ -9,7 +9,7 @@ export default function Step3({ formData, onChange, onNext, onBack }) {
     // Validate form - all fields required
     setIsValid(
       formData.projectName.trim() !== "" &&
-      formData.projectDescription.trim() !== "" &&
+      formData.description.trim() !== "" &&
       formData.keyResponsibilities.trim() !== "" &&
       formData.idealSkills.trim() !== ""
     );
@@ -51,9 +51,9 @@ export default function Step3({ formData, onChange, onNext, onBack }) {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="projectDescription">Project Description</label>
+            <label htmlFor="description">Project Description</label>
             <TextField
-              id="projectDescription"
+              id="description"
               multiline
               sx={{
                 "& .MuiOutlinedInput-root": {
@@ -64,8 +64,8 @@ export default function Step3({ formData, onChange, onNext, onBack }) {
               }}
               rows={6}
               fullWidth
-              value={formData.projectDescription}
-              onChange={(e) => onChange("projectDescription", e.target.value)}
+              value={formData.description}
+              onChange={(e) => onChange("description", e.target.value)}
               className={styles.textField}
             />
           </div>

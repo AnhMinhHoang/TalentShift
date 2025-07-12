@@ -1,214 +1,171 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { Table, Badge, Button, Modal, Tabs, Tag, Dropdown, DatePicker, Select, Form, Input, notification } from "antd";
-import {
-    FaEye,
-    FaEdit,
-    FaTrash,
-    FaCopy,
-    FaChartBar,
-    FaEllipsisV,
-    FaUserCheck,
-    FaCalendarAlt,
-    FaMapMarkerAlt,
-    FaDollarSign,
-    FaFilter,
-    FaSearch,
-} from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { Table, Button, Input, Select, Pagination, notification, Modal, Rate, Input as AntdInput } from "antd";
+import { FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { deleteJob, fetchJobCategories, fetchPublishedJobsByUser, fetchSkills, updateJob } from "../../services/jobService";
-import TextArea from "antd/es/input/TextArea";
-import moment from "moment";
+import { fetchPublishedJobsByUser, updateJobStatus, createRating } from "../../services/jobService";
+import { useAuth } from "../../pages/AuthContext.jsx";
+import styles from "../../components/JobCard/JobCard.module.css";
+
+const { TextArea } = AntdInput;
 const { confirm } = Modal;
 
-
-const { TabPane } = Tabs;
-const { Option } = Select;
-
-// Skill and category options
-
 const JobPostHistoryTable = () => {
-    const [viewModalVisible, setViewModalVisible] = useState(false);
-    const [editModalVisible, setEditModalVisible] = useState(false);
-    const [selectedJob, setSelectedJob] = useState(null);
-    const [editingJob, setEditingJob] = useState(null);
-    const [activeTab, setActiveTab] = useState("details");
     const [searchText, setSearchText] = useState("");
-    const [filterStatus, setFilterStatus] = useState("all");
+    const [filterStatus, setFilterStatus] = useState("All");
+    const [currentPage, setCurrentPage] = useState(1);
     const [jobPosts, setJobPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [form] = Form.useForm();
-    const [categoryOptions, setCategoryOptions] = useState([]);
-    const [skillOptions, setSkillOptions] = useState([]);
+    const { userData } = useAuth();
+    const jobsPerPage = 5;
+    const [api, contextHolder] = notification.useNotification();
+    const [ratingModalVisible, setRatingModalVisible] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState(null);
+    const [selectedFreelancerId, setSelectedFreelancerId] = useState(null);
+    const [stars, setStars] = useState(0);
+    const [comment, setComment] = useState("");
 
-    // Assume you store userId in localStorage under 'userId'
-    const loadCategories = async () => {
-        try {
-            const data = await fetchJobCategories();
-            console.log(data);
-            setCategoryOptions(data);
-            setLoading(false);
-        } catch (err) {
-            setError(err.message);
-            setLoading(false);
-        }
-    };
-    const loadSkills = async () => {
-        try {
-            const data = await fetchSkills();
-            console.log(data);
-            setSkillOptions(data);
-            setLoading(false);
-        } catch (err) {
-            setError(err.message);
-            setLoading(false);
-        }
-    };
     const loadJobs = async () => {
         try {
-            const userId = localStorage.getItem("userId");
+            const userId = userData?.userId;
+            if (!userId) {
+                throw new Error("User ID not found");
+            }
             const data = await fetchPublishedJobsByUser(userId);
-            console.log("Fetched job posts:", data);
-
-            // Map API data to expected frontend structure
-            const mappedData = data.map(job => ({
+            const mappedData = data.map((job) => ({
                 ...job,
                 title: job.jobTitle,
                 department: job.category || "Development",
                 employmentType: job.paymentType,
-                status: job.status || "ACTIVE",
-                applicants: Math.floor(Math.random() * 20),
+                status: job.status || "PENDING",
+                applicants: job.applicant?.length || 0,
                 salary: `${job.minBudget} - ${job.maxBudget}`,
                 postDate: job.createdAt || new Date().toISOString(),
                 expiryDate: job.expiredAt || new Date(Date.now() + 90 * 86400000).toISOString(),
-                featured: job.featured || Math.random() > 0.7,
+                featured: job.isFeatured || false,
                 skills: job.skills || [],
-                description: job.projectDescription || "No description available",
-                keyResponsibilities: job.keyResponsibilities || ""
+                description: job.description || "No description available",
+                keyResponsibilities: job.keyResponsibilities || "",
+                applicant: job.applicant || [],
             }));
-
             setJobPosts(mappedData);
         } catch (err) {
             setError(err.message);
+            notification.error({
+                message: "Fetch Failed",
+                description: err.message || "Failed to fetch job posts",
+                placement: "topRight",
+            });
         } finally {
             setLoading(false);
         }
     };
 
-
     useEffect(() => {
         loadJobs();
-        loadSkills();
-        loadCategories();
     }, []);
 
-    const handleView = (job) => {
-        setSelectedJob(job);
-        setViewModalVisible(true);
-        setActiveTab("details");
-    };
-
-    const handleEdit = (job) => {
-        setEditingJob(job);
-        form.setFieldsValue({
-            jobTitle: job.jobTitle,
-            location: job.location,
-            minBudget: job.minBudget,
-            maxBudget: job.maxBudget,
-            paymentType: job.paymentType,
-            category: job.category,
-            skills: job.skills || [],
-            idealSkills: job.idealSkills || [],
-            keyResponsibilities: job.keyResponsibilities,
-            projectDescription: job.projectDescription,
-            expiredAt: job.expiredAt ? moment(job.expiredAt) : null
-        });
-        setEditModalVisible(true);
-    };
-
-    const handleSaveJob = (values) => {
-        Modal.confirm({
-            title: "Confirm Job Update",
-            content: "Updating this job will set it back to draft. Do you want to continue?",
-            okText: "Yes, Update",
-            cancelText: "Cancel",
-            onOk: async () => {
-                try {
-                    const jobId = editingJob.id;
-
-                    const jobData = {
-                        ...values,
-                        id: jobId,
-                        publishStatus: "DRAFT", // 🔁 Explicitly set back to draft
-                        expiredAt: values.expiredAt ? values.expiredAt.toISOString() : null,
-                    };
-
-                    const updated = await updateJob(jobId, jobData);
-
-                    setEditModalVisible(false);
-                    await loadJobs(); // refresh list
-
-                    notification.success({
-                        message: "Job Updated",
-                        description: "Job post has been successfully updated and moved to draft.",
-                        placement: "topRight",
-                    });
-                } catch (error) {
-                    console.error("Error updating job:", error);
-                    notification.error({
-                        message: "Update Failed",
-                        description: error.message || "Failed to update job post.",
-                        placement: "topRight",
-                    });
-                }
-            }
+    const formatDate = (date) => {
+        if (!date) return "N/A";
+        const parsedDate = Array.isArray(date)
+            ? new Date(date[0], date[1] - 1, date[2], date[3], date[4], date[5], date[6] / 1_000_000)
+            : new Date(date);
+        return parsedDate.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
         });
     };
 
-    const handleDeleteJob = (id) => {
+    const getStatusBadgeStyle = (status) => {
+        switch (status) {
+            case "PENDING":
+                return { backgroundColor: "#cce5ff", color: "#004085" };
+            case "ACTIVE":
+                return { backgroundColor: "#d4edda", color: "#155724" };
+            case "EXPIRED":
+                return { backgroundColor: "#fff3cd", color: "#856404" };
+            case "REJECTED":
+                return { backgroundColor: "#f8d7da", color: "#721c24" };
+            case "COMPLETED":
+                return { backgroundColor: "#d4edda", color: "#155724" };
+            default:
+                return { backgroundColor: "#e2e3e5", color: "#383d41" };
+        }
+    };
+
+    const openNotification = (type, message, description) => {
+        api[type]({
+            message,
+            description,
+            placement: "topRight",
+            duration: 3,
+            showProgress: true,
+            pauseOnHover: true,
+        });
+    };
+
+    const handleMarkComplete = (jobId, freelancerId) => {
+        if (!userData?.userId) {
+            openNotification("error", "Unauthorized", "Please log in to update job status");
+            return;
+        }
         confirm({
-            title: 'Are you sure you want to delete this job post?',
-            content: 'This action cannot be undone.',
-            okText: 'Yes, Delete',
-            okType: 'danger',
-            cancelText: 'Cancel',
-            onOk: async () => {
-                try {
-                    await deleteJob(id); // call API to delete
-                    // update frontend state after successful delete
-                    const updatedJobs = jobPosts.filter(job => job.id !== id);
-                    setJobPosts(updatedJobs);
-
-                    notification.success({
-                        message: "Job Deleted",
-                        description: "Job post has been successfully deleted.",
-                        placement: "topRight",
-                    });
-                } catch (error) {
-                    notification.error({
-                        message: "Delete Failed",
-                        description: error.message || 'Failed to delete job',
-                        placement: "topRight",
-                    });
-                }
-            }
+            title: "Confirm Job Completion",
+            content: "Are you sure you want to mark this job as completed? You will be prompted to rate the freelancer.",
+            okText: "Yes",
+            cancelText: "No",
+            onOk: () => {
+                setSelectedJobId(jobId);
+                setSelectedFreelancerId(freelancerId);
+                setRatingModalVisible(true);
+            },
         });
     };
 
-    const handleTabChange = (key) => {
-        setActiveTab(key);
+    const handleSendRating = async () => {
+        try {
+            // Call createRating API
+            await createRating(selectedJobId, selectedFreelancerId, { stars, comment }, userData.userId);
+            // Call updateJobStatus API
+            const updatedJob = await updateJobStatus(selectedJobId, "COMPLETED", userData.userId);
+            // Update job status in state
+            setJobPosts((prevJobs) =>
+                prevJobs.map((job) =>
+                    job.id === selectedJobId ? { ...job, status: "COMPLETED" } : job
+                )
+            );
+            openNotification("success", "Job Completed and Rated", "Job marked as COMPLETED and rating submitted successfully");
+            setRatingModalVisible(false);
+            setStars(0);
+            setComment("");
+        } catch (error) {
+            openNotification("error", "Operation Failed", error.message || "Failed to submit rating or update job status");
+        }
+    };
+
+    const handleCancelRating = () => {
+        setRatingModalVisible(false);
+        setStars(0);
+        setComment("");
     };
 
     const filteredJobs = jobPosts.filter((job) => {
         const matchesSearch =
             job.title.toLowerCase().includes(searchText.toLowerCase()) ||
-            job.location.toLowerCase().includes(searchText.toLowerCase()) ||
-            (job.department && job.department.toLowerCase().includes(searchText.toLowerCase()));
-
-        if (filterStatus === "all") return matchesSearch;
-        return matchesSearch && job.status.toLowerCase() === filterStatus.toLowerCase();
+            job.companyName?.toLowerCase().includes(searchText.toLowerCase());
+        const matchesStatus = filterStatus === "All" || job.status === filterStatus;
+        return matchesSearch && matchesStatus;
     });
+
+    const indexOfLastJob = currentPage * jobsPerPage;
+    const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+    const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+    const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
     const columns = [
         {
@@ -216,545 +173,156 @@ const JobPostHistoryTable = () => {
             dataIndex: "title",
             key: "title",
             render: (text, record) => (
-                <div>
-                    <span style={{ fontWeight: 500, color: "#266987", display: "block" }}>{text}</span>
-                    <span className="text-muted small">
-                        {record.department} • {record.employmentType}
-                    </span>
-                    {record.featured && (
-                        <Tag color="#ffc107" className="mt-1">
-                            Featured
-                        </Tag>
-                    )}
-                </div>
+                <Link to={`/job-detail/${record.id}`} className="text-decoration-none text-reset">
+                    {text}
+                </Link>
             ),
         },
         {
-            title: "Post Date",
+            title: "Company",
+            dataIndex: "companyName",
+            key: "companyName",
+            render: (text) => text || "Unknown Company",
+        },
+        {
+            title: "Posted Date",
             dataIndex: "postDate",
             key: "postDate",
-            render: (date) => {
-                const formattedDate = new Date(date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                });
-                return <span>{formattedDate}</span>;
-            },
+            render: (date) => formatDate(date),
         },
         {
             title: "Status",
             dataIndex: "status",
             key: "status",
-            render: (status) => {
-                let color = "";
-                let displayStatus = status;
-
-                switch (status) {
-                    case "ACTIVE":
-                        color = "success";
-                        displayStatus = "Active";
-                        break;
-                    case "EXPIRED":
-                        color = "warning";
-                        displayStatus = "Expired";
-                        break;
-                    case "REJECTED":
-                        color = "error";
-                        displayStatus = "Rejected";
-                        break;
-                    case "PENDING":
-                        color = "processing";
-                        displayStatus = "Pending";
-                        break;
-                    default:
-                        color = "default";
-                }
-                return <Badge status={color} text={displayStatus} />;
+            render: (status, record) => {
+                const completedApplication = record.applicant?.find(
+                    (app) => app.status === "COMPLETED"
+                );
+                const canMarkComplete = record.status === "PENDING" && completedApplication;
+                return (
+                    <div>
+                        <span className="badge" style={getStatusBadgeStyle(status)}>
+                            {status}
+                        </span>
+                        {canMarkComplete && (
+                            <Button
+                                variant="outline-primary"
+                                size="sm"
+                                className="ms-2"
+                                onClick={() => handleMarkComplete(record.id, completedApplication.applicantId)}
+                            >
+                                Mark Complete
+                            </Button>
+                        )}
+                    </div>
+                );
             },
-        },
-        {
-            title: "Actions",
-            key: "actions",
-            render: (_, record) => (
-                <div className="d-flex gap-2">
-                    <Button
-                        type="primary"
-                        size="small"
-                        icon={<FaEye />}
-                        onClick={() => handleView(record)}
-                        style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-                    >
-                        View
-                    </Button>
-
-                    <Dropdown
-                        menu={{
-                            items: [
-                                {
-                                    key: "1",
-                                    label: "Edit Job Post",
-                                    icon: <FaEdit />,
-                                    onClick: () => handleEdit(record)
-                                },
-                                {
-                                    key: "4",
-                                    label: "Delete",
-                                    icon: <FaTrash />,
-                                    danger: true,
-                                    onClick: () => handleDeleteJob(record.id)
-                                },
-                            ],
-                        }}
-                        placement="bottomRight"
-                        trigger={["click"]}
-                    >
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<FaEllipsisV />}
-                            className="d-flex align-items-center justify-content-center"
-                        />
-                    </Dropdown>
-                </div>
-            ),
         },
     ];
 
     return (
         <div className="card shadow-sm border-0">
+            {contextHolder}
             <div className="card-header bg-white py-3">
-                <div className="d-flex justify-content-between align-items-center flex-wrap">
-                    <h5 className="mb-0 fw-bold">Job Post History</h5>
-
-                    <div className="d-flex gap-2 mt-2 mt-md-0">
-                        <div className="position-relative" style={{ width: 250 }}>
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Search job posts..."
+                <div className="row mb-4">
+                    <div className="col-md-8 mb-2 mb-md-0">
+                        <div className="input-group">
+                            <span className="input-group-text bg-white">
+                                <FaSearch />
+                            </span>
+                            <Input
+                                placeholder="Search by job title or company..."
                                 value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                            />
-                            <FaSearch
-                                className="position-absolute"
-                                style={{ right: 10, top: 10, color: "#aaa" }}
+                                onChange={(e) => {
+                                    setSearchText(e.target.value);
+                                    setCurrentPage(1);
+                                }}
                             />
                         </div>
-
-                        <Dropdown
-                            menu={{
-                                selectedKeys: [filterStatus],
-                                onClick: (e) => setFilterStatus(e.key),
-                                items: [
-                                    {
-                                        key: "all",
-                                        label: "All Statuses",
-                                    },
-                                    {
-                                        key: "active",
-                                        label: "Active",
-                                    },
-                                    {
-                                        key: "expired",
-                                        label: "Expired",
-                                    },
-                                    {
-                                        key: "pending",
-                                        label: "Pending",
-                                    },
-                                    {
-                                        key: "rejected",
-                                        label: "Rejected",
-                                    },
-                                ],
+                    </div>
+                    <div className="col-md-4">
+                        <Select
+                            value={filterStatus}
+                            onChange={(value) => {
+                                setFilterStatus(value);
+                                setCurrentPage(1);
                             }}
-                            placement="bottomRight"
-                            trigger={["click"]}
+                            style={{ width: "100%" }}
                         >
-                            <Button icon={<FaFilter />}>
-                                {filterStatus === "all" ? "All Statuses" : filterStatus}
-                            </Button>
-                        </Dropdown>
-
-                        <Button
-                            type="primary"
-                            style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-                        >
-                            <Link to="/job-posting">Post New Job</Link>
-                        </Button>
+                            <Option value="All">Status - All</Option>
+                            <Option value="PENDING">Pending</Option>
+                            <Option value="ACTIVE">Active</Option>
+                            <Option value="EXPIRED">Expired</Option>
+                            <Option value="REJECTED">Rejected</Option>
+                            <Option value="COMPLETED">Completed</Option>
+                        </Select>
                     </div>
                 </div>
             </div>
             <div className="card-body">
-                <Table
-                    columns={columns}
-                    dataSource={filteredJobs}
-                    rowKey="id"
-                    pagination={{ pageSize: 5 }}
-                    loading={loading}
-                    responsive
-                    rowClassName={(record) => (record.featured ? "bg-light" : "")}
-                />
-
-                {/* View Job Modal */}
+                {loading ? (
+                    <div className="text-center mt-4">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                ) : filteredJobs.length === 0 ? (
+                    <p>No job posts found.</p>
+                ) : (
+                    <>
+                        <div className="table-responsive">
+                            <Table
+                                columns={columns}
+                                dataSource={currentJobs}
+                                rowKey="id"
+                                pagination={false}
+                                loading={loading}
+                            />
+                        </div>
+                        {totalPages > 1 && (
+                            <Pagination
+                                current={currentPage}
+                                total={filteredJobs.length}
+                                pageSize={jobsPerPage}
+                                onChange={handlePageChange}
+                                className="justify-content-center mt-4"
+                                showSizeChanger={false}
+                            />
+                        )}
+                    </>
+                )}
                 <Modal
-                    title={null}
-                    open={viewModalVisible}
-                    onCancel={() => setViewModalVisible(false)}
-                    footer={null}
-                    width={800}
-                    className="job-view-modal"
+                    title="Rate Freelancer"
+                    open={ratingModalVisible}
+                    onCancel={handleCancelRating}
+                    footer={[
+                        <Button key="cancel" onClick={handleCancelRating}>
+                            Cancel
+                        </Button>,
+                        <Button
+                            key="submit"
+                            type="primary"
+                            disabled={stars === 0 || comment.trim() === ""}
+                            onClick={handleSendRating}
+                            style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
+                        >
+                            Send Rating
+                        </Button>,
+                    ]}
                 >
-                    {selectedJob && (
-                        <div>
-                            <div className="d-flex justify-content-between align-items-start mb-4">
-                                <div>
-                                    <h4 className="mb-1">{selectedJob.title}</h4>
-                                    <div className="d-flex align-items-center gap-3 text-muted">
-                                        <span>{selectedJob.department}</span>
-                                        <span>•</span>
-                                        <span>{selectedJob.employmentType}</span>
-                                        {selectedJob.featured && (
-                                            <Tag color="#ffc107">Featured</Tag>
-                                        )}
-                                    </div>
-                                </div>
-                                <Badge
-                                    status={
-                                        selectedJob.status === "ACTIVE"
-                                            ? "success"
-                                            : selectedJob.status === "EXPIRED"
-                                                ? "warning"
-                                                : selectedJob.status === "REJECTED"
-                                                    ? "error"
-                                                    : selectedJob.status === "PENDING"
-                                                        ? "processing"
-                                                        : "default"
-                                    }
-                                    text={
-                                        selectedJob.status === "ACTIVE"
-                                            ? "Active"
-                                            : selectedJob.status === "EXPIRED"
-                                                ? "Expired"
-                                                : selectedJob.status === "REJECTED"
-                                                    ? "Rejected"
-                                                    : selectedJob.status === "PENDING"
-                                                        ? "Pending"
-                                                        : selectedJob.status
-                                    }
-                                />
-                            </div>
-
-                            <Tabs activeKey={activeTab} onChange={handleTabChange}>
-                                <TabPane tab="Job Details" key="details">
-                                    <div className="row mb-4">
-                                        <div className="col-md-6 mb-3">
-                                            <div className="d-flex align-items-center">
-                                                <FaCalendarAlt
-                                                    className="me-2 text-primary"
-                                                    style={{ color: "#428A9B" }}
-                                                />
-                                                <div>
-                                                    <div className="text-muted small">Posted On</div>
-                                                    <div>
-                                                        {new Date(selectedJob.postDate).toLocaleDateString(
-                                                            "en-US",
-                                                            {
-                                                                year: "numeric",
-                                                                month: "long",
-                                                                day: "numeric",
-                                                            }
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6 mb-3">
-                                            <div className="d-flex align-items-center">
-                                                <FaCalendarAlt className="me-2 text-danger" />
-                                                <div>
-                                                    <div className="text-muted small">Expires On</div>
-                                                    <div>
-                                                        {new Date(
-                                                            selectedJob.expiryDate
-                                                        ).toLocaleDateString("en-US", {
-                                                            year: "numeric",
-                                                            month: "long",
-                                                            day: "numeric",
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6 mb-3">
-                                            <div className="d-flex align-items-center">
-                                                <FaMapMarkerAlt
-                                                    className="me-2"
-                                                    style={{ color: "#428A9B" }}
-                                                />
-                                                <div>
-                                                    <div className="text-muted small">Location</div>
-                                                    <div>{selectedJob.location}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6 mb-3">
-                                            <div className="d-flex align-items-center">
-                                                <FaDollarSign
-                                                    className="me-2"
-                                                    style={{ color: "#428A9B" }}
-                                                />
-                                                <div>
-                                                    <div className="text-muted small">Budget Range</div>
-                                                    <div>${selectedJob.minBudget} - ${selectedJob.maxBudget}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6 mb-3">
-                                            <div className="d-flex align-items-center">
-                                                <div>
-                                                    <div className="text-muted small">Payment Type</div>
-                                                    <div>{selectedJob.employmentType}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6 mb-3">
-                                            <div className="d-flex align-items-center">
-                                                <div>
-                                                    <div className="text-muted small">Category</div>
-                                                    <div>{selectedJob.department}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                        <h6 className="fw-bold mb-3">Required Skills</h6>
-                                        <div className="d-flex flex-wrap gap-2">
-                                            {selectedJob.skills.map((skill, index) => (
-                                                <Tag key={index} color="#428A9B">
-                                                    {skill}
-                                                </Tag>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                        <h6 className="fw-bold mb-3">Description</h6>
-                                        <p>{selectedJob.description}</p>
-                                    </div>
-
-                                    {selectedJob.keyResponsibilities && (
-                                        <div className="mb-4">
-                                            <h6 className="fw-bold mb-3">Key Responsibilities</h6>
-                                            <pre
-                                                style={{
-                                                    fontFamily: "inherit",
-                                                    whiteSpace: "pre-line",
-                                                    margin: 0,
-                                                }}
-                                            >
-                                                {selectedJob.keyResponsibilities}
-                                            </pre>
-                                        </div>
-                                    )}
-                                </TabPane>
-                            </Tabs>
-
-                            <div className="d-flex justify-content-between mt-4 pt-3 border-top">
-                                <Button onClick={() => setViewModalVisible(false)}>
-                                    Close
-                                </Button>
-
-                                <div className="d-flex gap-2">
-                                    <Button
-                                        icon={<FaEdit />}
-                                        onClick={() => {
-                                            setViewModalVisible(false);
-                                            handleEdit(selectedJob);
-                                        }}
-                                    >
-                                        Edit Job
-                                    </Button>
-                                    <Button
-                                        type="primary"
-                                        style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-                                    >
-                                        View Applicants
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </Modal>
-
-                {/* Edit Job Modal */}
-                <Modal
-                    title="Edit Job Post"
-                    open={editModalVisible}
-                    onCancel={() => setEditModalVisible(false)}
-                    footer={null}
-                    width={800}
-                >
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={handleSaveJob}
-                        initialValues={{
-                            skills: [],
-                            idealSkills: []
-                        }}
-                    >
-                        <div className="row">
-                            {/* Job Title */}
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Job Title"
-                                    name="jobTitle"
-                                    rules={[{ required: true, message: "Please enter job title" }]}
-                                >
-                                    <Input placeholder="e.g. Senior Frontend Developer" />
-                                </Form.Item>
-                            </div>
-
-                            {/* Location */}
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Location"
-                                    name="location"
-                                    rules={[{ required: true, message: "Please enter job location" }]}
-                                >
-                                    <Input placeholder="e.g. Remote / New York" />
-                                </Form.Item>
-                            </div>
-
-                            {/* Budget */}
-                            <div className="col-md-3">
-                                <Form.Item
-                                    label="Min Budget ($)"
-                                    name="minBudget"
-                                    rules={[{ required: true, message: "Enter min budget" }]}
-                                >
-                                    <Input type="number" />
-                                </Form.Item>
-                            </div>
-                            <div className="col-md-3">
-                                <Form.Item
-                                    label="Max Budget ($)"
-                                    name="maxBudget"
-                                    rules={[{ required: true, message: "Enter max budget" }]}
-                                >
-                                    <Input type="number" />
-                                </Form.Item>
-                            </div>
-
-                            {/* Payment Type */}
-                            <div className="col-md-3">
-                                <Form.Item
-                                    label="Payment Type"
-                                    name="paymentType"
-                                    rules={[{ required: true, message: "Select payment type" }]}
-                                >
-                                    <Select>
-                                        <Option value="Hourly">Hourly</Option>
-                                        <Option value="Fixed">Fixed</Option>
-                                    </Select>
-                                </Form.Item>
-                            </div>
-
-                            {/* Category */}
-                            <div className="col-md-3">
-                                <Form.Item
-                                    label="Category"
-                                    name="category"
-                                    rules={[{ required: true, message: "Select a category" }]}
-                                >
-                                    <Select placeholder="Select job category">
-                                        {categoryOptions.map((cat) => (
-                                            <Option key={cat} value={cat}>
-                                                {cat}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                            </div>
-
-                            {/* Skills */}
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Required Skills"
-                                    name="skills"
-                                    rules={[{ required: true, message: "Enter required skills" }]}
-                                >
-                                    <Select mode="tags" placeholder="Add skills">
-                                        {skillOptions.map((skill) => (
-                                            <Option key={skill} value={skill}>
-                                                {skill}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                            </div>
-
-                            {/* Ideal Skills */}
-                            <div className="col-md-6">
-                                <Form.Item label="Ideal Skills" name="idealSkills">
-                                    <Select mode="tags" placeholder="Add ideal skills (optional)" />
-                                </Form.Item>
-                            </div>
-
-                            {/* Responsibilities */}
-                            <div className="col-12">
-                                <Form.Item
-                                    label="Key Responsibilities"
-                                    name="keyResponsibilities"
-                                >
-                                    <TextArea
-                                        rows={3}
-                                        placeholder="List key responsibilities (one per line)"
-                                    />
-                                </Form.Item>
-                            </div>
-
-                            {/* Description */}
-                            <div className="col-12">
-                                <Form.Item
-                                    label="Project Description"
-                                    name="projectDescription"
-                                    rules={[{ required: true, message: "Please enter description" }]}
-                                >
-                                    <TextArea
-                                        rows={4}
-                                        placeholder="Describe the job/project in detail..."
-                                    />
-                                </Form.Item>
-                            </div>
-
-                            {/* Expired At */}
-                            <div className="col-md-6">
-                                <Form.Item label="Expires At" name="expiredAt">
-                                    <DatePicker showTime style={{ width: "100%" }} />
-                                </Form.Item>
-                            </div>
-                        </div>
-
-                        <div className="d-flex justify-content-end gap-2 mt-4">
-                            <Button onClick={() => setEditModalVisible(false)}>Cancel</Button>
-                            <Button
-                                type="primary"
-                                htmlType="submit"
-                                style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-                            >
-                                Save Changes
-                            </Button>
-                        </div>
-                    </Form>
+                    <div style={{ marginBottom: 16 }}>
+                        <label>Rating</label>
+                        <Rate value={stars} onChange={setStars} />
+                    </div>
+                    <div>
+                        <label>Comment</label>
+                        <TextArea
+                            rows={4}
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Enter your feedback about the freelancer's work..."
+                        />
+                    </div>
                 </Modal>
             </div>
         </div>

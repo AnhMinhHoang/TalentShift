@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/skills")
+@RequestMapping("/api/skills")
 public class SkillController {
     private final SkillService skillService;
 
@@ -19,5 +19,10 @@ public class SkillController {
     @GetMapping
     public List<SkillDTO> getAllSkills() {
         return skillService.getAllSkills();
+    }
+
+    @GetMapping("/by-category")
+    public List<SkillDTO> getSkillsByCategory(@RequestParam String category) {
+        return skillService.getSkillsByCategory(category);
     }
 }

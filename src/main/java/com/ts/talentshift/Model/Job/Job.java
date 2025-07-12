@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.JobStatus;
 import com.ts.talentshift.Model.Freelancer.Skill;
+import com.ts.talentshift.Model.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,8 +12,6 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.ts.talentshift.Model.User;
 
 @Entity
 @Table(name = "jobs")
@@ -25,6 +24,7 @@ public class Job {
     private Long id;
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String location;
     private byte paidType;
@@ -40,7 +40,6 @@ public class Job {
     @Enumerated(EnumType.STRING)
     private JobStatus status = JobStatus.PENDING;
 
-    // ✅ New field for expiration
     private LocalDateTime expiredAt;
 
     @ElementCollection
@@ -64,4 +63,18 @@ public class Job {
     @ManyToOne
     @JoinColumn(name = "userId")
     private User user;
+
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobApplication> applications = new ArrayList<>();
+
+    // Helper methods for applications
+    public void addApplication(JobApplication application) {
+        applications.add(application);
+        application.setJob(this);
+    }
+
+    public void removeApplication(JobApplication application) {
+        applications.remove(application);
+        application.setJob(null);
+    }
 }

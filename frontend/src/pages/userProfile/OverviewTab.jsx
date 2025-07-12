@@ -101,7 +101,7 @@ const OverviewTab = ({ userData, setUserData }) => {
 
     const updateSummary = async (newSummary) => {
         try {
-            const response = await axios.put(`http://localhost:8080/api/freelancers/bio/${userData.userId}`, newSummary, {
+            const response = await axios.put(`/api/freelancers/bio/${userData.userId}`, newSummary, {
                 headers: {
                     "Content-Type": "text/plain",
                 },
@@ -128,7 +128,7 @@ const OverviewTab = ({ userData, setUserData }) => {
                 })),
             ];
 
-            const response = await axios.put(`http://localhost:8080/api/freelancers/skills/${userData.userId}`, payload);
+            const response = await axios.put(`/api/freelancers/skills/${userData.userId}`, payload);
             setUserData(response.data);
             openNotification("success", "Skills Updated", "topRight", "Your skills have been updated successfully.");
             closeModal();
@@ -154,7 +154,7 @@ const OverviewTab = ({ userData, setUserData }) => {
                 })),
             }));
 
-            const response = await axios.put(`http://localhost:8080/api/freelancers/experience/${userData.userId}`, payload);
+            const response = await axios.put(`/api/freelancers/experience/${userData.userId}`, payload);
             setUserData(response.data);
             openNotification("success", "Experience Updated", "topRight", "Your experience has been updated successfully.");
             closeModal();
@@ -176,7 +176,7 @@ const OverviewTab = ({ userData, setUserData }) => {
                 description: edu.description,
             }));
 
-            const response = await axios.put(`http://localhost:8080/api/freelancers/education/${userData.userId}`, payload);
+            const response = await axios.put(`/api/freelancers/education/${userData.userId}`, payload);
             setUserData(response.data);
             openNotification("success", "Education Updated", "topRight", "Your education has been updated successfully.");
             closeModal();
@@ -195,7 +195,7 @@ const OverviewTab = ({ userData, setUserData }) => {
         }));
 
         axios
-            .put(`http://localhost:8080/api/freelancers/certification/${userData.userId}`, payload)
+            .put(`/api/freelancers/certification/${userData.userId}`, payload)
             .then((response) => {
                 setUserData(response.data);
                 openNotification("success", "Certificates Updated", "topRight", "Your certificates have been updated successfully.");

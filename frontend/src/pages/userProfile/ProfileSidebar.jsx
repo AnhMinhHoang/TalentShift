@@ -224,7 +224,7 @@ const ProfileSidebar = ({ userData, setUserData }) => {
             });
 
             const response = await axios.put(
-                `http://localhost:8080/api/freelancers/sidebar/${userData.userId}`,
+                `/api/freelancers/sidebar/${userData.userId}`,
                 formData,
                 { headers: { "Content-Type": "multipart/form-data" } }
             );
@@ -283,10 +283,28 @@ const ProfileSidebar = ({ userData, setUserData }) => {
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         } : {
-                            background: profile.avatar
+                            background: profile.avatar,
+                            position: 'relative'
                         })
                     }}
-                ></div>
+                >
+                    {!profile.avatarImage && profile.name && (
+                        <span
+                            style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                fontSize: '48px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                textTransform: 'uppercase'
+                            }}
+                        >
+                            {profile.name.charAt(0)}
+                        </span>
+                    )}
+                </div>
                 <h5 className="mt-3 mb-0">{profile.name}</h5>
                 <p className="text-muted small">{profile.email}</p>
                 <div className="text-start mt-3 small">
@@ -355,7 +373,24 @@ const ProfileSidebar = ({ userData, setUserData }) => {
                                                     }),
                                                     border: '3px solid #dee2e6'
                                                 }}
-                                            ></div>
+                                            >
+                                                {!previewImage && editForm.name && (
+                                                    <span
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '50%',
+                                                            left: '50%',
+                                                            transform: 'translate(-50%, -50%)',
+                                                            fontSize: '48px',
+                                                            color: 'white',
+                                                            fontWeight: 'bold',
+                                                            textTransform: 'uppercase'
+                                                        }}
+                                                    >
+                                                        {editForm.name.charAt(0)}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <div className="d-flex gap-2">
                                                 <label className="btn btn-outline-primary btn-sm">
                                                     <i className="bi bi-upload me-1"></i>

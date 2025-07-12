@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
+import { fetchBookmarkedJobsByUser, fetchAppliedJobsByUser } from "../../services/jobService";
 import OverviewTab from "./OverviewTab";
 import AppliedJobsTab from "./AppliedJobsTab";
-import CVManagementTab from "./CVManagementTab";
 import FollowedJobsTab from "./FollowedJobsTab";
+import RatingTab from "./RatingTab";
 import ProfileSidebar from "./ProfileSidebar";
 
 const JobTracker = () => {
@@ -15,6 +16,9 @@ const JobTracker = () => {
 
   const [activeTab, setActiveTab] = useState(tabFromQuery || "overview");
   const { userData, setUserData } = useAuth();
+  const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Sync tab param from URL to activeTab
@@ -22,6 +26,29 @@ const JobTracker = () => {
       setActiveTab(tabFromQuery);
     }
   }, [tabFromQuery]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (userData?.userId) {
+          const [bookmarked, applied] = await Promise.all([
+            fetchBookmarkedJobsByUser(userData.userId),
+            fetchAppliedJobsByUser(userData.userId),
+          ]);
+          setBookmarkedJobs(bookmarked);
+          setAppliedJobs(applied);
+        }
+      } catch (error) {
+        console.error("Failed to fetch jobs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (userData?.userId) {
+      fetchData();
+    }
+  }, [userData?.userId]);
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
@@ -43,14 +70,6 @@ const JobTracker = () => {
               </li>
               <li className="nav-item">
                 <button
-                    className={`nav-link ${activeTab === "cv" ? "active" : ""}`}
-                    onClick={() => handleTabClick("cv")}
-                >
-                  CV Management
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
                     className={`nav-link ${activeTab === "applied" ? "active" : ""}`}
                     onClick={() => handleTabClick("applied")}
                 >
@@ -65,6 +84,14 @@ const JobTracker = () => {
                   Followed Job
                 </button>
               </li>
+              <li className="nav-item">
+                <button
+                    className={`nav-link ${activeTab === "rating" ? "active" : ""}`}
+                    onClick={() => handleTabClick("rating")}
+                >
+                  My Ratings
+                </button>
+              </li>
             </ul>
 
             <div className="row g-0">
@@ -73,10 +100,22 @@ const JobTracker = () => {
               </div>
               <div className="col-md-9">
                 <div className="p-4">
-                  {activeTab === "applied" && <AppliedJobsTab />}
-                  {activeTab === "cv" && <CVManagementTab />}
-                  {activeTab === "followed" && <FollowedJobsTab />}
+                  {activeTab === "applied" && (
+                      <AppliedJobsTab
+                          appliedJobs={appliedJobs}
+                          setAppliedJobs={setAppliedJobs}
+                          loading={loading}
+                      />
+                  )}
+                  {activeTab === "followed" && (
+                      <FollowedJobsTab
+                          bookmarkedJobs={bookmarkedJobs}
+                          setBookmarkedJobs={setBookmarkedJobs}
+                          loading={loading}
+                      />
+                  )}
                   {activeTab === "overview" && <OverviewTab userData={userData} setUserData={setUserData} />}
+                  {activeTab === "rating" && <RatingTab userData={userData} loading={loading} />}
                 </div>
               </div>
             </div>

@@ -1,10 +1,10 @@
 package com.ts.talentshift.Model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.ts.talentshift.Enums.Role;
 import com.ts.talentshift.Model.Freelancer.*;
+import com.ts.talentshift.Model.Job.JobApplication;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
@@ -46,7 +46,7 @@ public class User {
     private Role role;
 
     // Freelancer fields
-    @Column(length = 500)
+    @Column(length = 1000)
     private String bio;
     private String location;
     private LocalDate birthDate;
@@ -83,11 +83,15 @@ public class User {
     @Column(nullable = false)
     private boolean isFillingForm = false;
 
-    // Helper methods to manage bidirectional relationships
+    // Job applications (for freelancers to see applied/bookmarked jobs)
+    @OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobApplication> applications = new ArrayList<>();
+
+    // Helper methods for skills
     public void addSkill(Skill skill) {
         skills.add(skill);
-        if (!skill.getUsers().contains(this)) { // Prevent infinite recursion
-            skill.getUsers().add(this); // Add this User to the Skill's users list
+        if (!skill.getUsers().contains(this)) {
+            skill.getUsers().add(this);
         }
     }
 
@@ -98,6 +102,7 @@ public class User {
         }
     }
 
+    // Helper methods for experiences
     public void addExperience(Experience experience) {
         experiences.add(experience);
         experience.setUser(this);
@@ -108,6 +113,7 @@ public class User {
         experience.setUser(null);
     }
 
+    // Helper methods for educations
     public void addEducation(Education education) {
         educations.add(education);
         education.setUser(this);
@@ -118,6 +124,7 @@ public class User {
         education.setUser(null);
     }
 
+    // Helper methods for certificates
     public void addCertificate(Certificate certificate) {
         certificates.add(certificate);
         certificate.setUser(this);
@@ -128,6 +135,7 @@ public class User {
         certificate.setUser(null);
     }
 
+    // Helper methods for links
     public void addLink(Link link) {
         links.add(link);
         link.setUser(this);
@@ -136,5 +144,16 @@ public class User {
     public void removeLink(Link link) {
         links.remove(link);
         link.setUser(null);
+    }
+
+    // Helper methods for job applications
+    public void addApplication(JobApplication application) {
+        applications.add(application);
+        application.setApplicant(this);
+    }
+
+    public void removeApplication(JobApplication application) {
+        applications.remove(application);
+        application.setApplicant(null);
     }
 }

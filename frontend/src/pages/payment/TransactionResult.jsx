@@ -35,8 +35,8 @@ export default function TransactionResult() {
         try {
             const token = localStorage.getItem("token");
             const apiUrl = paymentMethod === "momo"
-                ? `http://localhost:8080/api/momo/transaction/${orderId}`
-                : `http://localhost:8080/api/vnpay/transaction/${orderId}`;
+                ? `/api/momo/transaction/${orderId}`
+                : `/api/vnpay/transaction/${orderId}`;
 
             const response = await axios.get(apiUrl, {
                 headers: {
@@ -180,7 +180,7 @@ export default function TransactionResult() {
                                                     Transaction ID
                                                 </span>
                                                 <span className={`fw-bold ${styles.transactionId}`} title={transaction.transactionId}>
-                                                  {transaction.transactionId}
+                                                    {transaction.transactionId}
                                                 </span>
                                             </div>
                                         </div>
@@ -242,7 +242,7 @@ export default function TransactionResult() {
                                                 <span className={`badge ${styles.statusBadge} ${getStatusColor(transaction.status)}`}>
                                                     <i className="fas fa-check me-1"></i>
                                                     Transaction {transaction.status === 'SUCCESS' ? 'Successful' :
-                                                    transaction.status === 'FAILED' ? 'Failed' : 'Pending'}
+                                                        transaction.status === 'FAILED' ? 'Failed' : 'Pending'}
                                                 </span>
                                             </div>
                                         </div>

@@ -228,7 +228,7 @@ const HirerAdditionalRegistration = () => {
         }
 
         const response = await axios.put(
-          `http://localhost:8080/api/hirers/${userId}/hirer`,
+          `/api/hirers/${userId}/hirer`,
           formData,
           {
             headers: {

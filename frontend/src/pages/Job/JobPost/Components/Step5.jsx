@@ -3,17 +3,21 @@ import styles from "../styles/Step5.module.css";
 
 export default function Step5({ formData, onSubmit, onBack }) {
   const formatBudget = () => {
-    const min = `${formData.minBudget
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
-    const max = `${formData.maxBudget
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
+    const formatNumber = (val) =>
+        val ? `${val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND` : "";
 
-    if (formData.paymentType === "hourly") {
-      return `${min}/hr - ${max}/hr`;
+    const min = formatNumber(formData.minBudget);
+    const max = formatNumber(formData.maxBudget);
+
+    if (formData.paymentType === "fixed") {
+      return max || "Not specified";
     }
-    return `${min} - ${max}`;
+
+    if (min && max) return `${min}/hr - ${max}/hr`;
+    if (min) return `${min}/hr`;
+    if (max) return `${max}/hr`;
+
+    return "Not specified";
   };
 
   return (
@@ -56,7 +60,7 @@ export default function Step5({ formData, onSubmit, onBack }) {
 
           <div className={styles.reviewItem}>
             <h4>Job Description</h4>
-            <p className={styles.description}>{formData.projectDescription}</p>
+            <p className={styles.description}>{formData.description}</p>
           </div>
 
           <div className={styles.reviewItem}>

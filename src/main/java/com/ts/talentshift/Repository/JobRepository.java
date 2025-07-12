@@ -1,5 +1,6 @@
 package com.ts.talentshift.Repository;
 
+import com.ts.talentshift.Enums.JobStatus;
 import com.ts.talentshift.Model.Job.Job;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,5 +14,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
     List<Job> findByUser_UserIdAndIsPublishTrue(Long userId);
     List<Job> findByUser_UserIdAndIsPublishFalse(Long userId);
+
+    List<Job> findByStatus(JobStatus status);
 
 }

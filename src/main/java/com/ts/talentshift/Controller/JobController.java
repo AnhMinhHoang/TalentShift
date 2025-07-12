@@ -1,7 +1,10 @@
 package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.DTO.Job.JobResponseDto;
+import com.ts.talentshift.DTO.Job.JobStatusUpdateRequest;
+import com.ts.talentshift.DTO.Job.StatusUpdateRequest;
 import com.ts.talentshift.Model.Job.Job;
+import com.ts.talentshift.Model.Job.JobApplication;
 import com.ts.talentshift.Model.Job.JobCategory;
 import com.ts.talentshift.Service.JobService;
 import com.ts.talentshift.Service.JobSpecifications;
@@ -18,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/jobs")
+@RequestMapping("/api/jobs")
 public class JobController {
     private final JobService jobService;
 
@@ -28,24 +31,24 @@ public class JobController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JobResponseDto>> getJobs() {
-        return ResponseEntity.ok(jobService.getAllJobs());
+    public ResponseEntity<List<JobResponseDto>> getJobs(@RequestParam Long userId) {
+        return ResponseEntity.ok(jobService.getAllJobs(userId));
     }
 
     @GetMapping("/active")
-    public ResponseEntity<List<JobResponseDto>> getAllActiveJobs() {
-        return ResponseEntity.ok(jobService.getAllActiveJobs());
+    public ResponseEntity<List<JobResponseDto>> getAllActiveJobs(@RequestParam(required = false) Long userId) {
+        return ResponseEntity.ok(jobService.getAllActiveJobs(userId));
     }
 
     @PostMapping
-    public ResponseEntity<?> createJob(@RequestBody JobResponseDto jobDto) {
-        Job created = jobService.createJobFromDto(jobDto);
+    public ResponseEntity<JobResponseDto> createJob(@RequestBody JobResponseDto jobDto) {
+        JobResponseDto created = jobService.createJobFromDto(jobDto);
         return ResponseEntity.ok(created);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Job> getJobById(@PathVariable Long id) {
-        return jobService.getJobById(id)
+    public ResponseEntity<JobResponseDto> getJobById(@PathVariable Long id, @RequestParam(required = false) Long userId) {
+        return jobService.getJobDtoById(id, userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -94,4 +97,70 @@ public class JobController {
         return ResponseEntity.ok(updated);
     }
 
+    @PostMapping("/{jobId}/apply")
+    public ResponseEntity<JobApplication> applyToJob(@PathVariable Long jobId, @RequestParam Long userId, @RequestBody String coverLetter) {
+        try {
+            JobApplication application = jobService.applyToJob(jobId, userId, coverLetter);
+            return ResponseEntity.ok(application);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{jobId}/bookmark")
+    public ResponseEntity<JobApplication> toggleBookmark(@PathVariable Long jobId, @RequestParam Long userId) {
+        try {
+            JobApplication application = jobService.toggleBookmark(jobId, userId);
+            return ResponseEntity.ok(application);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/user/{userId}/applied")
+    public ResponseEntity<List<JobResponseDto>> getAppliedJobsByUser(@PathVariable Long userId) {
+        try {
+            List<JobResponseDto> jobs = jobService.getAppliedJobsByUser(userId);
+            return ResponseEntity.ok(jobs);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/user/{userId}/bookmarked")
+    public ResponseEntity<List<JobResponseDto>> getBookmarkedJobsByUser(@PathVariable Long userId) {
+        try {
+            List<JobResponseDto> jobs = jobService.getBookmarkedJobsByUser(userId);
+            return ResponseEntity.ok(jobs);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PutMapping("/{jobId}/application/{applicantId}")
+    public ResponseEntity<JobResponseDto> updateApplicationStatus(
+            @PathVariable Long jobId,
+            @PathVariable Long applicantId,
+            @RequestBody StatusUpdateRequest request,
+            @RequestParam Long userId) {
+        try {
+            JobResponseDto updatedJob = jobService.updateApplicationStatus(jobId, applicantId, request.getStatus(), userId);
+            return ResponseEntity.ok(updatedJob);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PutMapping("/{jobId}/status")
+    public ResponseEntity<?> updateJobStatus(
+            @PathVariable Long jobId,
+            @RequestBody JobStatusUpdateRequest request,
+            @RequestParam Long userId) {
+        try {
+            JobResponseDto updatedJob = jobService.updateJobStatus(jobId, request.getStatus(), userId);
+            return ResponseEntity.ok(updatedJob);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

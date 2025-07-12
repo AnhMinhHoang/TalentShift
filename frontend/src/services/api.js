@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = '/api';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -41,42 +41,5 @@ api.interceptors.response.use(
         return Promise.reject({ message: 'Network error' });
     }
 );
-
-// Auth API calls
-export const authAPI = {
-    register: (userData) => api.post('/auth/register', userData),
-    login: (credentials) => api.post('/auth/login', credentials),
-};
-
-// User API calls
-export const userAPI = {
-    // Get user profile
-    getProfile: (userId) => api.get(`/users/${userId}`),
-
-    // Update basic profile
-    updateBasicProfile: (userId, data) => api.put(`/users/${userId}/profile`, data),
-
-    // Update freelancer profile
-    updateFreelancerProfile: (userId, data) => api.put(`/users/${userId}/freelancer`, data),
-
-    // Update hirer profile
-    updateHirerProfile: (userId, data) => api.put(`/users/${userId}/hirer`, data),
-
-    updateHirerProfileFromForm: (userId, data) =>
-        api.put(`/users/${userId}/hirer/profile`, data),
-
-    uploadCompanyLogo: (userId, file) => {
-        const formData = new FormData();
-        formData.append("logo", file);
-        return api.put(`/users/${userId}/hirer/logo`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
-    },
-
-    // Get all users (admin only)
-    getAllUsers: () => api.get('/users/all'),
-};
 
 export default api; 

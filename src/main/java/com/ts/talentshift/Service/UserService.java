@@ -115,4 +115,12 @@ public class UserService {
                 })
                 .orElse(null);
     }
+
+    public void subtractUserBalance(Long userId, BigDecimal amount) {
+        userRepository.findById(userId)
+                .ifPresent(user -> {
+                    user.setBalance(user.getBalance().subtract(amount));
+                    userRepository.save(user);
+                });
+    }
 }

@@ -189,15 +189,15 @@ const RegisterAdditional = () => {
         }));
 
         const linksData = links
-            .map((url) => {
-              if (!url || url.trim() === "") return null;
-              let formattedUrl = url.trim();
-              if (!formattedUrl.match(/^https?:\/\//)) {
-                formattedUrl = "https://" + formattedUrl;
-              }
-              return { url: formattedUrl };
-            })
-            .filter((link) => link !== null);
+          .map((url) => {
+            if (!url || url.trim() === "") return null;
+            let formattedUrl = url.trim();
+            if (!formattedUrl.match(/^https?:\/\//)) {
+              formattedUrl = "https://" + formattedUrl;
+            }
+            return { url: formattedUrl };
+          })
+          .filter((link) => link !== null);
 
         // Create FormData for payload
         const formData = new FormData();
@@ -240,13 +240,13 @@ const RegisterAdditional = () => {
         });
 
         const response = await axios.put(
-            `http://localhost:8080/api/freelancers/${userId}/freelancer`,
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
+          `/api/freelancers/${userId}/freelancer`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
 
         if (response.status === 200) {

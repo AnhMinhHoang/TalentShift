@@ -9,6 +9,18 @@
   border-right: 1px solid #eaeaea;
 }
 
+.disabledCard {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.comingSoon {
+  color: #888;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
 .stepInfo h5 {
   color: #13547a;
   font-weight: 600;
