@@ -19,6 +19,14 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [passwordValidation, setPasswordValidation] = useState({
+    minLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+  });
+  const [passwordErrors, setPasswordErrors] = useState([]);
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   useEffect(() => {
@@ -38,6 +46,28 @@ export default function Register() {
     });
   };
 
+  const validatePassword = (password) => {
+    const validation = {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecialChar: /[^A-Za-z0-9]/.test(password),
+    };
+
+    const errors = [];
+    if (!validation.minLength) errors.push("At least 8 characters");
+    if (!validation.hasUppercase) errors.push("One uppercase letter");
+    if (!validation.hasLowercase) errors.push("One lowercase letter");
+    if (!validation.hasNumber) errors.push("One number");
+    if (!validation.hasSpecialChar) errors.push("One special character");
+
+    setPasswordValidation(validation);
+    setPasswordErrors(errors);
+
+    return Object.values(validation).every(Boolean);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -46,12 +76,17 @@ export default function Register() {
     });
 
     if (name === "password") {
+      // Calculate strength
       let strength = 0;
-      if (value.length > 6) strength += 1;
+      if (value.length >= 8) strength += 1;
       if (value.match(/[A-Z]/)) strength += 1;
+      if (value.match(/[a-z]/)) strength += 1;
       if (value.match(/[0-9]/)) strength += 1;
       if (value.match(/[^A-Za-z0-9]/)) strength += 1;
       setPasswordStrength(strength);
+
+      // Validate password
+      validatePassword(value);
     }
   };
 
@@ -88,6 +123,12 @@ export default function Register() {
 
     if (!emailRef.current.checkValidity()) {
       emailRef.current.reportValidity();
+      return;
+    }
+
+    // Validate password
+    if (!validatePassword(formData.password)) {
+      setError("Password does not meet requirements");
       return;
     }
 
@@ -358,7 +399,9 @@ export default function Register() {
                                     <i className="bi bi-lock"></i>
                                     <input
                                         type="password"
-                                        className={`form-control ${styles.formInput}`}
+                                        className={`form-control ${styles.formInput} ${
+                                            formData.password && passwordErrors.length > 0 ? 'is-invalid' : ''
+                                        }`}
                                         id="password"
                                         name="password"
                                         placeholder="••••••••"
@@ -368,6 +411,14 @@ export default function Register() {
                                     />
                                     <span className={styles.inputFocus}></span>
                                   </div>
+
+                                  {/* Password Validation Message */}
+                                  {formData.password && passwordErrors.length > 0 && (
+                                      <div className="invalid-feedback d-block">
+                                        <small>Password must include: {passwordErrors.join(', ')}</small>
+                                      </div>
+                                  )}
+
                                   <div className={styles.passwordStrength}>
                                     <div className={styles.strengthText}>
                                       Password Strength:
@@ -375,14 +426,14 @@ export default function Register() {
                                           className={
                                             passwordStrength < 2
                                                 ? styles.strengthWeak
-                                                : passwordStrength < 3
+                                                : passwordStrength < 4
                                                     ? styles.strengthMedium
                                                     : styles.strengthStrong
                                           }
                                       >
                                     {passwordStrength < 2
                                         ? " Weak"
-                                        : passwordStrength < 3
+                                        : passwordStrength < 4
                                             ? " Medium"
                                             : " Strong"}
                                   </span>
@@ -416,6 +467,13 @@ export default function Register() {
                                                 : ""
                                           }
                                       ></span>
+                                      <span
+                                          className={
+                                            passwordStrength >= 5
+                                                ? styles.strengthActive
+                                                : ""
+                                          }
+                                      ></span>
                                     </div>
                                   </div>
                                 </div>
@@ -430,7 +488,9 @@ export default function Register() {
                                     <i className="bi bi-lock"></i>
                                     <input
                                         type="password"
-                                        className={`form-control ${styles.formInput}`}
+                                        className={`form-control ${styles.formInput} ${
+                                            formData.confirmPassword && formData.password !== formData.confirmPassword ? 'is-invalid' : ''
+                                        }`}
                                         id="confirmPassword"
                                         name="confirmPassword"
                                         placeholder="••••••••"
@@ -440,6 +500,11 @@ export default function Register() {
                                     />
                                     <span className={styles.inputFocus}></span>
                                   </div>
+                                  {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                                      <div className="invalid-feedback d-block">
+                                        <small>Passwords do not match</small>
+                                      </div>
+                                  )}
                                 </div>
                                 <div className="mb-4">
                                   <label className={styles.customCheckbox}>
@@ -473,7 +538,7 @@ export default function Register() {
                                   <button
                                       type="submit"
                                       className={`btn ${styles.primaryBtn} flex-grow-1`}
-                                      disabled={isLoading || !agreeTerms}
+                                      disabled={isLoading || !agreeTerms || passwordErrors.length > 0}
                                   >
                                     {isLoading ? (
                                         <>
