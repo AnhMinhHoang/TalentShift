@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Container, Row, Col, Button, Badge, Modal, Form } from "react-bootstrap"
 import {
@@ -22,8 +20,6 @@ import {
   FaStar,
   FaExclamationTriangle,
   FaCreditCard,
-  FaCalculator,
-  FaArrowRight,
   FaTimes,
   FaInfoCircle,
 } from "react-icons/fa"
@@ -40,78 +36,6 @@ import {
 import { useParams, useNavigate } from "react-router-dom"
 import { useAuth } from "../AuthContext.jsx"
 import apis from "../../services/api"
-
-// Enhanced Top Up Modal Component
-const TopUpModal = ({ show, onHide, requiredAmount, currentBalance, onTopUpConfirm, formatSalary }) => {
-  const shortfall = requiredAmount - currentBalance
-
-  return (
-      <Modal show={show} onHide={onHide} centered className={styles.enhancedTopUpModal} backdrop="static">
-        <Modal.Header className={styles.topUpModalHeader}>
-          <div className={styles.topUpModalIcon}>
-            <FaExclamationTriangle />
-          </div>
-          <Modal.Title className={styles.topUpModalTitle}>Insufficient Balance</Modal.Title>
-          <Button variant="link" onClick={onHide} className={styles.topUpCloseButton}>
-            <FaTimes />
-          </Button>
-        </Modal.Header>
-
-        <Modal.Body className={styles.topUpModalBody}>
-          <div className={styles.balanceComparison}>
-            <div className={styles.balanceCard}>
-              <div className={styles.balanceCardHeader}>
-                <FaCreditCard className={styles.balanceIcon} />
-                <span>Current Balance</span>
-              </div>
-              <div className={styles.balanceAmount}>{formatSalary({ minBudget: currentBalance })}</div>
-            </div>
-
-            <div className={styles.balanceArrow}>
-              <FaArrowRight />
-            </div>
-
-            <div className={styles.balanceCard}>
-              <div className={styles.balanceCardHeader}>
-                <FaCalculator className={styles.balanceIcon} />
-                <span>Required Amount</span>
-              </div>
-              <div className={styles.balanceAmount}>{formatSalary({ minBudget: requiredAmount })}</div>
-            </div>
-          </div>
-
-          <div className={styles.shortfallAlert}>
-            <FaInfoCircle className={styles.shortfallIcon} />
-            <div className={styles.shortfallContent}>
-              <h5>You need to top up your account</h5>
-              <p>
-                You need an additional <strong>{formatSalary({ minBudget: shortfall })}</strong> to accept this applicant.
-              </p>
-            </div>
-          </div>
-
-          <div className={styles.topUpBenefits}>
-            <h6>Why top up now?</h6>
-            <ul>
-              <li>Secure the best talent for your project</li>
-              <li>Instant payment processing</li>
-              <li>Protected by our payment guarantee</li>
-            </ul>
-          </div>
-        </Modal.Body>
-
-        <Modal.Footer className={styles.topUpModalFooter}>
-          <Button variant="outline-secondary" onClick={onHide} className={styles.topUpCancelButton}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={onTopUpConfirm} className={styles.topUpConfirmButton}>
-            <FaCreditCard className="me-2" />
-            Top Up Account
-          </Button>
-        </Modal.Footer>
-      </Modal>
-  )
-}
 
 // Accept Applicant Confirmation Modal Component
 const AcceptApplicantModal = ({
@@ -816,7 +740,6 @@ export default function JobDetail() {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [showApplicantModal, setShowApplicantModal] = useState(false)
-  const [showTopUpModal, setShowTopUpModal] = useState(false)
   const [showAcceptModal, setShowAcceptModal] = useState(false)
   const [selectedApplicant, setSelectedApplicant] = useState(null)
   const [pendingApplicant, setPendingApplicant] = useState(null)
@@ -1100,7 +1023,7 @@ export default function JobDetail() {
   const handleAcceptConfirm = async (hasEnoughBalance) => {
     if (!hasEnoughBalance) {
       setShowAcceptModal(false)
-      setShowTopUpModal(true)
+      navigate("/payment");
       return
     }
 
@@ -1117,10 +1040,6 @@ export default function JobDetail() {
     }
 
     const requiredBalance = calculateRequiredBalance()
-    if (userData.balance < requiredBalance) {
-      setShowTopUpModal(true)
-      return
-    }
 
     try {
       const updatedapplicant = job.applicant.map((app) => ({
@@ -1158,11 +1077,6 @@ export default function JobDetail() {
     } catch (error) {
       openNotification("error", "Accept Failed", error.message || "Failed to accept applicant")
     }
-  }
-
-  const handleTopUpConfirm = () => {
-    setShowTopUpModal(false)
-    navigate("/payment")
   }
 
   const totalPages = Math.ceil(job?.applicant.filter((app) => !app.bookmarked).length / itemsPerPage)
@@ -1255,8 +1169,10 @@ export default function JobDetail() {
                                   applicant.status === "WAITING"
                                       ? "warning"
                                       : applicant.status === "IN_PROGRESS"
-                                          ? "success"
-                                          : "danger"
+                                          ? "info"
+                                          : applicant.status === "COMPLETED"
+                                            ? "success"
+                                              : "danger"
                                 }
                                 className={`ms-auto ${styles.statusBadge}`}
                             >
@@ -1672,16 +1588,6 @@ export default function JobDetail() {
             calculateAverageRating={calculateAverageRating}
             renderStars={renderStars}
             formatDateArray={formatDateArray}
-        />
-
-        {/* Enhanced Top Up Modal */}
-        <TopUpModal
-            show={showTopUpModal}
-            onHide={() => setShowTopUpModal(false)}
-            requiredAmount={calculateRequiredBalance()}
-            currentBalance={userData?.balance || 0}
-            onTopUpConfirm={handleTopUpConfirm}
-            formatSalary={formatSalary}
         />
 
         {/* Accept Applicant Confirmation Modal */}

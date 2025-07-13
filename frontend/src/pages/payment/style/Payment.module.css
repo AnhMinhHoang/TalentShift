@@ -21,6 +21,10 @@
     transition: all 0.3s ease;
     cursor: pointer;
     background: white;
+    display: flex;                /* ADD */
+    align-items: center;         /* ADD */
+    justify-content: center;     /* ADD */
+    height: 100%;
 }
 
 .paymentOption:hover {

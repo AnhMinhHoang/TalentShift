@@ -51,70 +51,66 @@ function App() {
   if (loading) return <Loading isLoading={true} />;
 
   return (
-      <AntdApp>
-        <ScrollToTop />
-        <ScrollToAnchor />
-        <Routes>
-          {/* Route without layout (unauth fallback) */}
-          <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/notverify" element={<NotVerified />} />
-          <Route path="*" element={<NotFound />} />
+    <AntdApp>
+      <ScrollToTop />
+      <ScrollToAnchor />
+      <Routes>
+        {/* Route without layout (unauth fallback) */}
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/notverify" element={<NotVerified />} />
+        <Route path="*" element={<NotFound />} />
 
-          {/* All routes inside main layout */}
-          <Route element={<MainLayout />}>
+        {/* All routes inside main layout */}
+        <Route element={<MainLayout />}>
 
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/jobs" element={<JobListing />} />
-            <Route element={<AuthenCheckOutlet />}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-            </Route>
-            <Route path="/job-detail" element={<JobDetail />} />
-            <Route path="/job-detail/:id" element={<JobDetail />} />
-            <Route path="/contact" element={<Contact />} />
-
-            {/* Private routes: user must be logged in */}
-            <Route element={<PrivateOutlet />}>
-
-              {/* Verified users only */}
-              <Route element={<FillFormVerifiedOutlet />}>
-                {/* Payment-related routes */}
-                <Route path="/payment" element={<Payment />} />
-                <Route path="/payment/plan" element={<Plan />} />
-                <Route path="/transaction-result" element={<TransactionResult />} />
-
-                {/* HIRER-only routes */}
-                <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
-                  <Route path="/job-posting" element={<JobPost />} />
-                  <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
-                </Route>
-
-                {/* FREELANCER-only routes */}
-                <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
-                  <Route path="/job-apply" element={<JobApply />} />
-                  <Route path="/profile-page" element={<JobTracker />} />
-                </Route>
-              </Route>
-
-              {/* Authenticated HIRER but not yet verified */}
-              <Route element={<AuthenCheckOutlet />}>
-                <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
-                  <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
-                </Route>
-              </Route>
-
-              {/* Authenticated FREELANCER but not yet verified */}
-              <Route element={<AuthenCheckOutlet />}>
-                <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
-                    <Route path="/register-additional" element={<RegisterAdditional />} />
-                </Route>
-              </Route>
-
-            </Route>
+          {/* Public routes */}
+          <Route path="/" element={<Index />} />
+          <Route path="/jobs" element={<JobListing />} />
+          <Route element={<AuthenCheckOutlet />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Route>
-        </Routes>
-      </AntdApp>
+          <Route path="/job-detail" element={<JobDetail />} />
+          <Route path="/job-detail/:id" element={<JobDetail />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Private routes: user must be logged in */}
+          <Route element={<PrivateOutlet />}>
+
+            {/* Verified users only */}
+            <Route element={<FillFormVerifiedOutlet />}>
+              {/* Payment-related routes */}
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/payment/plan" element={<Plan />} />
+              <Route path="/transaction-result" element={<TransactionResult />} />
+
+              {/* HIRER-only routes */}
+              <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
+                <Route path="/job-posting" element={<JobPost />} />
+                <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
+              </Route>
+
+              {/* FREELANCER-only routes */}
+              <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
+                <Route path="/job-apply" element={<JobApply />} />
+                <Route path="/profile-page" element={<JobTracker />} />
+              </Route>
+            </Route>
+
+            {/* Authenticated HIRER but not yet verified */}
+            <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
+              <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
+            </Route>
+
+            {/* Authenticated FREELANCER but not yet verified */}
+            <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
+              <Route path="/register-additional" element={<RegisterAdditional />} />
+            </Route>
+
+          </Route>
+        </Route>
+      </Routes>
+    </AntdApp>
   );
 }
 

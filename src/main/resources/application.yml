@@ -42,7 +42,7 @@ vnpay:
   tmnCode: 6TZBIZ4W
   secretKey: VMBRDFDCQQ2POO8TLNKCRUP6E0E7VHUI
   url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  returnUrl: ${VNPAY_RETURN_URL:https://talentshiftservice.onrender.com/api/vnpay/return}
+  returnUrl: ${VNPAY_RETURN_URL:http://localhost:8080/api/vnpay/return}
 
 logging:
   level:

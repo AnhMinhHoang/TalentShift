@@ -10,9 +10,9 @@ const AuthenCheckOutlet = ({ }) => {
     if (userData) {
         if (!userData?.fillingForm) {
             if (userData?.role === "HIRER") {
-                return <Navigate to="/hirer-additional" replace />;
+                return <Navigate to="/hirer-additional" />;
             } else if (userData?.role === "FREELANCER") {
-                return <Navigate to="/register-additional" replace />;
+                return <Navigate to="/register-additional" />;
             }
         }
         return <Navigate to="/" replace />;

@@ -10,10 +10,8 @@ import {
   Link as LinkIcon,
   Description as DescriptionIcon,
   Check as CheckIcon,
-  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 import styles from "./styles/RegisterAdditional.module.css";
-import axios from "axios";
 import { useAuth } from "../AuthContext.jsx";
 import api from "../../services/api";
 

@@ -108,7 +108,7 @@ const RatingTab = ({ userData, loading }) => {
         <div className={styles.ratingContainer}>
             {/* Rating Header with Stats */}
             <div className={styles.ratingHeader}>
-                <h2 className="mb-0">My Ratings & Reviews</h2>
+                <h2 className="mb-0 text-white">My Ratings & Reviews</h2>
                 <div className={styles.ratingStats}>
                     <div className={styles.ratingStat}>
                         <div className={styles.ratingStatValue}>{averageRating}</div>
