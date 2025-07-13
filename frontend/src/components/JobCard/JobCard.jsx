@@ -5,6 +5,7 @@ import { Button, Form, Modal } from "react-bootstrap";
 import { FaCheck, FaDollarSign } from "react-icons/fa";
 import { notification } from "antd";
 import styles from "./JobCard.module.css";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const JobCard = ({ job, userData, onJobUpdate }) => {
     const [showApplyModal, setShowApplyModal] = useState(false);
@@ -184,7 +185,7 @@ const JobCard = ({ job, userData, onJobUpdate }) => {
                     <div className={styles.leftSection}>
                         {hasCustomLogo ? (
                             <img
-                                src={job.companyLogoPath || "/placeholder.svg"}
+                                src={getImageUrl(job.companyLogoPath)}
                                 alt="company logo"
                                 className={styles.companyLogo}
                             />
@@ -206,26 +207,26 @@ const JobCard = ({ job, userData, onJobUpdate }) => {
                 </div>
 
                 <div className={styles.jobMeta}>
-          <span className={styles.metaItem}>
-            <i className="bi bi-clock"></i>
-              {getTimeSincePosted()}
-          </span>
                     <span className={styles.metaItem}>
-            <i className="bi bi-people"></i>
+                        <i className="bi bi-clock"></i>
+                        {getTimeSincePosted()}
+                    </span>
+                    <span className={styles.metaItem}>
+                        <i className="bi bi-people"></i>
                         {job.applicant?.length || 0} applicants
-          </span>
+                    </span>
                 </div>
 
                 <div className={styles.salaryRow}>
-          <span className={styles.salary}>
-            <i className="bi bi-cash"></i>
-              {formatSalary()}
-          </span>
+                    <span className={styles.salary}>
+                        <i className="bi bi-cash"></i>
+                        {formatSalary()}
+                    </span>
                     <span
                         className={`badge ${styles.categoryBadge} bg-${getCategoryColor(job.category)} bg-opacity-10 text-${getCategoryColor(job.category)}`}
                     >
-            {job.category.toUpperCase()}
-          </span>
+                        {job.category.toUpperCase()}
+                    </span>
                 </div>
 
                 <p className={styles.description}>{truncateDescription(job.description)}</p>
@@ -233,8 +234,8 @@ const JobCard = ({ job, userData, onJobUpdate }) => {
                 <div className={styles.skillsContainer}>
                     {job.skills.slice(0, 4).map((skill, index) => (
                         <span key={index} className={styles.skillBadge}>
-              {skill}
-            </span>
+                            {skill}
+                        </span>
                     ))}
                     {job.skills.length > 4 && <span className={styles.skillBadge}>+{job.skills.length - 4} more</span>}
                 </div>

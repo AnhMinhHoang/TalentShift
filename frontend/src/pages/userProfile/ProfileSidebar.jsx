@@ -8,6 +8,7 @@ import {
     Twitter as TwitterIcon,
 } from "@mui/icons-material";
 import api from "../../services/api";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const ProfileSidebar = ({ userData, setUserData }) => {
     const [showModal, setShowModal] = useState(false);
@@ -278,7 +279,7 @@ const ProfileSidebar = ({ userData, setUserData }) => {
                         width: "128px",
                         height: "128px",
                         ...(profile.avatarImage ? {
-                            backgroundImage: profile.avatarImage ? `url(${profile.avatarImage})` : profile.avatar,
+                            backgroundImage: profile.avatarImage ? `url(${getImageUrl(profile.avatarImage)})` : profile.avatar,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         } : {

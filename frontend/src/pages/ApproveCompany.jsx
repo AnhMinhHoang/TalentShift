@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import AdminSidebar from "../components/Admin/AdminSidebar";
 import AdminHeader from "../components/Admin/AdminHeader";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const initialCompanies = [
   { id: 1, name: "ABC Corp", email: "contact@abccorp.com", status: "Pending", industry: "IT Services", registered: "2024-05-30", logo: "https://logo.clearbit.com/abccorp.com" },
@@ -82,7 +83,7 @@ const ApproveCompany = () => {
               <tbody>
                 {filtered.map(company => (
                   <tr key={company.id}>
-                    <td style={{ padding: 12 }}><img src={company.logo} alt={company.name} style={{ width: 36, height: 36, borderRadius: 8, background: '#eee' }} /></td>
+                    <td style={{ padding: 12 }}><img src={getImageUrl(company.logo)} alt={company.name} style={{ width: 36, height: 36, borderRadius: 8, background: '#eee' }} /></td>
                     <td style={{ padding: 12 }}>{company.name}</td>
                     <td style={{ padding: 12 }}>{company.email}</td>
                     <td style={{ padding: 12 }}>{company.industry}</td>

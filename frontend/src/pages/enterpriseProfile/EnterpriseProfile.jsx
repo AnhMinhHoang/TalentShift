@@ -5,6 +5,7 @@ import { Link as LinkIcon } from "@mui/icons-material"
 import JobPostHistoryTable from "../../components/Enterprise/JobPostHistoryTable.jsx"
 import styles from "./style/EnterpriseProfile.module.css"
 import { useAuth } from "../AuthContext.jsx"
+import { getImageUrl } from "../../utils/imageUtils";
 
 const EnterpriseProfile = () => {
     const [activeTab, setActiveTab] = useState("1")
@@ -19,9 +20,9 @@ const EnterpriseProfile = () => {
             key: "1",
             label: (
                 <span className={styles.tabLabel}>
-          <FaBuilding className="me-2" />
-          Job Post History
-        </span>
+                    <FaBuilding className="me-2" />
+                    Job Post History
+                </span>
             ),
             children: <JobPostHistoryTable />,
         },
@@ -43,7 +44,7 @@ const EnterpriseProfile = () => {
                                             style={{
                                                 ...(userData.logoPath
                                                     ? {
-                                                        backgroundImage: `url(${userData.logoPath})`,
+                                                        backgroundImage: `url(${getImageUrl(userData.logoPath)})`,
                                                         backgroundSize: "cover",
                                                         backgroundPosition: "center",
                                                     }
@@ -52,8 +53,8 @@ const EnterpriseProfile = () => {
                                         >
                                             {!userData.logoPath && (
                                                 <span className={styles.logoInitial}>
-                          {userData.companyName ? userData.companyName.charAt(0).toUpperCase() : "C"}
-                        </span>
+                                                    {userData.companyName ? userData.companyName.charAt(0).toUpperCase() : "C"}
+                                                </span>
                                             )}
                                         </div>
                                     </div>

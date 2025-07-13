@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import AdminSidebar from "../components/Admin/AdminSidebar";
 import AdminHeader from "../components/Admin/AdminHeader";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const initialUsers = [
   { id: 1, name: "John Doe", email: "john@upwork.com", status: "Active", role: "Client", created: "2024-06-01", avatar: "https://randomuser.me/api/portraits/men/1.jpg" },
@@ -67,7 +68,7 @@ const UserModified = () => {
               <tbody>
                 {filtered.map(user => (
                   <tr key={user.id}>
-                    <td style={{ padding: 12 }}><img src={user.avatar} alt={user.name} style={{ width: 36, height: 36, borderRadius: '50%' }} /></td>
+                    <td style={{ padding: 12 }}><img src={getImageUrl(user.avatar)} alt={user.name} style={{ width: 36, height: 36, borderRadius: '50%' }} /></td>
                     <td style={{ padding: 12 }}>{user.name}</td>
                     <td style={{ padding: 12 }}>{user.email}</td>
                     <td style={{ padding: 12 }}>{user.role}</td>
