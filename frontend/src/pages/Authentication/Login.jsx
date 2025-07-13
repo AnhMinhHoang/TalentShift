@@ -48,7 +48,6 @@ export default function Login() {
   };
 
   const handleNavigate = () => {
-    console.log("User Data:", userData);
     if (userData && userData.fillingForm) {
       openNotification(
         "success",
@@ -100,8 +99,6 @@ export default function Login() {
           headers: { Authorization: `Bearer ${credentialResponse.access_token}` },
         })
         .then(res => res.data);
-
-      console.log(userInfo.email);
 
       const email = userInfo.email;
       const response = await apiPublic.post('/auth/google-check', { email });

@@ -17,7 +17,6 @@ import { useNavigate } from "react-router-dom"
 import { deleteJob, fetchDraftJobsByUser, fetchJobCategories, fetchSkills, publishDraftJob, updateJob } from "../../services/jobService"
 import moment from "moment"
 import { useAuth } from "../../pages/AuthContext.jsx";
-import Loading from '../../components/Loading/Loading.jsx';
 
 const { TextArea } = Input
 const { Option } = Select
@@ -88,7 +87,7 @@ const DraftJobPostList = () => {
     const [currentDraft, setCurrentDraft] = useState(null)
     const [form] = Form.useForm()
     const navigate = useNavigate()
-    if (loading) return <Loading isLoading={true} />;
+    if (loading) return <Spin tip="Loading draft jobs..." />;
     if (error) return <Alert message="Error" description={error} type="error" showIcon />;
 
     const handleDelete = async (id) => {

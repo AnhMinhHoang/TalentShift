@@ -30,7 +30,6 @@ const ImageCarousel = ({ images }) => {
     const newIsLoaded = [...isLoaded];
     newIsLoaded[index] = true;
     setIsLoaded(newIsLoaded);
-
   };
 
   const handleImageError = (index) => {

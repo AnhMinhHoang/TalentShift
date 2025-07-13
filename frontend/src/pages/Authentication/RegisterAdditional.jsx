@@ -18,7 +18,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import api from "../../services/api";
-import Loading from '../../components/Loading/Loading.jsx';
 
 const steps = ["Skills", "Experience", "Education", "Overview", "Profile"];
 
@@ -40,7 +39,6 @@ const RegisterAdditional = () => {
   // State for active step
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
 
   const { getUserById, userData } = useAuth();
 
@@ -145,7 +143,6 @@ const RegisterAdditional = () => {
 
   const handleNext = async () => {
     if (activeStep === steps.length - 1) {
-      setIsLoading(true);
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         const email = user?.email;
@@ -261,8 +258,6 @@ const RegisterAdditional = () => {
       } catch (error) {
         console.error('Registration error:', error.response?.data);
         openNotification("error", "Registration Failed", error.response?.data?.message || "Something went wrong");
-      } finally {
-        setIsLoading(false);
       }
     } else {
       setActiveStep((prevStep) => prevStep + 1);
@@ -364,103 +359,100 @@ const RegisterAdditional = () => {
   };
 
   return (
-    <>
-      <Loading isLoading={isLoading} />
-      <Container
-        className={`${styles.container} mt-5 ${styles.registerAdditional}`}
-      >
-        <Row className="justify-content-center">
-          <Col>
-            <div className={styles.registerForm}>
-              <div className={styles.formHeader}>
-                <h2 className={styles.formTitle}>Complete Your Profile</h2>
-                <p className={styles.formSubtitle}>
-                  Enhance your profile to stand out to potential clients and
-                  increase your chances of getting hired.
-                </p>
-              </div>
+    <Container
+      className={`${styles.container} mt-5 ${styles.registerAdditional}`}
+    >
+      <Row className="justify-content-center">
+        <Col>
+          <div className={styles.registerForm}>
+            <div className={styles.formHeader}>
+              <h2 className={styles.formTitle}>Complete Your Profile</h2>
+              <p className={styles.formSubtitle}>
+                Enhance your profile to stand out to potential clients and
+                increase your chances of getting hired.
+              </p>
+            </div>
 
-              <div className={styles.stepperContainer}>
-                <Stepper
-                  activeStep={activeStep}
-                  alternativeLabel
-                  className={styles.stepper}
-                >
-                  {steps.map((label, index) => (
-                    <Step key={label}>
-                      <StepLabel
-                        icon={
-                          <span
-                            className={`${styles.stepIcon} ${index < activeStep
-                              ? styles.completedStep
-                              : index === activeStep
-                                ? styles.activeStep
-                                : ""
-                              }`}
-                          >
-                            {index < activeStep ? "✔" : index + 1}
-                          </span>
-                        }
-                      >
-                        {label}
-                      </StepLabel>
-                    </Step>
-                  ))}
-                </Stepper>
-              </div>
+            <div className={styles.stepperContainer}>
+              <Stepper
+                activeStep={activeStep}
+                alternativeLabel
+                className={styles.stepper}
+              >
+                {steps.map((label, index) => (
+                  <Step key={label}>
+                    <StepLabel
+                      icon={
+                        <span
+                          className={`${styles.stepIcon} ${index < activeStep
+                            ? styles.completedStep
+                            : index === activeStep
+                              ? styles.activeStep
+                              : ""
+                            }`}
+                        >
+                          {index < activeStep ? "✔" : index + 1}
+                        </span>
+                      }
+                    >
+                      {label}
+                    </StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+            </div>
 
-              <div className={styles.progressContainer}>
-                <div className={styles.progressLabel}>
-                  Profile Completion: {Math.round(progress)}%
+            <div className={styles.progressContainer}>
+              <div className={styles.progressLabel}>
+                Profile Completion: {Math.round(progress)}%
+              </div>
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                className={styles.progressBar}
+              />
+            </div>
+
+            <div className={styles.stepContainer}>
+              {getStepContent(activeStep)}
+            </div>
+
+            <div className={styles.navigationContainer}>
+              <div className={styles.navigationButtons} style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                <div>
+                  <Button
+                    variant="outline-primary"
+                    disabled={activeStep === 0}
+                    onClick={handleBack}
+                    className={`${styles.backButton} d-flex align-items-center gap-2`}
+                  >
+                    <ArrowBackIcon fontSize="small" /> Previous
+                  </Button>
                 </div>
-                <LinearProgress
-                  variant="determinate"
-                  value={progress}
-                  className={styles.progressBar}
-                />
-              </div>
-
-              <div className={styles.stepContainer}>
-                {getStepContent(activeStep)}
-              </div>
-
-              <div className={styles.navigationContainer}>
-                <div className={styles.navigationButtons} style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                  <div>
-                    <Button
-                      variant="outline-primary"
-                      disabled={activeStep === 0}
-                      onClick={handleBack}
-                      className={`${styles.backButton} d-flex align-items-center gap-2`}
-                    >
-                      <ArrowBackIcon fontSize="small" /> Previous
-                    </Button>
-                  </div>
-                  <div>
-                    <Button
-                      variant="primary"
-                      onClick={handleNext}
-                      disabled={!isStepValid(activeStep)}
-                      className={`${styles.nextButton} d-flex align-items-center gap-2`}
-                    >
-                      {activeStep === steps.length - 1 ? (
-                        <>
-                          <CheckIcon fontSize="small" /> Finish
-                        </>
-                      ) : (
-                        <>
-                          Next <ArrowForwardIcon fontSize="small" />
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                <div>
+                  <Button
+                    variant="primary"
+                    onClick={handleNext}
+                    disabled={!isStepValid(activeStep)}
+                    className={`${styles.nextButton} d-flex align-items-center gap-2`}
+                  >
+                    {activeStep === steps.length - 1 ? (
+                      <>
+                        <CheckIcon fontSize="small" /> Finish
+                      </>
+                    ) : (
+                      <>
+                        Next <ArrowForwardIcon fontSize="small" />
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
-          </Col>
-        </Row>
-      </Container>
-    </>
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
