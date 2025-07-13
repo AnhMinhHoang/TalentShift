@@ -4,7 +4,7 @@ import styles from "./style/Plan.module.css"
 import { CheckCircleFill, StarFill } from "react-bootstrap-icons"
 import { useAuth } from "../AuthContext"
 import { notification } from "antd"
-import axios from "axios"
+import api from "../../services/api"
 
 const plans = [
   {
@@ -84,7 +84,7 @@ const Plan = () => {
 
     try {
       // Call API to purchase pro
-      const response = await axios.post('/api/users/pro-purchase', null, {
+      const response = await api.post('/users/pro-purchase', null, {
         params: {
           userId: userData?.userId
         }

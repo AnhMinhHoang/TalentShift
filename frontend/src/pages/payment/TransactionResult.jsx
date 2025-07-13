@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import styles from "./style/TransactionResult.module.css"
-import axios from "axios";
+import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 export default function TransactionResult() {
@@ -33,17 +33,11 @@ export default function TransactionResult() {
 
     const fetchTransactionData = async (orderId, paymentMethod) => {
         try {
-            const token = localStorage.getItem("token");
             const apiUrl = paymentMethod === "momo"
-                ? `/api/momo/transaction/${orderId}`
-                : `/api/vnpay/transaction/${orderId}`;
+                ? `/momo/transaction/${orderId}`
+                : `/vnpay/transaction/${orderId}`;
 
-            const response = await axios.get(apiUrl, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-            });
+            const response = await api.get(apiUrl);
 
             setTransaction(response.data);
         } catch (err) {

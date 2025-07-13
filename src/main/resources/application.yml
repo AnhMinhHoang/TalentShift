@@ -31,14 +31,14 @@ momo:
   access-key: F8BBA842ECF85
   secret-key: K951B6PE1waDMi640xX08PD3vg6EkVlz
   api-endpoint: https://test-payment.momo.vn/v2/gateway/api/create
-  return-url: ${MOMO_RETURN_URL:https://your-spring-app.onrender.com/api/momo/return}
-  notify-url: ${MOMO_NOTIFY_URL:https://your-spring-app.onrender.com/api/momo/callback}
+  return-url: ${MOMO_RETURN_URL:https://talentshift.onrender.com/api/momo/return}
+  notify-url: ${MOMO_NOTIFY_URL:https://talentshift.onrender.com/api/momo/callback}
 
 vnpay:
   tmnCode: 6TZBIZ4W
   secretKey: VMBRDFDCQQ2POO8TLNKCRUP6E0E7VHUI
   url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  returnUrl: ${VNPAY_RETURN_URL:https://your-spring-app.onrender.com/api/vnpay/return}
+  returnUrl: ${VNPAY_RETURN_URL:https://talentshift.onrender.com/api/vnpay/return}
 
 logging:
   level:

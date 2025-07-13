@@ -17,6 +17,7 @@ import styles from "./styles/RegisterAdditional.module.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
+import api from "../../services/api";
 
 const steps = ["Skills", "Experience", "Education", "Overview", "Profile"];
 
@@ -239,8 +240,8 @@ const RegisterAdditional = () => {
           formData.append(`links[${index}].url`, link.url);
         });
 
-        const response = await axios.put(
-          `/api/freelancers/${userId}/freelancer`,
+        const response = await api.put(
+          `/freelancers/${userId}/freelancer`,
           formData,
           {
             headers: {

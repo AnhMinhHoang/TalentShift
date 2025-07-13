@@ -12,6 +12,7 @@ import { EducationSection } from "./OverviewComponent/EducationSection";
 import { CertificateSection } from "./OverviewComponent/CertificateSection";
 import axios from "axios";
 import { notification } from "antd";
+import api from "../../services/api";
 
 const OverviewTab = ({ userData, setUserData }) => {
     const [activeModal, setActiveModal] = useState(null);
@@ -99,41 +100,34 @@ const OverviewTab = ({ userData, setUserData }) => {
     const openModal = (modalName) => setActiveModal(modalName);
     const closeModal = () => setActiveModal(null);
 
-    const updateSummary = async (newSummary) => {
+    const updateBio = async (newSummary) => {
         try {
-            const response = await axios.put(`/api/freelancers/bio/${userData.userId}`, newSummary, {
-                headers: {
-                    "Content-Type": "text/plain",
-                },
+            const response = await api.put(`/freelancers/bio/${userData.userId}`, newSummary, {
+                headers: { 'Content-Type': 'text/plain' }
             });
             setUserData(response.data);
-            openNotification("success", "Summary Updated", "topRight", "Your summary has been updated successfully.");
+            openNotification("success", "Bio Updated", "topRight", "Your bio has been updated successfully.");
             closeModal();
+            return response.data;
         } catch (error) {
-            console.error("Failed to update summary:", error);
-            openNotification("error", "Update Failed", "topRight", "There was an error updating your summary.");
+            console.error("Error updating bio:", error);
+            openNotification("error", "Update Failed", "topRight", "There was an error updating your bio.");
         }
     };
 
-    const updateSkills = async (MainSkills, OtherSkills) => {
+    const updateSkills = async (newSkills) => {
         try {
-            const payload = [
-                ...MainSkills.map((skill) => ({
-                    skillName: skill,
-                    skillType: "MAIN",
-                })),
-                ...OtherSkills.map((skill) => ({
-                    skillName: skill,
-                    skillType: "ADDITIONAL",
-                })),
-            ];
+            const payload = newSkills.map((skill) => ({
+                skillName: skill,
+            }));
 
-            const response = await axios.put(`/api/freelancers/skills/${userData.userId}`, payload);
+            const response = await api.put(`/freelancers/skills/${userData.userId}`, payload);
             setUserData(response.data);
             openNotification("success", "Skills Updated", "topRight", "Your skills have been updated successfully.");
             closeModal();
+            return response.data;
         } catch (error) {
-            console.error("Failed to update skills:", error);
+            console.error("Error updating skills:", error);
             openNotification("error", "Update Failed", "topRight", "There was an error updating your skills.");
         }
     };
@@ -141,20 +135,16 @@ const OverviewTab = ({ userData, setUserData }) => {
     const updateExperiences = async (newExperiences) => {
         try {
             const payload = newExperiences.map((exp) => ({
-                jobPosition: exp.position,
-                companyName: exp.company,
-                startDate: exp.startDate, // Use original format
+                position: exp.position,
+                company: exp.company,
+                startDate: exp.startDate,
                 endDate: exp.endDate === "Now" ? null : exp.endDate,
                 currentlyWork: exp.endDate === "Now",
-                jobDescription: exp.description,
-                projects: exp.projects.map((proj) => ({
-                    projectName: proj.name,
-                    projectTime: proj.time,
-                    projectDescription: proj.description,
-                })),
+                description: exp.description,
+                projects: exp.projects || [],
             }));
 
-            const response = await axios.put(`/api/freelancers/experience/${userData.userId}`, payload);
+            const response = await api.put(`/freelancers/experience/${userData.userId}`, payload);
             setUserData(response.data);
             openNotification("success", "Experience Updated", "topRight", "Your experience has been updated successfully.");
             closeModal();
@@ -176,7 +166,7 @@ const OverviewTab = ({ userData, setUserData }) => {
                 description: edu.description,
             }));
 
-            const response = await axios.put(`/api/freelancers/education/${userData.userId}`, payload);
+            const response = await api.put(`/freelancers/education/${userData.userId}`, payload);
             setUserData(response.data);
             openNotification("success", "Education Updated", "topRight", "Your education has been updated successfully.");
             closeModal();
@@ -194,8 +184,7 @@ const OverviewTab = ({ userData, setUserData }) => {
             certificateDescription: cert.description,
         }));
 
-        axios
-            .put(`/api/freelancers/certification/${userData.userId}`, payload)
+        api.put(`/freelancers/certification/${userData.userId}`, payload)
             .then((response) => {
                 setUserData(response.data);
                 openNotification("success", "Certificates Updated", "topRight", "Your certificates have been updated successfully.");
@@ -225,7 +214,7 @@ const OverviewTab = ({ userData, setUserData }) => {
             </div>
 
             {activeModal === "summary" && (
-                <SummaryModal onClose={closeModal} summary={summary} onSave={updateSummary} />
+                <SummaryModal onClose={closeModal} summary={summary} onSave={updateBio} />
             )}
             {activeModal === "skills" && (
                 <SkillsModal

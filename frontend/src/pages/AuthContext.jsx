@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 
 const AuthContext = createContext();
 
@@ -16,9 +16,7 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
     if (storedUser && token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      axios.get("/api/auth/checkUser")
+      api.get("/auth/checkUser")
         .then((res) => setUserData(res.data))
         .catch(() => {
           setUser(null);
@@ -27,7 +25,6 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem("token");
           localStorage.removeItem("userEmail");
           localStorage.removeItem("userId");
-          delete axios.defaults.headers.common["Authorization"];
         })
         .finally(() => setLoading(false));
     } else {
@@ -53,9 +50,9 @@ export const AuthProvider = ({ children }) => {
     try {
       let response;
       if (google) {
-        response = await axios.post("/api/auth/google-login", { email });
+        response = await api.post("/auth/google-login", { email });
       } else {
-        response = await axios.post("/api/auth/login", {
+        response = await api.post("/auth/login", {
           email,
           password,
         });
@@ -79,7 +76,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userInfo));
       localStorage.setItem("token", token);
 
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       await getUserById(userInfo.id);
     } catch (error) {
       const errorMsg =
@@ -90,7 +86,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, role, fullName) => {
     try {
-      const response = await axios.post("/api/auth/register", {
+      const response = await api.post("/auth/register", {
         fullName,
         email,
         password,
@@ -116,7 +112,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", token);
 
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       await getUserById(userId);
       return response.data;
     } catch (error) {
@@ -127,7 +122,7 @@ export const AuthProvider = ({ children }) => {
 
   const getUserById = async (userId) => {
     try {
-      const response = await axios.get(`/api/users/${userId}`);
+      const response = await api.get(`/users/${userId}`);
       setUserData(response.data);
       return response.data;
     } catch (error) {
@@ -147,7 +142,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("token");
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userId");
-        delete axios.defaults.headers.common["Authorization"];
         setLoading(false);
       }, 100); // small delay allows navigation to complete
     } catch (e) {

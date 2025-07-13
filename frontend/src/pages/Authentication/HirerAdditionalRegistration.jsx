@@ -15,6 +15,7 @@ import {
 import styles from "./styles/RegisterAdditional.module.css";
 import axios from "axios";
 import { useAuth } from "../AuthContext.jsx";
+import api from "../../services/api";
 
 const HirerAdditionalRegistration = () => {
   const navigate = useNavigate();
@@ -227,8 +228,8 @@ const HirerAdditionalRegistration = () => {
           return;
         }
 
-        const response = await axios.put(
-          `/api/hirers/${userId}/hirer`,
+        const response = await api.put(
+          `/hirers/${userId}/hirer`,
           formData,
           {
             headers: {

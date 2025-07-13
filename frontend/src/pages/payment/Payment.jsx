@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 import styles from "./style/Payment.module.css";
 import { notification } from "antd";
 
@@ -59,21 +59,15 @@ export default function Payment() {
 
         try {
             const apiUrl = paymentMethod === "momo"
-                ? "/api/momo/create"
-                : "/api/vnpay/create";
+                ? "/momo/create"
+                : "/vnpay/create";
 
-            const response = await axios.post(
+            const response = await api.post(
                 apiUrl,
                 {
                     amount: parseFloat(amount.replace(/,/g, "")),
                     userId: userId,
                     orderInfo: orderInfo
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
                 }
             );
 

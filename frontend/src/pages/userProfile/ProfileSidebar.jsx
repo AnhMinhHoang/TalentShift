@@ -8,6 +8,7 @@ import {
     LinkedIn as LinkedInIcon,
     Twitter as TwitterIcon,
 } from "@mui/icons-material";
+import api from "../../services/api";
 
 const ProfileSidebar = ({ userData, setUserData }) => {
     const [showModal, setShowModal] = useState(false);
@@ -223,8 +224,8 @@ const ProfileSidebar = ({ userData, setUserData }) => {
                 formData.append(`links[${index}].url`, link);
             });
 
-            const response = await axios.put(
-                `/api/freelancers/sidebar/${userData.userId}`,
+            const response = await api.put(
+                `/freelancers/sidebar/${userData.userId}`,
                 formData,
                 { headers: { "Content-Type": "multipart/form-data" } }
             );

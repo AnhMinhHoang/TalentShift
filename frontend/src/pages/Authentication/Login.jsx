@@ -6,6 +6,7 @@ import { notification } from "antd";
 import { useGoogleLogin } from '@react-oauth/google';
 import { Modal } from 'antd';
 import axios from "axios";
+import apiPublic from "../../services/apiPublic";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -103,7 +104,7 @@ export default function Login() {
       console.log(userInfo.email);
 
       const email = userInfo.email;
-      const response = await axios.post('/api/auth/google-check', { email });
+      const response = await apiPublic.post('/auth/google-check', { email });
       const data = await response.data;
       if (data.exists) {
         await login(email, null, true);
