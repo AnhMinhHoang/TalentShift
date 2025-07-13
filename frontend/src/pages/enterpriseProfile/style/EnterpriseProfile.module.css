@@ -1,178 +1,285 @@
-/* Main Layout */
-
-.mainContent {
-  padding: 20px;
+/* Page Layout */
+.pageWrapper {
   min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem 0;
 }
 
-/* Profile Container */
-.profileContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px 20px;
-  border-bottom: 1px solid #e9ecef;
+.profileCard {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-height: 80vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background: linear-gradient(180deg, #428a9b 0%, #266987 100%);
+  color: white;
+  position: relative;
+}
+
+.sidebar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.sidebarContent {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  height: 100%;
+}
+
+/* Profile Header */
+.profileHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logoWrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1.5rem;
 }
 
 .logoContainer {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  overflow: hidden;
-  margin-bottom: 15px;
-  background-color: #f1f1f1;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid #428a9b;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.logoContainer {
-  position: relative;
-  margin: 0 auto;
-  width: 150px;
-  height: 150px;
+.logoContainer:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
-.logoLabel {
-  position: relative;
-  display: block;
+.logoInitial {
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.editLogoBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  color: #428a9b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
   cursor: pointer;
 }
 
-.logoInput {
-  display: none;
-}
-
-.companyLogo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #eee;
-}
-
-.editIcon {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #fff;
-  padding: 8px;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 2;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.editIcon:hover {
+.editLogoBtn:hover {
+  transform: scale(1.1);
   background: #f8f9fa;
-  transform: scale(1.05);
-}
-
-.editIcon svg {
-  color: #428a9b;
-}
-.companyName {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #266987;
-  text-align: center;
 }
 
 .companyInfo {
-  width: 100%;
-  margin-bottom: 20px;
+  text-align: center;
 }
 
-.infoItem {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 0.9rem;
-  color: #495057;
-}
-
-.infoIcon {
-  margin-right: 10px;
-  color: #428a9b;
-}
-
-.editProfileBtn {
-  background-color: #428a9b;
+.companyName {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
   color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.companyBadge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
   font-weight: 500;
-  transition: background-color 0.3s;
-  width: 100%;
+  backdrop-filter: blur(10px);
 }
 
-.editProfileBtn:hover {
-  background-color: #266987;
-  color: white;
+/* Company Details */
+.companyDetails {
+  space-y: 1rem;
 }
 
-/* Sidebar Navigation */
-.sidebarNav {
-  padding: 20px 0;
+.detailItem {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
-.navItem {
+.detailItem:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(5px);
+}
+
+.detailIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
-  padding: 12px 20px;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.detailContent {
+  flex: 1;
+}
+
+.detailLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detailValue {
+  display: block;
+  font-size: 1rem;
+  color: white;
+  font-weight: 500;
+}
+
+.detailDescription {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Action Buttons */
+.actionButtons {
+  margin-top: 2rem;
+}
+
+.primaryBtn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   cursor: pointer;
-  transition: background-color 0.3s;
-  color: #495057;
 }
 
-.navItem:hover {
-  background-color: rgba(66, 138, 155, 0.1);
+.primaryBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-.navItem.active {
-  background-color: rgba(66, 138, 155, 0.2);
-  color: #266987;
-  font-weight: 500;
-  border-left: 4px solid #428a9b;
+/* Main Content */
+.mainContent {
+  padding: 2rem;
+  background: #ffffff;
 }
 
-.navIcon {
-  margin-right: 12px;
+.contentHeader {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.contentTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.contentSubtitle {
   font-size: 1.1rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Custom Tabs */
+.customTabs {
+  margin-top: 1rem;
+}
+
+.customTabs .ant-tabs-nav {
+  margin-bottom: 2rem;
+}
+
+.customTabs .ant-tabs-tab {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.customTabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   color: #428a9b;
 }
 
-/* Tabs */
-.tabs {
-  margin-top: 10px;
+.customTabs .ant-tabs-ink-bar {
+  background: linear-gradient(90deg, #428a9b, #266987);
+  height: 3px;
+  border-radius: 2px;
 }
 
-.tabs .ant-tabs-nav {
-  margin-bottom: 20px;
+.tabLabel {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
 }
 
-.tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-  color: #428a9b;
-}
-
-.tabs .ant-tabs-ink-bar {
-  background-color: #428a9b;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive Design */
+@media (max-width: 992px) {
   .sidebar {
     min-height: auto;
   }
 
-  .profileContainer {
-    padding: 20px 10px;
+  .sidebarContent {
+    padding: 1.5rem;
   }
 
   .logoContainer {
@@ -180,7 +287,39 @@
     height: 100px;
   }
 
+  .logoInitial {
+    font-size: 2.5rem;
+  }
+
   .companyName {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+  }
+
+  .mainContent {
+    padding: 1.5rem;
+  }
+
+  .contentTitle {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageWrapper {
+    padding: 1rem 0;
+  }
+
+  .profileCard {
+    border-radius: 15px;
+    margin: 0 1rem;
+  }
+
+  .detailItem {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .detailIcon {
+    margin: 0 auto 0.5rem auto;
   }
 }

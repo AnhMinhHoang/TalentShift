@@ -37,11 +37,11 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
         setShowAddExperienceForm(true);
         setFormData({
             id: experience.id,
-            position: experience.position,
-            company: experience.company,
+            jobPosition: experience.jobPosition,
+            companyName: experience.companyName,
             startDate: experience.startDate,
-            endDate: experience.endDate === "Now" ? "" : experience.endDate, // Convert "Now" to empty for date input
-            description: experience.description,
+            endDate: experience.endDate === "Now" ? "" : experience.endDate,
+            jobDescription: experience.jobDescription,
             isCurrentPosition: experience.endDate === "Now",
             projects: experience.projects || [],
         });
@@ -50,8 +50,8 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
     // Save experience
     const saveExperience = () => {
         const errors = {};
-        if (!formData.position) errors.position = "Job position is required";
-        if (!formData.company) errors.company = "Company name is required";
+        if (!formData.jobPosition) errors.jobPosition = "Job position is required";
+        if (!formData.companyName) errors.companyName = "Company name is required";
         if (!formData.startDate) errors.startDate = "Start date is required";
         if (!formData.isCurrentPosition && !formData.endDate) errors.endDate = "End date is required";
 
@@ -63,7 +63,7 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
         const updatedExperiences = [...workExperiences];
         const experienceData = {
             ...formData,
-            endDate: formData.isCurrentPosition ? "Now" : formData.endDate, // Store "Now" for UI consistency
+            endDate: formData.isCurrentPosition ? "Now" : formData.endDate,
             projects: editingExperience ? editingExperience.projects : formData.projects || [],
         };
 
@@ -85,30 +85,23 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
         setValidationErrors({});
     };
 
-    // Delete experience
-    const deleteExperience = (id) => {
-        const updatedExperiences = workExperiences.filter((exp) => exp.id !== id);
-        setWorkExperiences(updatedExperiences);
-    };
-
     // Edit project
     const editProject = (project) => {
         setEditingProject(project);
         setFormData({
             ...formData,
             projectForm: true,
-            name: project.name,
-            projectPosition: project.position,
-            time: project.time,
-            projectDescription: project.description,
+            projectName: project.projectName,
+            projectTime: project.projectTime,
+            projectDescription: project.projectDescription,
         });
     };
 
     // Save project
     const saveProject = () => {
         const errors = {};
-        if (!formData.name) errors.name = "Project name is required";
-        if (!formData.time) errors.time = "Project time is required";
+        if (!formData.projectName) errors.projectName = "Project name is required";
+        if (!formData.projectTime) errors.projectTime = "Project time is required";
 
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
@@ -117,10 +110,9 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
 
         const newProject = {
             id: editingProject ? editingProject.id : Date.now(),
-            name: formData.name,
-            position: formData.projectPosition || "",
-            time: formData.time,
-            description: formData.projectDescription || "",
+            projectName: formData.projectName,
+            projectTime: formData.projectTime,
+            projectDescription: formData.projectDescription || "",
         };
 
         if (editingExperience) {
@@ -179,11 +171,12 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
 
     // Handle final save
     const handleSave = () => {
-        // Transform "Now" to null for backend compatibility
         const transformedExperiences = workExperiences.map((exp) => ({
             ...exp,
             endDate: exp.endDate === "Now" ? null : exp.endDate,
+            projects: (exp.projects || []).map(({ id, ...rest }) => rest),
         }));
+
         onSave(transformedExperiences);
     };
 
@@ -205,7 +198,7 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                             <ChevronLeft size={20} />
                         </button>
                         {editingExperience
-                            ? `Edit: ${editingExperience.position} at ${editingExperience.company}`
+                            ? `Edit: ${editingExperience.jobPosition} at ${editingExperience.companyName}`
                             : "Add Experience"}
                     </div>
                 ) : (
@@ -221,7 +214,7 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                             <div className="d-flex align-items-start">
                                 <div className="me-auto">
                                     <div className="text-primary small">
-                                        {experience.position} at {experience.company}
+                                        {experience.jobPosition} at {experience.companyName}
                                     </div>
                                     <div className="small">
                                         {formatDate(experience.startDate)} - {formatDate(experience.endDate)}
@@ -249,8 +242,8 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                                     {experience.projects.map((project) => (
                                         <div key={project.id} className="d-flex align-items-center mt-2 ps-3 border-start">
                                             <div className="d-flex align-items-center flex-grow-1">
-                                                <div className="small">{project.name}</div>
-                                                <div className="small text-muted ms-auto">{project.time}</div>
+                                                <div className="small">{project.projectName}</div>
+                                                <div className="small text-muted ms-auto">{project.projectTime}</div>
                                             </div>
                                         </div>
                                     ))}
@@ -263,7 +256,7 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                             className={`btn ${styles.primaryBtn}`}
                             onClick={() => {
                                 setShowAddExperienceForm(true);
-                                setFormData({ projects: [] }); // Initialize projects array
+                                setFormData({ projects: [] });
                                 setValidationErrors({});
                             }}
                         >
@@ -287,29 +280,29 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                         </label>
                         <input
                             type="text"
-                            className={`form-control ${validationErrors.position ? "is-invalid" : ""} ${styles.formControl}`}
+                            className={`form-control ${validationErrors.jobPosition ? "is-invalid" : ""} ${styles.formControl}`}
                             id="jobPosition"
-                            name="position"
-                            value={formData.position || ""}
+                            name="jobPosition"
+                            value={formData.jobPosition || ""}
                             onChange={handleInputChange}
                             required
                         />
-                        {validationErrors.position && <div className={styles.validationError}>{validationErrors.position}</div>}
+                        {validationErrors.jobPosition && <div className={styles.validationError}>{validationErrors.jobPosition}</div>}
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="company" className="form-label">
+                        <label htmlFor="companyName" className="form-label">
                             Company <span className="text-danger">*</span>
                         </label>
                         <input
                             type="text"
                             className={`form-control ${validationErrors.company ? "is-invalid" : ""} ${styles.formControl}`}
-                            id="company"
-                            name="company"
-                            value={formData.company || ""}
+                            id="companyName"
+                            name="companyName"
+                            value={formData.companyName || ""}
                             onChange={handleInputChange}
                             required
                         />
-                        {validationErrors.company && <div className={styles.validationError}>{validationErrors.company}</div>}
+                        {validationErrors.companyName && <div className={styles.validationError}>{validationErrors.companyName}</div>}
                     </div>
                     <div className="form-check mb-3">
                         <input
@@ -365,15 +358,15 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                         </div>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="description" className="form-label">
+                        <label htmlFor="jobDescription" className="form-label">
                             Description
                         </label>
                         <textarea
                             className={`form-control ${styles.formControl}`}
-                            id="description"
-                            name="description"
+                            id="jobDescription"
+                            name="jobDescription"
                             rows="3"
-                            value={formData.description || ""}
+                            value={formData.jobDescription || ""}
                             onChange={handleInputChange}
                         ></textarea>
                         <div className="form-text text-end">65 words max</div>
@@ -391,8 +384,8 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                                     {(editingExperience ? editingExperience.projects : formData.projects).map((project) => (
                                         <div key={project.id} className="d-flex align-items-center mb-2 p-2 bg-light rounded">
                                             <div className="me-auto">
-                                                <div className="small">{project.name}</div>
-                                                <div className="small text-muted">{project.time}</div>
+                                                <div className="small">{project.projectName}</div>
+                                                <div className="small text-muted">{project.projectTime}</div>
                                             </div>
                                             <div>
                                                 <button
@@ -422,14 +415,14 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                                     </label>
                                     <input
                                         type="text"
-                                        className={`form-control ${validationErrors.name ? "is-invalid" : ""} ${styles.formControl}`}
+                                        className={`form-control ${validationErrors.projectName ? "is-invalid" : ""} ${styles.formControl}`}
                                         id="projectName"
-                                        name="name"
-                                        value={formData.name || ""}
+                                        name="projectName"
+                                        value={formData.projectName || ""}
                                         onChange={handleInputChange}
                                         required
                                     />
-                                    {validationErrors.name && <div className={styles.validationError}>{validationErrors.name}</div>}
+                                    {validationErrors.projectName && <div className={styles.validationError}>{validationErrors.projectName}</div>}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="projectTime" className="form-label">
@@ -437,15 +430,15 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                                     </label>
                                     <input
                                         type="text"
-                                        className={`form-control ${validationErrors.time ? "is-invalid" : ""} ${styles.formControl}`}
+                                        className={`form-control ${validationErrors.projectTime ? "is-invalid" : ""} ${styles.formControl}`}
                                         id="projectTime"
-                                        name="time"
+                                        name="projectTime"
                                         placeholder="MM-DD - MM-DD"
-                                        value={formData.time || ""}
+                                        value={formData.projectTime || ""}
                                         onChange={handleInputChange}
                                         required
                                     />
-                                    {validationErrors.time && <div className={styles.validationError}>{validationErrors.time}</div>}
+                                    {validationErrors.projectTime && <div className={styles.validationError}>{validationErrors.projectTime}</div>}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="projectDescription" className="form-label">
@@ -483,9 +476,8 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                                     setFormData({
                                         ...formData,
                                         projectForm: true,
-                                        name: "",
-                                        projectPosition: "",
-                                        time: "",
+                                        projectName: "",
+                                        projectTime: "",
                                         projectDescription: "",
                                     });
                                     setEditingProject(null);

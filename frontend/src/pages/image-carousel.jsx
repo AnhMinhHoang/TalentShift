@@ -10,7 +10,7 @@ const ImageCarousel = ({ images }) => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 7500);
-    
+
     return () => clearInterval(interval);
   }, [images.length]);
 
@@ -30,9 +30,7 @@ const ImageCarousel = ({ images }) => {
     const newIsLoaded = [...isLoaded];
     newIsLoaded[index] = true;
     setIsLoaded(newIsLoaded);
-    
-    // Log successful load
-    console.log(`Image ${index} loaded successfully:`, images[index].src);
+
   };
 
   const handleImageError = (index) => {
@@ -40,17 +38,17 @@ const ImageCarousel = ({ images }) => {
     const newImageErrors = [...imageErrors];
     newImageErrors[index] = true;
     setImageErrors(newImageErrors);
-    
+
     // Log the error for debugging
     console.error(`Failed to load image at index ${index}:`, images[index].src);
   };
 
   return (
     <div className="carousel-container position-relative">
-      <div className="carousel-inner" style={{ 
-        position: "relative", 
-        overflow: "hidden", 
-        borderRadius: "15px", 
+      <div className="carousel-inner" style={{
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: "15px",
         height: "700px", // Increased height for larger images
         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
         maxWidth: "100%",
@@ -72,7 +70,7 @@ const ImageCarousel = ({ images }) => {
             }}
           >
             {!isLoaded[index] && !imageErrors[index] && (
-              <div 
+              <div
                 style={{
                   position: "absolute",
                   top: "50%",
@@ -82,12 +80,12 @@ const ImageCarousel = ({ images }) => {
                   fontWeight: "500"
                 }}
               >
-                
+
               </div>
             )}
-            
+
             {imageErrors[index] && (
-              <div 
+              <div
                 style={{
                   position: "absolute",
                   top: "50%",
@@ -102,27 +100,27 @@ const ImageCarousel = ({ images }) => {
                 <div style={{ fontSize: "14px", marginTop: "8px" }}>{image.src}</div>
               </div>
             )}
-            
+
             <img
               src={image.src || "/placeholder.svg"}
               alt={image.alt}
               className="d-block w-100 h-100"
-              style={{ 
+              style={{
                 objectFit: "cover",
                 objectPosition: "center",
-                display: imageErrors[index] ? "none" : "block" 
+                display: imageErrors[index] ? "none" : "block"
               }}
               onLoad={() => handleImageLoad(index)}
               onError={() => handleImageError(index)}
             />
-            <div 
-              className="carousel-caption" 
-              style={{ 
-                position: "absolute", 
-                bottom: "0", 
-                left: "0", 
+            <div
+              className="carousel-caption"
+              style={{
+                position: "absolute",
+                bottom: "0",
+                left: "0",
                 right: "0",
-                background: "linear-gradient(to top, rgba(12, 164, 161, 0.9), rgba(19, 84, 122, 0.7) 60%, rgba(27, 239, 211, 0))", 
+                background: "linear-gradient(to top, rgba(12, 164, 161, 0.9), rgba(19, 84, 122, 0.7) 60%, rgba(27, 239, 211, 0))",
                 padding: "30px 15px 15px",
                 color: "white",
                 textAlign: "left"
@@ -163,7 +161,7 @@ const ImageCarousel = ({ images }) => {
       >
         <i className="bi bi-chevron-left"></i>
       </button>
-      
+
       <button
         className="carousel-control-next"
         type="button"
@@ -193,13 +191,13 @@ const ImageCarousel = ({ images }) => {
         <i className="bi bi-chevron-right"></i>
       </button>
 
-      <div className="carousel-indicators" style={{ 
-        position: "absolute", 
-        bottom: "20px", 
-        left: "50%", 
-        transform: "translateX(-50%)", 
-        display: "flex", 
-        gap: "8px", 
+      <div className="carousel-indicators" style={{
+        position: "absolute",
+        bottom: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        gap: "8px",
         zIndex: 15,
         background: "rgba(255, 255, 255, 0.3)",
         padding: "5px 15px", // Larger padding

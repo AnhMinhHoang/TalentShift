@@ -26,7 +26,6 @@ const ApproveCompany = () => {
 
   const handleStatusChange = (companyId, newStatus) => {
     // Here you would typically make an API call to update the company's status
-    console.log(`Changing company ${companyId} status to ${newStatus}`);
   };
 
   // Get unique industries for filter
@@ -94,10 +93,10 @@ const ApproveCompany = () => {
                         borderRadius: 4,
                         fontSize: 13,
                         fontWeight: 500,
-                        background: company.status === 'Approved' ? '#e6f7ef' : 
-                                  company.status === 'Pending' ? '#fff4e5' : '#ffe5e5',
-                        color: company.status === 'Approved' ? '#14a800' : 
-                               company.status === 'Pending' ? '#ff9800' : '#e74c3c'
+                        background: company.status === 'Approved' ? '#e6f7ef' :
+                          company.status === 'Pending' ? '#fff4e5' : '#ffe5e5',
+                        color: company.status === 'Approved' ? '#14a800' :
+                          company.status === 'Pending' ? '#ff9800' : '#e74c3c'
                       }}>
                         {company.status}
                       </span>
@@ -105,13 +104,13 @@ const ApproveCompany = () => {
                     <td style={{ padding: 12 }}>
                       {company.status === 'Pending' ? (
                         <>
-                          <button 
+                          <button
                             onClick={() => handleStatusChange(company.id, 'Approved')}
                             style={{ background: '#14a800', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', marginRight: 8 }}
                           >
                             Approve
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleStatusChange(company.id, 'Rejected')}
                             style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px' }}
                           >

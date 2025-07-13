@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Cropper from 'react-easy-crop';
 import { notification } from "antd";
-import axios from "axios";
 import {
     Link as LinkIcon,
     GitHub as GitHubIcon,
@@ -55,7 +54,6 @@ const ProfileSidebar = ({ userData, setUserData }) => {
     const getLinkIcon = (url) => {
         if (!url || url.trim() === "") return <LinkIcon fontSize="small" className="me-2" style={{ color: "#428A9B" }} />;
         const lowerUrl = url.toLowerCase();
-        console.log(`URL: ${url}, Icon: ${lowerUrl.includes("github.com") ? "GitHub" : lowerUrl.includes("linkedin.com") ? "LinkedIn" : lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com") ? "Twitter" : "Generic"}`);
         if (lowerUrl.includes("github.com")) return <GitHubIcon fontSize="small" className="me-2" style={{ color: "#428A9B" }} />;
         if (lowerUrl.includes("linkedin.com")) return <LinkedInIcon fontSize="small" className="me-2" style={{ color: "#428A9B" }} />;
         if (lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")) return <TwitterIcon fontSize="small" className="me-2" style={{ color: "#428A9B" }} />;

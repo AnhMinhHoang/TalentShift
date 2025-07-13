@@ -38,7 +38,6 @@ export default function JobListingPage() {
       try {
         setLoading(true)
         const response = await fetchAllActiveJobs(userData?.userId)
-        console.log(response);
         setAllJobs(response) // Store all jobs
       } catch (error) {
         console.error("Error fetching jobs:", error)

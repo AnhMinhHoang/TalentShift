@@ -62,12 +62,14 @@ export default function Payment() {
                 ? "/momo/create"
                 : "/vnpay/create";
 
+            const finalOrderInfo = orderInfo.trim() || "Payment for TalentShift";
+
             const response = await api.post(
                 apiUrl,
                 {
                     amount: parseFloat(amount.replace(/,/g, "")),
                     userId: userId,
-                    orderInfo: orderInfo
+                    orderInfo: finalOrderInfo
                 }
             );
 
@@ -98,6 +100,7 @@ export default function Payment() {
         }
     };
 
+    // Rest of the component remains unchanged
     return (
         <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
             <div className="row w-100 justify-content-center">
@@ -130,7 +133,9 @@ export default function Payment() {
                                                     checked={paymentMethod === "momo"}
                                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                                 />
-                                                <label htmlFor="momo" className="w-100 text-center p-3 cursor-pointer">
+                                                <label htmlFor="momo" className="w
+
+-100 text-center p-3 cursor-pointer">
                                                     <div className={styles.paymentLogo}>
                                                         <div className={`${styles.momoLogo} mb-2`}>
                                                             <span className="fw-bold">MoMo</span>

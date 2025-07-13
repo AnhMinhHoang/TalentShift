@@ -120,6 +120,11 @@ export default function Navbar() {
                             ) : (
                                 <span className={styles.freeBadge}>FREE</span>
                             )}
+                            {userData.role === "HIRER" && (
+                                <span className={userData.verified ? styles.verifiedBadge : styles.unverifiedBadge}>
+                            {userData.verified ? "VERIFIED" : "UNVERIFIED"}
+                          </span>
+                            )}
                           </div>
                           <div className={styles.userBalance}>
                             Balance: <span className={styles.balanceAmount}>{formatVND(userData.balance)}</span>

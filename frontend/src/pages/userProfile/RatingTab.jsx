@@ -1,131 +1,171 @@
-import React, { useState, useEffect } from "react";
-import { getAllRatingsByFreelancer } from "../../services/jobService";
+import { useState, useEffect } from "react"
+import { getAllRatingsByFreelancer } from "../../services/jobService"
+import styles from "./style/UserProfile.module.css"
 
 const RatingTab = ({ userData, loading }) => {
-    const [ratings, setRatings] = useState([]);
-    const [ratingLoading, setRatingLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [ratings, setRatings] = useState([])
+    const [ratingLoading, setRatingLoading] = useState(false)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         const fetchRatings = async () => {
-            if (!userData?.userId) return;
+            if (!userData?.userId) return
 
-            setRatingLoading(true);
-            setError(null);
+            setRatingLoading(true)
+            setError(null)
 
             try {
-                const ratingsData = await getAllRatingsByFreelancer(userData.userId);
-                setRatings(ratingsData);
+                const ratingsData = await getAllRatingsByFreelancer(userData.userId)
+                setRatings(ratingsData)
             } catch (err) {
-                setError(err.message);
-                console.error("Failed to fetch ratings:", err);
+                setError(err.message)
+                console.error("Failed to fetch ratings:", err)
             } finally {
-                setRatingLoading(false);
+                setRatingLoading(false)
             }
-        };
+        }
 
-        fetchRatings();
-    }, [userData?.userId]);
+        fetchRatings()
+    }, [userData?.userId])
 
     const renderStars = (stars) => {
-        const fullStars = Math.floor(stars);
-        const emptyStars = 5 - fullStars;
+        const fullStars = Math.floor(stars)
+        const emptyStars = 5 - fullStars
 
         return (
-            <div className="d-flex align-items-center">
+            <div className={styles.ratingStars}>
                 {[...Array(fullStars)].map((_, index) => (
-                    <i key={`full-${index}`} className="fas fa-star text-warning me-1"></i>
+                    <i key={`full-${index}`} className={`fas fa-star ${styles.ratingStar}`}></i>
                 ))}
                 {[...Array(emptyStars)].map((_, index) => (
-                    <i key={`empty-${index}`} className="far fa-star text-muted me-1"></i>
+                    <i key={`empty-${index}`} className={`far fa-star ${styles.ratingStarEmpty}`}></i>
                 ))}
-                <span className="ms-2 text-muted">({stars}/5)</span>
             </div>
-        );
-    };
+        )
+    }
 
     const calculateAverageRating = () => {
-        if (ratings.length === 0) return 0;
-        const total = ratings.reduce((sum, rating) => sum + rating.stars, 0);
-        return (total / ratings.length).toFixed(1);
-    };
+        if (ratings.length === 0) return 0
+        const total = ratings.reduce((sum, rating) => sum + rating.stars, 0)
+        return (total / ratings.length).toFixed(1)
+    }
+
+    const getStarDistribution = () => {
+        const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+        ratings.forEach((rating) => {
+            distribution[rating.stars] = (distribution[rating.stars] || 0) + 1
+        })
+        return distribution
+    }
+
+    const EmptyState = () => (
+        <div className={styles.emptyStateContainer}>
+            <div className={styles.emptyStateIcon}>
+                <i className="bi bi-star"></i>
+            </div>
+            <h3 className={styles.emptyStateTitle}>No Ratings Yet</h3>
+            <p className={styles.emptyStateDescription}>
+                Complete some jobs to start receiving ratings from clients. Your ratings help build trust and showcase your
+                expertise to potential employers.
+            </p>
+            <a href="/jobs" className={styles.emptyStateAction}>
+                <i className="bi bi-briefcase"></i>
+                Find Jobs
+            </a>
+        </div>
+    )
+
+    const LoadingState = () => (
+        <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <p className={styles.loadingText}>Loading your ratings...</p>
+        </div>
+    )
 
     if (loading || ratingLoading) {
-        return (
-            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        );
+        return <LoadingState />
     }
 
     if (error) {
         return (
-            <div className="alert alert-danger" role="alert">
+            <div className="alert alert-danger d-flex align-items-center" role="alert">
                 <i className="fas fa-exclamation-triangle me-2"></i>
-                {error}
+                <div>
+                    <strong>Error loading ratings:</strong> {error}
+                </div>
             </div>
-        );
+        )
     }
 
+    if (ratings.length === 0) {
+        return <EmptyState />
+    }
+
+    const averageRating = calculateAverageRating()
+    const starDistribution = getStarDistribution()
+
     return (
-        <div>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="mb-0">My Ratings</h4>
-                {ratings.length > 0 && (
-                    <div className="text-end">
-                        <div className="fw-bold">Average Rating: {calculateAverageRating()}</div>
-                        <div className="text-muted">Based on {ratings.length} review{ratings.length !== 1 ? 's' : ''}</div>
+        <div className={styles.ratingContainer}>
+            {/* Rating Header with Stats */}
+            <div className={styles.ratingHeader}>
+                <h2 className="mb-0">My Ratings & Reviews</h2>
+                <div className={styles.ratingStats}>
+                    <div className={styles.ratingStat}>
+                        <div className={styles.ratingStatValue}>{averageRating}</div>
+                        <div className={styles.ratingStatLabel}>Average Rating</div>
                     </div>
-                )}
+                    <div className={styles.ratingStat}>
+                        <div className={styles.ratingStatValue}>{ratings.length}</div>
+                        <div className={styles.ratingStatLabel}>Total Reviews</div>
+                    </div>
+                    <div className={styles.ratingStat}>
+                        <div className={styles.ratingStatValue}>{starDistribution[5]}</div>
+                        <div className={styles.ratingStatLabel}>5-Star Reviews</div>
+                    </div>
+                    <div className={styles.ratingStat}>
+                        <div className={styles.ratingStatValue}>{Math.round((starDistribution[5] / ratings.length) * 100)}%</div>
+                        <div className={styles.ratingStatLabel}>Satisfaction Rate</div>
+                    </div>
+                </div>
             </div>
 
-            {ratings.length === 0 ? (
-                <div className="text-center py-5">
-                    <i className="fas fa-star fa-3x text-muted mb-3"></i>
-                    <h5 className="text-muted">No ratings yet</h5>
-                    <p className="text-muted">Complete some jobs to start receiving ratings from clients.</p>
-                </div>
-            ) : (
-                <div className="row">
-                    {ratings.map((rating) => (
-                        <div key={rating.id} className="col-12 mb-4">
-                            <div className="card h-100 shadow-sm">
-                                <div className="card-body">
-                                    <div className="row">
-                                        <div className="col-md-8">
-                                            <h5 className="card-title text-primary mb-2">
-                                                {rating.jobTitle}
-                                            </h5>
-                                            <div className="mb-3">
-                                                {renderStars(rating.stars)}
-                                            </div>
-                                            {rating.comment && (
-                                                <div className="mb-3">
-                                                    <h6 className="text-muted mb-2">Client Feedback:</h6>
-                                                    <p className="card-text">{rating.comment}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="col-md-4 text-md-end">
-                                            <div className="mb-2">
-                                                <small className="text-muted">Rated by:</small>
-                                                <div className="fw-bold">{rating.hirerName}</div>
-                                            </div>
-                                            <div>
-                                                <small className="text-muted">Job ID: #{rating.jobId}</small>
-                                            </div>
-                                        </div>
+            {/* Rating Cards */}
+            <div className="row">
+                {ratings.map((rating) => (
+                    <div key={rating.id} className="col-12 mb-3">
+                        <div className={styles.ratingCard}>
+                            <div className={styles.ratingCardHeader}>
+                                <div className={styles.ratingJobInfo}>
+                                    <h5 className={styles.ratingJobTitle}>{rating.jobTitle}</h5>
+                                    <div className={styles.ratingClient}>
+                                        <i className="bi bi-person-circle me-2"></i>
+                                        Reviewed by {rating.hirerName}
                                     </div>
+                                    {renderStars(rating.stars)}
                                 </div>
+                                <div className={styles.ratingValue}>{rating.stars}/5</div>
+                            </div>
+
+                            {rating.comment && (
+                                <div className={styles.ratingComment}>
+                                    <i className="bi bi-quote me-2"></i>
+                                    {rating.comment}
+                                </div>
+                            )}
+
+                            <div className={styles.ratingMeta}>
+                                <div>
+                                    <i className="bi bi-calendar3 me-1"></i>
+                                    <small>Job completed</small>
+                                </div>
+                                <div className={styles.jobId}>Job #{rating.jobId}</div>
                             </div>
                         </div>
-                    ))}
-                </div>
-            )}
+                    </div>
+                ))}
+            </div>
         </div>
-    );
-};
+    )
+}
 
-export default RatingTab;
+export default RatingTab

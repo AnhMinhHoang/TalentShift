@@ -1,99 +1,104 @@
-import React, { useState } from "react";
-import { Tabs } from "antd";
-import { FaEnvelope, FaInfoCircle } from "react-icons/fa";
-import { Link as LinkIcon } from "@mui/icons-material";
-import JobPostHistoryTable from "../../components/Enterprise/JobPostHistoryTable";
-import styles from "./style/EnterpriseProfile.module.css";
-import { useAuth } from "../AuthContext.jsx";
+import { useState } from "react"
+import { Tabs } from "antd"
+import { FaEnvelope, FaInfoCircle, FaEdit, FaBuilding } from "react-icons/fa"
+import { Link as LinkIcon } from "@mui/icons-material"
+import JobPostHistoryTable from "../../components/Enterprise/JobPostHistoryTable.jsx"
+import styles from "./style/EnterpriseProfile.module.css"
+import { useAuth } from "../AuthContext.jsx"
 
 const EnterpriseProfile = () => {
-    const [activeTab, setActiveTab] = useState("1");
-    const { userData } = useAuth();
+    const [activeTab, setActiveTab] = useState("1")
+    const { userData } = useAuth()
 
     const handleTabChange = (key) => {
-        setActiveTab(key);
-    };
+        setActiveTab(key)
+    }
 
     const items = [
         {
             key: "1",
-            label: "Job Post History",
+            label: (
+                <span className={styles.tabLabel}>
+          <FaBuilding className="me-2" />
+          Job Post History
+        </span>
+            ),
             children: <JobPostHistoryTable />,
         },
-    ];
+    ]
 
     return (
-        <div className="bg-light py-4 mt-5">
-            <div className="container">
-                <div className="card shadow-sm">
+        <div className={styles.pageWrapper}>
+            <div className="container-fluid">
+                <div className={styles.profileCard}>
                     <div className="row g-0">
-                        {/* Sidebar */}
-                        <div className={`col-md-3 ${styles.sidebar}`}>
-                            <div className={`${styles.profileContainer} p-4 text-center`}>
-                                <div
-                                    className="mx-auto rounded-circle position-relative overflow-hidden"
-                                    style={{
-                                        width: "128px",
-                                        height: "128px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        ...(userData.logoPath
-                                            ? {
-                                                backgroundImage: `url(/Uploads/${userData.logoPath})`,
-                                                backgroundSize: "cover",
-                                                backgroundPosition: "center",
-                                            }
-                                            : {
-                                                background: "linear-gradient(to bottom right, #428A9B, #266987)",
-                                            }),
-                                    }}
-                                >
-                                    {!userData.logoPath && (
-                                        <span
+                        {/* Enhanced Sidebar */}
+                        <div className={`col-lg-4 col-xl-3 ${styles.sidebar}`}>
+                            <div className={styles.sidebarContent}>
+                                {/* Profile Header */}
+                                <div className={styles.profileHeader}>
+                                    <div className={styles.logoWrapper}>
+                                        <div
+                                            className={styles.logoContainer}
                                             style={{
-                                                fontSize: "48px",
-                                                fontWeight: "bold",
-                                                color: "#fff",
-                                                lineHeight: "128px",
+                                                ...(userData.logoPath
+                                                    ? {
+                                                        backgroundImage: `url(${userData.logoPath})`,
+                                                        backgroundSize: "cover",
+                                                        backgroundPosition: "center",
+                                                    }
+                                                    : {}),
                                             }}
                                         >
-                                            {userData.companyName ? userData.companyName.charAt(0).toUpperCase() : "C"}
-                                        </span>
-                                    )}
+                                            {!userData.logoPath && (
+                                                <span className={styles.logoInitial}>
+                          {userData.companyName ? userData.companyName.charAt(0).toUpperCase() : "C"}
+                        </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.companyInfo}>
+                                        <h2 className={styles.companyName}>{userData?.companyName || "Company Name"}</h2>
+                                        <span className={styles.companyBadge}>Enterprise Account</span>
+                                    </div>
                                 </div>
-                                <h5 className="mt-3 mb-0" style={{ fontSize: "1.25rem" }}>
-                                    {userData?.companyName}
-                                </h5>
-                                <div className="text-start mt-3">
+
+                                {/* Company Details */}
+                                <div className={styles.companyDetails}>
                                     {userData?.email?.trim() && (
-                                        <div className="d-flex align-items-center mb-2">
-                                            <FaEnvelope
-                                                className="me-2"
-                                                style={{ color: "#428A9B", fontSize: "1.25rem" }}
-                                            />
-                                            <span style={{ fontSize: "1.1rem" }}>{userData.email}</span>
+                                        <div className={styles.detailItem}>
+                                            <div className={styles.detailIcon}>
+                                                <FaEnvelope />
+                                            </div>
+                                            <div className={styles.detailContent}>
+                                                <span className={styles.detailLabel}>Email</span>
+                                                <span className={styles.detailValue}>{userData.email}</span>
+                                            </div>
                                         </div>
                                     )}
-                                    {userData?.description?.trim() && (
-                                        <div className="d-flex align-items-center mb-2">
-                                            <FaInfoCircle
-                                                className="me-2"
-                                                style={{ color: "#428A9B", fontSize: "1.25rem" }}
-                                            />
-                                            <span className={styles.companyDescription} style={{ fontSize: "1.1rem" }}>
-                                                {userData.description}
-                                            </span>
-                                        </div>
-                                    )}
+
                                     {userData?.contactLink?.trim() && (
-                                        <div className="d-flex align-items-center mb-2">
-                                            <LinkIcon
-                                                fontSize="small"
-                                                className="me-2"
-                                                style={{ color: "#428A9B", fontSize: "1.25rem" }}
-                                            />
-                                            <span style={{ fontSize: "1.1rem" }}>{userData.contactLink}</span>
+                                        <div className={styles.detailItem}>
+                                            <div className={styles.detailIcon}>
+                                                <LinkIcon />
+                                            </div>
+                                            <div className={styles.detailContent}>
+                                                <span className={styles.detailLabel}>Website</span>
+                                                <span className={styles.detailValue}>{userData.contactLink}</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {userData?.description?.trim() && (
+                                        <div className={styles.detailItem}>
+                                            <div className={styles.detailIcon}>
+                                                <FaInfoCircle />
+                                            </div>
+                                            <div className={styles.detailContent}>
+                                                <span className={styles.detailLabel}>About</span>
+                                                <p className={styles.detailDescription}>{userData.description}</p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -101,13 +106,19 @@ const EnterpriseProfile = () => {
                         </div>
 
                         {/* Main Content */}
-                        <div className="col-md-9">
+                        <div className="col-lg-8 col-xl-9">
                             <div className={styles.mainContent}>
+                                <div className={styles.contentHeader}>
+                                    <h3 className={styles.contentTitle}>Dashboard</h3>
+                                    <p className={styles.contentSubtitle}>Manage your job posts and track applications</p>
+                                </div>
+
                                 <Tabs
                                     activeKey={activeTab}
                                     onChange={handleTabChange}
                                     items={items}
-                                    className={styles.tabs}
+                                    className={styles.customTabs}
+                                    size="large"
                                 />
                             </div>
                         </div>
@@ -115,7 +126,7 @@ const EnterpriseProfile = () => {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default EnterpriseProfile;
+export default EnterpriseProfile

@@ -10,7 +10,6 @@ import { SkillsSection } from "./OverviewComponent/SkillsSection";
 import { ExperienceSection } from "./OverviewComponent/ExperienceSection";
 import { EducationSection } from "./OverviewComponent/EducationSection";
 import { CertificateSection } from "./OverviewComponent/CertificateSection";
-import axios from "axios";
 import { notification } from "antd";
 import api from "../../services/api";
 
@@ -59,16 +58,16 @@ const OverviewTab = ({ userData, setUserData }) => {
             // Experiences
             const experiences = userData.experiences.map((exp) => ({
                 id: exp.expId,
-                position: exp.jobPosition,
-                company: exp.companyName,
+                jobPosition: exp.jobPosition,
+                companyName: exp.companyName,
                 startDate: Array.isArray(exp.startDate) ? formatDateArray(exp.startDate) : exp.startDate, // Keep original format
                 endDate: exp.currentlyWork ? "Now" : Array.isArray(exp.endDate) ? formatDateArray(exp.endDate) : exp.endDate, // Keep "Now" or original format
-                description: exp.jobDescription,
+                jobDescription: exp.jobDescription,
                 projects: exp.projects.map((proj) => ({
                     id: proj.projectId,
                     name: proj.projectName,
                     time: proj.projectTime,
-                    description: proj.projectDescription,
+                    projectDescription: proj.projectDescription,
                 })),
             }));
             setWorkExperiences(experiences);
@@ -135,12 +134,12 @@ const OverviewTab = ({ userData, setUserData }) => {
     const updateExperiences = async (newExperiences) => {
         try {
             const payload = newExperiences.map((exp) => ({
-                position: exp.position,
-                company: exp.company,
+                jobPosition: exp.jobPosition,
+                companyName: exp.companyName,
                 startDate: exp.startDate,
                 endDate: exp.endDate === "Now" ? null : exp.endDate,
                 currentlyWork: exp.endDate === "Now",
-                description: exp.description,
+                jobDescription: exp.jobDescription,
                 projects: exp.projects || [],
             }));
 

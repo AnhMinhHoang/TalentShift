@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom"
 import { deleteJob, fetchDraftJobsByUser, fetchJobCategories, fetchSkills, publishDraftJob, updateJob } from "../../services/jobService"
 import moment from "moment"
 import { useAuth } from "../../pages/AuthContext.jsx";
+import Loading from '../../components/Loading/Loading.jsx';
 
 const { TextArea } = Input
 const { Option } = Select
@@ -33,7 +34,6 @@ const DraftJobPostList = () => {
     const loadCategories = async () => {
         try {
             const data = await fetchJobCategories();
-            console.log(data);
             setCategoryOptions(data);
             setLoading(false);
         } catch (err) {
@@ -44,7 +44,6 @@ const DraftJobPostList = () => {
     const loadSkills = async () => {
         try {
             const data = await fetchSkills();
-            console.log(data);
             setSkillOptions(data);
             setLoading(false);
         } catch (err) {
@@ -59,7 +58,6 @@ const DraftJobPostList = () => {
         try {
             if (!userId) throw new Error('User ID not found');
             const drafts = await fetchDraftJobsByUser(userId);
-            console.log(drafts)
             // Map API data to frontend structure with mock values for missing fields
             const mappedDrafts = drafts.map(draft => ({
                 ...draft,
@@ -90,7 +88,7 @@ const DraftJobPostList = () => {
     const [currentDraft, setCurrentDraft] = useState(null)
     const [form] = Form.useForm()
     const navigate = useNavigate()
-    if (loading) return <Spin tip="Loading draft jobs..." />;
+    if (loading) return <Loading isLoading={true} />;
     if (error) return <Alert message="Error" description={error} type="error" showIcon />;
 
     const handleDelete = async (id) => {

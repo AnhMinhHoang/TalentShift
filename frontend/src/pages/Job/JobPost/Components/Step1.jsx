@@ -42,7 +42,6 @@ export default function Step1({ formData, onChange, onNext }) {
     const loadCategories = async () => {
       try {
         const data = await fetchJobCategories();
-        console.log(data);
         setCategories(data);
         setLoading(false);
       } catch (err) {
@@ -80,9 +79,9 @@ export default function Step1({ formData, onChange, onNext }) {
 
     // Sort categories by score and return top 3
     const sortedCategories = Object.entries(categoryScores)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 3)
-        .map(([category]) => category);
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([category]) => category);
 
     // If no matches found, return default categories
     if (sortedCategories.every(cat => categoryScores[cat] === 0)) {
@@ -189,127 +188,127 @@ export default function Step1({ formData, onChange, onNext }) {
   const displayCategories = getDisplayCategories();
 
   return (
-      <div className="row g-0">
-        {/* Left column - Step description */}
-        <div className="col-md-4">
-          <div className={styles.stepInfo}>
-            <h5>Step 1</h5>
-            <h2>Most important step! This is the first thing candidates see</h2>
-            <p>
-              Tell us about your job and we can suggest you the right category,
-              but feel free to change it
-            </p>
-          </div>
+    <div className="row g-0">
+      {/* Left column - Step description */}
+      <div className="col-md-4">
+        <div className={styles.stepInfo}>
+          <h5>Step 1</h5>
+          <h2>Most important step! This is the first thing candidates see</h2>
+          <p>
+            Tell us about your job and we can suggest you the right category,
+            but feel free to change it
+          </p>
         </div>
+      </div>
 
-        {/* Right column - Form content */}
-        <div className="col-md-8">
-          <div className={styles.formSection}>
-            {error && (
-                <div className={styles.errorAlert}>
-                  {error} <button onClick={() => window.location.reload()}>Retry</button>
-                </div>
+      {/* Right column - Form content */}
+      <div className="col-md-8">
+        <div className={styles.formSection}>
+          {error && (
+            <div className={styles.errorAlert}>
+              {error} <button onClick={() => window.location.reload()}>Retry</button>
+            </div>
+          )}
+
+          <div className={styles.formGroup}>
+            <label htmlFor="jobTitle">
+              What is your job title?*
+            </label>
+            <TextField
+              multiline
+              rows={4}
+              fullWidth
+              value={formData.jobTitle}
+              onChange={(e) => {
+                if (e.target.value.length <= 100) {
+                  onChange("jobTitle", e.target.value);
+                  setErrors(prev => ({ ...prev, jobTitle: "" }));
+                }
+              }}
+              onBlur={() => handleBlur("jobTitle")}
+              error={shouldShowError("jobTitle")}
+              helperText={
+                shouldShowError("jobTitle")
+                  ? errors.jobTitle
+                  : `${formData.jobTitle.length}/100 characters`
+              }
+            />
+            <p className={styles.hint}>Minimum 10 characters and maximum 100 character</p>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Job Category*</label>
+
+            {/* Show suggested categories when not showing all categories */}
+            {!showDropdown && (
+              <RadioGroup
+                name="category-type"
+                value={categoryType}
+                onChange={handleRadioChange}
+              >
+                {displayCategories.map((category) => (
+                  <FormControlLabel
+                    key={category}
+                    value={category}
+                    control={<Radio className={styles.radioButton} />}
+                    label={category}
+                  />
+                ))}
+              </RadioGroup>
             )}
 
-            <div className={styles.formGroup}>
-              <label htmlFor="jobTitle">
-                What is your job title?*
-              </label>
-              <TextField
-                  multiline
-                  rows={4}
-                  fullWidth
-                  value={formData.jobTitle}
-                  onChange={(e) => {
-                    if (e.target.value.length <= 100) {
-                      onChange("jobTitle", e.target.value);
-                      setErrors(prev => ({ ...prev, jobTitle: "" }));
-                    }
-                  }}
-                  onBlur={() => handleBlur("jobTitle")}
-                  error={shouldShowError("jobTitle")}
-                  helperText={
-                    shouldShowError("jobTitle")
-                        ? errors.jobTitle
-                        : `${formData.jobTitle.length}/100 characters`
-                  }
-              />
-              <p className={styles.hint}>Minimum 10 characters and maximum 100 character</p>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Job Category*</label>
-
-              {/* Show suggested categories when not showing all categories */}
-              {!showDropdown && (
-                  <RadioGroup
-                      name="category-type"
-                      value={categoryType}
-                      onChange={handleRadioChange}
-                  >
-                    {displayCategories.map((category) => (
-                        <FormControlLabel
-                            key={category}
-                            value={category}
-                            control={<Radio className={styles.radioButton} />}
-                            label={category}
-                        />
-                    ))}
-                  </RadioGroup>
-              )}
-
-              {/* Show all categories dropdown when toggled */}
-              {showDropdown && (
-                  <div className={styles.formGroup}>
-                    {loading ? (
-                        <p>Loading categories...</p>
-                    ) : (
-                        <Autocomplete
-                            id="category-select"
-                            options={categories}
-                            value={formData.category}
-                            onChange={handleCategoryChange}
-                            onBlur={() => handleBlur("category")}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    placeholder="Select a category"
-                                    error={shouldShowError("category")}
-                                    helperText={shouldShowError("category") ? errors.category : ""}
-                                />
-                            )}
-                        />
+            {/* Show all categories dropdown when toggled */}
+            {showDropdown && (
+              <div className={styles.formGroup}>
+                {loading ? (
+                  <p>Loading categories...</p>
+                ) : (
+                  <Autocomplete
+                    id="category-select"
+                    options={categories}
+                    value={formData.category}
+                    onChange={handleCategoryChange}
+                    onBlur={() => handleBlur("category")}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Select a category"
+                        error={shouldShowError("category")}
+                        helperText={shouldShowError("category") ? errors.category : ""}
+                      />
                     )}
-                  </div>
-              )}
+                  />
+                )}
+              </div>
+            )}
 
-              {shouldShowError("category") && (
-                  <p className={styles.errorText}>{errors.category}</p>
-              )}
-            </div>
+            {shouldShowError("category") && (
+              <p className={styles.errorText}>{errors.category}</p>
+            )}
+          </div>
 
-            <div className={styles.showAllLink}>
-              <Button
-                  variant="text"
-                  onClick={toggleDropdown}
-                  className={styles.showAllButton}
-              >
-                {showDropdown ? "Show Suggested Categories" : "Show All Categories"}
-              </Button>
-            </div>
+          <div className={styles.showAllLink}>
+            <Button
+              variant="text"
+              onClick={toggleDropdown}
+              className={styles.showAllButton}
+            >
+              {showDropdown ? "Show Suggested Categories" : "Show All Categories"}
+            </Button>
+          </div>
 
-            <div className={styles.buttonContainer}>
-              <Button
-                  variant="contained"
-                  onClick={handleNext}
-                  disabled={!isValid}
-                  className={styles.nextButton}
-              >
-                Next
-              </Button>
-            </div>
+          <div className={styles.buttonContainer}>
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              disabled={!isValid}
+              className={styles.nextButton}
+            >
+              Next
+            </Button>
           </div>
         </div>
       </div>
+    </div>
   );
 }

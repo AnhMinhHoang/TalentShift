@@ -19,21 +19,21 @@ import { notification } from "antd";
 import styles from "../styles/RegisterAdditional.module.css";
 
 const ProfileStep = ({
-                       avatar,
-                       setAvatar,
-                       avatarPreview,
-                       setAvatarPreview,
-                       fullName,
-                       setFullName,
-                       city,
-                       setCity,
-                       birthday,
-                       setBirthday,
-                       phone,
-                       setPhone,
-                       links,
-                       setLinks,
-                     }) => {
+  avatar,
+  setAvatar,
+  avatarPreview,
+  setAvatarPreview,
+  fullName,
+  setFullName,
+  city,
+  setCity,
+  birthday,
+  setBirthday,
+  phone,
+  setPhone,
+  links,
+  setLinks,
+}) => {
   // Validate and format URL
   const validateAndFormatUrl = (url) => {
     if (!url || url.trim() === "") return { isValid: true, formattedUrl: "" };
@@ -57,13 +57,12 @@ const ProfileStep = ({
     if (!url || url.trim() === "") return <LinkIcon fontSize="small" className="me-2" />;
     const lowerUrl = url.toLowerCase();
     const iconName = lowerUrl.includes("github.com")
-        ? "GitHub"
-        : lowerUrl.includes("linkedin.com")
-            ? "LinkedIn"
-            : lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")
-                ? "Twitter"
-                : "Generic";
-    console.log(`URL: ${url}, Icon: ${iconName}`);
+      ? "GitHub"
+      : lowerUrl.includes("linkedin.com")
+        ? "LinkedIn"
+        : lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")
+          ? "Twitter"
+          : "Generic";
     if (lowerUrl.includes("github.com")) return <GitHubIcon fontSize="small" className="me-2" />;
     if (lowerUrl.includes("linkedin.com")) return <LinkedInIcon fontSize="small" className="me-2" />;
     if (lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")) return <TwitterIcon fontSize="small" className="me-2" />;
@@ -121,15 +120,15 @@ const ProfileStep = ({
         canvas.height = pixelCrop.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(
-            image,
-            pixelCrop.x,
-            pixelCrop.y,
-            pixelCrop.width,
-            pixelCrop.height,
-            0,
-            0,
-            pixelCrop.width,
-            pixelCrop.height
+          image,
+          pixelCrop.x,
+          pixelCrop.y,
+          pixelCrop.width,
+          pixelCrop.height,
+          0,
+          0,
+          pixelCrop.width,
+          pixelCrop.height
         );
         resolve(canvas.toDataURL('image/jpeg'));
       };
@@ -170,192 +169,192 @@ const ProfileStep = ({
   };
 
   return (
-      <div className={styles.stepContent}>
-        <h4 className={styles.stepTitle}>
-          <span className={styles.stepNumber}>05</span> Complete Your Profile
-        </h4>
-        <p className={styles.stepDescription}>
-          Add the final details to make your profile stand out to potential clients.
-        </p>
+    <div className={styles.stepContent}>
+      <h4 className={styles.stepTitle}>
+        <span className={styles.stepNumber}>05</span> Complete Your Profile
+      </h4>
+      <p className={styles.stepDescription}>
+        Add the final details to make your profile stand out to potential clients.
+      </p>
 
-        <div className={styles.profileContainer}>
-          <div className={styles.avatarUploadContainer}>
-            <div
-                className={styles.avatarPreview}
-                style={{
-                  backgroundImage: avatarPreview ? `url(${avatarPreview})` : "none",
-                }}
-            >
-              {!avatarPreview && (fullName ? fullName.charAt(0).toUpperCase() : "U")}
-            </div>
-            <Button
-                variant="outline-primary"
-                className={`${styles.uploadAvatarButton} d-flex align-items-center gap-2 mt-3`}
-                as="label"
-            >
-              <CloudUploadIcon fontSize="small" /> Upload Profile Photo
-              <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-              />
-            </Button>
-            <p className={styles.avatarHelpText}>
-              A professional photo helps clients recognize you and builds trust.
-            </p>
+      <div className={styles.profileContainer}>
+        <div className={styles.avatarUploadContainer}>
+          <div
+            className={styles.avatarPreview}
+            style={{
+              backgroundImage: avatarPreview ? `url(${avatarPreview})` : "none",
+            }}
+          >
+            {!avatarPreview && (fullName ? fullName.charAt(0).toUpperCase() : "U")}
           </div>
-
-          <div className={styles.profileFormContainer}>
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label className={styles.formLabel}>
-                  <PersonIcon fontSize="small" className="me-2" />
-                  Full Name <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Control
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. John Smith"
-                    className={styles.formControl}
-                    required
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label className={styles.formLabel}>
-                  <LocationIcon fontSize="small" className="me-2" />
-                  City <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Control
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="e.g. New York"
-                    className={styles.formControl}
-                    required
-                />
-              </Form.Group>
-
-              <div className="mb-3">
-                <Form.Label className={styles.formLabel}>
-                  <CakeIcon fontSize="small" className="me-2" />
-                  Birthday (Optional)
-                </Form.Label>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                      value={birthday}
-                      onChange={(date) => setBirthday(date)}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          margin: "normal",
-                          className: styles.dateInput,
-                        },
-                      }}
-                  />
-                </LocalizationProvider>
-              </div>
-
-              <Form.Group className="mb-3">
-                <Form.Label className={styles.formLabel}>
-                  <PhoneIcon fontSize="small" className="me-2" />
-                  Phone (Optional)
-                </Form.Label>
-                <Form.Control
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1 (123) 456-7890"
-                    className={styles.formControl}
-                />
-              </Form.Group>
-
-              <div className={styles.socialLinksSection}>
-                <h5 className={styles.sectionTitle}>
-                  <LinkIcon className="me-2" />
-                  Links (Optional, Max 4)
-                </h5>
-                <p className={styles.sectionDescription}>
-                  Add up to 4 links to your professional profiles to showcase your work and build credibility.
-                </p>
-
-                {[0, 1, 2, 3].map((index) => (
-                    <div key={index} className={styles.socialLinkRow}>
-                      <div className="d-flex align-items-center">
-                        {getLinkIcon(links[index] || "")}
-                        <Form.Control
-                            type="url"
-                            placeholder={`Link ${index + 1} (optional)`}
-                            value={links[index] || ""}
-                            onChange={(e) => handleLinkChange(index, e.target.value)}
-                            className={`${styles.socialUrlInput} ${linkErrors[index] ? "is-invalid" : ""}`}
-                        />
-                      </div>
-                      {linkErrors[index] && (
-                          <div className="invalid-feedback">Please enter a valid URL</div>
-                      )}
-                    </div>
-                ))}
-              </div>
-            </Form>
-          </div>
+          <Button
+            variant="outline-primary"
+            className={`${styles.uploadAvatarButton} d-flex align-items-center gap-2 mt-3`}
+            as="label"
+          >
+            <CloudUploadIcon fontSize="small" /> Upload Profile Photo
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleAvatarChange}
+            />
+          </Button>
+          <p className={styles.avatarHelpText}>
+            A professional photo helps clients recognize you and builds trust.
+          </p>
         </div>
 
-        {showCropModal && (
-            <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1051 }}>
-              <div className="modal-dialog modal-lg">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Crop Image</h5>
-                    <button
-                        type="button"
-                        className="btn-close"
-                        onClick={() => {
-                          setShowCropModal(false);
-                          setSelectedImage(null);
-                        }}
-                    ></button>
+        <div className={styles.profileFormContainer}>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label className={styles.formLabel}>
+                <PersonIcon fontSize="small" className="me-2" />
+                Full Name <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Control
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="e.g. John Smith"
+                className={styles.formControl}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label className={styles.formLabel}>
+                <LocationIcon fontSize="small" className="me-2" />
+                City <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Control
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="e.g. New York"
+                className={styles.formControl}
+                required
+              />
+            </Form.Group>
+
+            <div className="mb-3">
+              <Form.Label className={styles.formLabel}>
+                <CakeIcon fontSize="small" className="me-2" />
+                Birthday (Optional)
+              </Form.Label>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  value={birthday}
+                  onChange={(date) => setBirthday(date)}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      margin: "normal",
+                      className: styles.dateInput,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            </div>
+
+            <Form.Group className="mb-3">
+              <Form.Label className={styles.formLabel}>
+                <PhoneIcon fontSize="small" className="me-2" />
+                Phone (Optional)
+              </Form.Label>
+              <Form.Control
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1 (123) 456-7890"
+                className={styles.formControl}
+              />
+            </Form.Group>
+
+            <div className={styles.socialLinksSection}>
+              <h5 className={styles.sectionTitle}>
+                <LinkIcon className="me-2" />
+                Links (Optional, Max 4)
+              </h5>
+              <p className={styles.sectionDescription}>
+                Add up to 4 links to your professional profiles to showcase your work and build credibility.
+              </p>
+
+              {[0, 1, 2, 3].map((index) => (
+                <div key={index} className={styles.socialLinkRow}>
+                  <div className="d-flex align-items-center">
+                    {getLinkIcon(links[index] || "")}
+                    <Form.Control
+                      type="url"
+                      placeholder={`Link ${index + 1} (optional)`}
+                      value={links[index] || ""}
+                      onChange={(e) => handleLinkChange(index, e.target.value)}
+                      className={`${styles.socialUrlInput} ${linkErrors[index] ? "is-invalid" : ""}`}
+                    />
                   </div>
-                  <div className="modal-body">
-                    <div style={{ position: 'relative', width: '100%', height: 400 }}>
-                      <Cropper
-                          image={selectedImage}
-                          crop={crop}
-                          zoom={zoom}
-                          aspect={1}
-                          cropShape="round"
-                          onCropChange={setCrop}
-                          onZoomChange={setZoom}
-                          onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
-                      />
-                    </div>
-                  </div>
-                  <div className="modal-footer">
-                    <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setShowCropModal(false);
-                          setSelectedImage(null);
-                        }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={handleSetCroppedImage}
-                    >
-                      Set Cropped Image
-                    </button>
-                  </div>
+                  {linkErrors[index] && (
+                    <div className="invalid-feedback">Please enter a valid URL</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Form>
+        </div>
+      </div>
+
+      {showCropModal && (
+        <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1051 }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Crop Image</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    setShowCropModal(false);
+                    setSelectedImage(null);
+                  }}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div style={{ position: 'relative', width: '100%', height: 400 }}>
+                  <Cropper
+                    image={selectedImage}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={1}
+                    cropShape="round"
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
+                    onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
+                  />
                 </div>
               </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowCropModal(false);
+                    setSelectedImage(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSetCroppedImage}
+                >
+                  Set Cropped Image
+                </button>
+              </div>
             </div>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

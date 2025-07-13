@@ -16,12 +16,14 @@ import styles from "./styles/RegisterAdditional.module.css";
 import axios from "axios";
 import { useAuth } from "../AuthContext.jsx";
 import api from "../../services/api";
+import Loading from '../../components/Loading/Loading.jsx';
 
 const HirerAdditionalRegistration = () => {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const { getUserById } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   // State for company information
   const [companyName, setCompanyName] = useState("");
@@ -169,7 +171,6 @@ const HirerAdditionalRegistration = () => {
   };
 
   const handleNext = async () => {
-    console.log("handleNext");
     if (activeStep === 0) {
       if (!isStepValid()) {
         openNotification(
@@ -200,6 +201,7 @@ const HirerAdditionalRegistration = () => {
         }
       }
 
+      setIsLoading(true);
       try {
         const formData = new FormData();
         formData.append("companyName", companyName);
@@ -210,10 +212,6 @@ const HirerAdditionalRegistration = () => {
         }
         formData.append("companyRegistrationFile", registrationFile);
 
-        console.log("FormData contents:");
-        for (let pair of formData.entries()) {
-          console.log(`${pair[0]}: ${pair[1]}`);
-        }
         const user = JSON.parse(localStorage.getItem("user"));
         const email = user?.email;
         const userId = user?.id;
@@ -256,6 +254,8 @@ const HirerAdditionalRegistration = () => {
           "Registration Failed",
           error.response?.data?.message || "Something went wrong"
         );
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -274,206 +274,209 @@ const HirerAdditionalRegistration = () => {
   };
 
   return (
-    <Container className={`${styles.container} mt-5 ${styles.registerAdditional}`}>
-      <Row className="justify-content-center">
-        <Col>
-          <div className={styles.registerForm}>
-            <div className={styles.formHeader}>
-              <h2 className={styles.formTitle}>Complete Your Company Profile</h2>
-              <p className={styles.formSubtitle}>
-                Provide your company details to help us verify your business and connect you with the right talent.
-              </p>
-            </div>
-
-            <div className={styles.stepperContainer}>
-              <Stepper activeStep={activeStep} className={styles.stepper}>
-                <Step>
-                  <StepLabel>Company Information</StepLabel>
-                </Step>
-              </Stepper>
-              <LinearProgress
-                variant="determinate"
-                value={progress}
-                className={styles.progressBar}
-              />
-            </div>
-
-            <div className={styles.formContent}>
-              <div className={styles.stepContent}>
-                <h4 className={styles.stepTitle}>
-                  <span className={styles.stepNumber}>01</span> Company Information
-                </h4>
-                <p className={styles.stepDescription}>
-                  Provide your company details to verify your business and connect with talent.
+    <>
+      <Loading isLoading={isLoading} />
+      <Container className={`${styles.container} mt-5 ${styles.registerAdditional}`}>
+        <Row className="justify-content-center">
+          <Col>
+            <div className={styles.registerForm}>
+              <div className={styles.formHeader}>
+                <h2 className={styles.formTitle}>Complete Your Company Profile</h2>
+                <p className={styles.formSubtitle}>
+                  Provide your company details to help us verify your business and connect you with the right talent.
                 </p>
+              </div>
 
-                <div className={styles.profileContainer}>
-                  <div className={styles.avatarUploadContainer}>
-                    <div
-                      className={styles.avatarPreview}
-                      style={{
-                        backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
-                      }}
-                    >
-                      {!logoPreview && (companyName ? companyName.charAt(0).toUpperCase() : "C")}
-                    </div>
-                    <Button
-                      variant="outline-primary"
-                      className={`${styles.uploadAvatarButton} d-flex align-items-center gap-2 mt-3`}
-                      as="label"
-                    >
-                      <CloudUploadIcon fontSize="small" /> Upload Company Logo
-                      <input
-                        type="file"
-                        hidden
-                        accept="image/*"
-                        onChange={handleLogoChange}
-                      />
-                    </Button>
-                    <p className={styles.avatarHelpText}>
-                      A professional logo helps establish your brand identity.
-                    </p>
-                  </div>
+              <div className={styles.stepperContainer}>
+                <Stepper activeStep={activeStep} className={styles.stepper}>
+                  <Step>
+                    <StepLabel>Company Information</StepLabel>
+                  </Step>
+                </Stepper>
+                <LinearProgress
+                  variant="determinate"
+                  value={progress}
+                  className={styles.progressBar}
+                />
+              </div>
 
-                  <div className={styles.profileFormContainer}>
-                    <Form>
-                      <Form.Group className="mb-3">
-                        <Form.Label className={styles.formLabel}>
-                          <BusinessIcon fontSize="small" className="me-2" />
-                          Company Name <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={companyName}
-                          onChange={(e) => setCompanyName(e.target.value)}
-                          placeholder="e.g. Acme Corp"
-                          className={styles.formControl}
-                          required
-                        />
-                      </Form.Group>
+              <div className={styles.formContent}>
+                <div className={styles.stepContent}>
+                  <h4 className={styles.stepTitle}>
+                    <span className={styles.stepNumber}>01</span> Company Information
+                  </h4>
+                  <p className={styles.stepDescription}>
+                    Provide your company details to verify your business and connect with talent.
+                  </p>
 
-                      <Form.Group className="mb-3">
-                        <Form.Label className={styles.formLabel}>
-                          <DescriptionIcon fontSize="small" className="me-2" />
-                          Description <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={4}
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          placeholder="Describe your company..."
-                          className={styles.formControl}
-                          required
-                        />
-                      </Form.Group>
-
-                      <Form.Group className="mb-3">
-                        <Form.Label className={styles.formLabel}>
-                          <LinkIcon fontSize="small" className="me-2" />
-                          Contact Link <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={contactLink}
-                          onChange={(e) => setContactLink(e.target.value)}
-                          placeholder="e.g. https://yourcompany.com"
-                          className={styles.formControl}
-                          required
-                        />
-                      </Form.Group>
-
-                      <Form.Group className="mb-3">
-                        <Form.Label className={styles.formLabel}>
-                          <DescriptionIcon fontSize="small" className="me-2" />
-                          Registration Document <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
+                  <div className={styles.profileContainer}>
+                    <div className={styles.avatarUploadContainer}>
+                      <div
+                        className={styles.avatarPreview}
+                        style={{
+                          backgroundImage: logoPreview ? `url(${logoPreview})` : "none",
+                        }}
+                      >
+                        {!logoPreview && (companyName ? companyName.charAt(0).toUpperCase() : "C")}
+                      </div>
+                      <Button
+                        variant="outline-primary"
+                        className={`${styles.uploadAvatarButton} d-flex align-items-center gap-2 mt-3`}
+                        as="label"
+                      >
+                        <CloudUploadIcon fontSize="small" /> Upload Company Logo
+                        <input
                           type="file"
-                          accept="application/pdf"
-                          onChange={handleRegistrationFileChange}
-                          className={styles.formControl}
-                          required
+                          hidden
+                          accept="image/*"
+                          onChange={handleLogoChange}
                         />
-                        <p className={styles.avatarHelpText}>
-                          Upload a PDF of your business registration document (max 10MB).
-                        </p>
-                      </Form.Group>
-                    </Form>
+                      </Button>
+                      <p className={styles.avatarHelpText}>
+                        A professional logo helps establish your brand identity.
+                      </p>
+                    </div>
+
+                    <div className={styles.profileFormContainer}>
+                      <Form>
+                        <Form.Group className="mb-3">
+                          <Form.Label className={styles.formLabel}>
+                            <BusinessIcon fontSize="small" className="me-2" />
+                            Company Name <span className="text-danger">*</span>
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={companyName}
+                            onChange={(e) => setCompanyName(e.target.value)}
+                            placeholder="e.g. Acme Corp"
+                            className={styles.formControl}
+                            required
+                          />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                          <Form.Label className={styles.formLabel}>
+                            <DescriptionIcon fontSize="small" className="me-2" />
+                            Description <span className="text-danger">*</span>
+                          </Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            rows={4}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Describe your company..."
+                            className={styles.formControl}
+                            required
+                          />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                          <Form.Label className={styles.formLabel}>
+                            <LinkIcon fontSize="small" className="me-2" />
+                            Contact Link <span className="text-danger">*</span>
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={contactLink}
+                            onChange={(e) => setContactLink(e.target.value)}
+                            placeholder="e.g. https://yourcompany.com"
+                            className={styles.formControl}
+                            required
+                          />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                          <Form.Label className={styles.formLabel}>
+                            <DescriptionIcon fontSize="small" className="me-2" />
+                            Registration Document <span className="text-danger">*</span>
+                          </Form.Label>
+                          <Form.Control
+                            type="file"
+                            accept="application/pdf"
+                            onChange={handleRegistrationFileChange}
+                            className={styles.formControl}
+                            required
+                          />
+                          <p className={styles.avatarHelpText}>
+                            Upload a PDF of your business registration document (max 10MB).
+                          </p>
+                        </Form.Group>
+                      </Form>
+                    </div>
                   </div>
+                </div>
+
+                <div className={styles.navigationButtons}>
+                  <Button
+                    variant="primary"
+                    onClick={handleNext}
+                    disabled={!isStepValid()}
+                    className={`${styles.nextButton} d-flex align-items-end gap-2 ms-auto`}
+                  >
+                    <CheckIcon fontSize="small" /> Complete Registration
+                  </Button>
                 </div>
               </div>
 
-              <div className={styles.navigationButtons}>
-                <Button
-                  variant="primary"
-                  onClick={handleNext}
-                  disabled={!isStepValid()}
-                  className={`${styles.nextButton} d-flex align-items-end gap-2 ms-auto`}
-                >
-                  <CheckIcon fontSize="small" /> Complete Registration
-                </Button>
-              </div>
-            </div>
-
-            {showCropModal && (
-              <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1051 }}>
-                <div className="modal-dialog modal-lg">
-                  <div className="modal-content">
-                    <div className="modal-header">
-                      <h5 className="modal-title">Crop Logo</h5>
-                      <button
-                        type="button"
-                        className="btn-close"
-                        onClick={() => {
-                          setShowCropModal(false);
-                          setSelectedImage(null);
-                        }}
-                      ></button>
-                    </div>
-                    <div className="modal-body">
-                      <div style={{ position: "relative", width: "100%", height: 400 }}>
-                        <Cropper
-                          image={selectedImage}
-                          crop={crop}
-                          zoom={zoom}
-                          aspect={1}
-                          cropShape="round"
-                          onCropChange={setCrop}
-                          onZoomChange={setZoom}
-                          onCropComplete={(croppedArea, croppedAreaPixels) =>
-                            setCroppedAreaPixels(croppedAreaPixels)
-                          }
-                        />
+              {showCropModal && (
+                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1051 }}>
+                  <div className="modal-dialog modal-lg">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title">Crop Logo</h5>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          onClick={() => {
+                            setShowCropModal(false);
+                            setSelectedImage(null);
+                          }}
+                        ></button>
+                      </div>
+                      <div className="modal-body">
+                        <div style={{ position: "relative", width: "100%", height: 400 }}>
+                          <Cropper
+                            image={selectedImage}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={1}
+                            cropShape="round"
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={(croppedArea, croppedAreaPixels) =>
+                              setCroppedAreaPixels(croppedAreaPixels)
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className="modal-footer">
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            setShowCropModal(false);
+                            setSelectedImage(null);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={handleSetCroppedImage}
+                        >
+                          Set Cropped Logo
+                        </button>
                       </div>
                     </div>
-                    <div className="modal-footer">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setShowCropModal(false);
-                          setSelectedImage(null);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={handleSetCroppedImage}
-                      >
-                        Set Cropped Logo
-                      </button>
-                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </Col>
-      </Row>
-    </Container>
+              )}
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 };
 

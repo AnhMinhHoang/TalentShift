@@ -63,49 +63,301 @@
   margin-top: 0.25rem;
 }
 
-/* Empty state improvements */
-.emptyState {
-  padding: 2rem 1rem;
+/* Enhanced Empty State Styles */
+.emptyStateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
   text-align: center;
-  border: 2px dashed #e9ecef;
-  border-radius: 0.5rem;
-  background-color: #f8f9fa;
-  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 1rem;
+  border: 2px dashed #dee2e6;
+  transition: all 0.3s ease;
+  min-height: 400px;
 }
 
-.emptyState:hover {
+.emptyStateContainer:hover {
   border-color: #428a9b;
-  background-color: #f0f8ff;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3f7 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(66, 138, 155, 0.1);
 }
 
 .emptyStateIcon {
-  opacity: 0.6;
-  margin-bottom: 1rem;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #428a9b, #266987);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .emptyStateTitle {
+  font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #6c757d;
+  color: #495057;
+  margin-bottom: 0.75rem;
 }
 
 .emptyStateDescription {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: #6c757d;
+  margin-bottom: 2rem;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.emptyStateAction {
+  background: linear-gradient(135deg, #428a9b, #266987);
+  border: none;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(66, 138, 155, 0.3);
+}
+
+.emptyStateAction:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 138, 155, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+/* Rating Tab Styles */
+.ratingContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ratingHeader {
+  background: linear-gradient(135deg, #428a9b, #266987);
+  color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.ratingStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.ratingStat {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.ratingStatValue {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.ratingStatLabel {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.ratingCard {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f3f4;
+  transition: all 0.3s ease;
+}
+
+.ratingCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.ratingCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.ratingJobInfo {
+  flex: 1;
+}
+
+.ratingJobTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #428a9b;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.ratingJobTitle:hover {
+  color: #266987;
+  text-decoration: underline;
+}
+
+.ratingClient {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.ratingStars {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   margin-bottom: 1rem;
 }
 
-.addButton {
-  background-color: transparent;
-  border: 1px solid #428a9b;
-  color: #428a9b;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
+.ratingStar {
+  color: #ffc107;
+  font-size: 1.2rem;
 }
 
-.addButton:hover {
-  background-color: #428a9b;
+.ratingStarEmpty {
+  color: #e9ecef;
+  font-size: 1.2rem;
+}
+
+.ratingValue {
+  background: linear-gradient(135deg, #428a9b, #266987);
   color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.ratingComment {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid #428a9b;
+  font-style: italic;
+  color: #495057;
+  line-height: 1.6;
+}
+
+.ratingMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.jobId {
+  background: #e9ecef;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  min-height: 300px;
+}
+
+.loadingSpinner {
+  width: 3rem;
+  height: 3rem;
+  border: 0.3rem solid #f3f4f6;
+  border-top: 0.3rem solid #428a9b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .emptyStateContainer {
+    padding: 3rem 1rem;
+    min-height: 300px;
+  }
+
+  .emptyStateIcon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .emptyStateTitle {
+    font-size: 1.25rem;
+  }
+
+  .ratingHeader {
+    padding: 1.5rem;
+  }
+
+  .ratingStats {
+    grid-template-columns: 1fr;
+  }
+
+  .ratingCardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ratingMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 }

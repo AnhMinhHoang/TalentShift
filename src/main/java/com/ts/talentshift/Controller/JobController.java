@@ -98,9 +98,9 @@ public class JobController {
     }
 
     @PostMapping("/{jobId}/apply")
-    public ResponseEntity<JobApplication> applyToJob(@PathVariable Long jobId, @RequestParam Long userId, @RequestBody String coverLetter) {
+    public ResponseEntity<JobResponseDto> applyToJob(@PathVariable Long jobId, @RequestParam Long userId, @RequestBody String coverLetter) {
         try {
-            JobApplication application = jobService.applyToJob(jobId, userId, coverLetter);
+            JobResponseDto application = jobService.applyToJob(jobId, userId, coverLetter);
             return ResponseEntity.ok(application);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -108,9 +108,9 @@ public class JobController {
     }
 
     @PostMapping("/{jobId}/bookmark")
-    public ResponseEntity<JobApplication> toggleBookmark(@PathVariable Long jobId, @RequestParam Long userId) {
+    public ResponseEntity<JobResponseDto> toggleBookmark(@PathVariable Long jobId, @RequestParam Long userId) {
         try {
-            JobApplication application = jobService.toggleBookmark(jobId, userId);
+            JobResponseDto application = jobService.toggleBookmark(jobId, userId);
             return ResponseEntity.ok(application);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

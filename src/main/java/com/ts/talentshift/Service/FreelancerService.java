@@ -55,6 +55,7 @@ public class FreelancerService {
                     existingUser.setFullName(updatedUser.getFullName());
                     existingUser.setAvatar(updatedUser.getAvatar());
                     existingUser.setFillingForm(true);
+                    existingUser.setVerified(true);
 
                     // Clear existing collections
                     existingUser.getExperiences().clear();

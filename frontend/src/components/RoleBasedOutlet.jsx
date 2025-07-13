@@ -10,6 +10,10 @@ const RoleBasedOutlet = ({ allowedRoles }) => {
   if (!allowedRoles.includes(userData.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
+
+  if (!userData.verified && userData.fillingForm){
+    return <Navigate to="/notverify" replace />;
+  }
   return <Outlet />;
 };
 

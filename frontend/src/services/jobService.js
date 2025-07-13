@@ -33,9 +33,7 @@ export const fetchAllJobs = async (userId) => {
 export const fetchJobCategories = async () => {
     try {
         const response = await apiPublic.get('/categories');
-        console.log("Raw category data:", response.data);
         const names = response.data.map((category, index) => {
-            console.log(`Category ${index}:`, category);
             return category?.name;
         });
         return names;

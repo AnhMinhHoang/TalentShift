@@ -175,10 +175,6 @@ public class JobService {
         return mapToResponseDto(savedJob, null); // No userId needed for creation response
     }
 
-    public Optional<Job> getJobById(Long id) {
-        return jobRepository.findById(id);
-    }
-
     public Optional<JobResponseDto> getJobDtoById(Long id, Long currentUserId) {
         return jobRepository.findById(id)
                 .map(job -> mapToResponseDto(job, currentUserId));
@@ -314,7 +310,7 @@ public class JobService {
 
             // Clear existing applications and add updated ones
             job.getApplications().clear();
-            updatedApplications.forEach(app -> job.addApplication(app));
+            updatedApplications.forEach(job::addApplication);
 
             // Deduct balance
             userService.subtractUserBalance(dto.getHirerId(), maxBudget);
@@ -329,7 +325,7 @@ public class JobService {
         jobRepository.deleteById(jobId);
     }
 
-    public JobApplication applyToJob(Long jobId, Long userId, String coverLetter) {
+    public JobResponseDto applyToJob(Long jobId, Long userId, String coverLetter) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
         User user = userRepository.findById(userId)
@@ -348,20 +344,21 @@ public class JobService {
             application.setCoverLetter(coverLetter);
             application.setStatus(ApplicationStatus.WAITING);
             application.setAppliedAt(LocalDateTime.now());
-            application.setBookmarked(false); // Set to false when updating
+            application.setBookmarked(false);
         } else {
             application = new JobApplication();
             application.setJob(job);
             application.setApplicant(user);
             application.setCoverLetter(coverLetter);
             application.setStatus(ApplicationStatus.WAITING);
-            application.setBookmarked(false); // Already correct
+            application.setBookmarked(false);
         }
 
-        return jobApplicationRepository.save(application);
+        jobApplicationRepository.save(application);
+        return mapToResponseDto(job, userId);
     }
 
-    public JobApplication toggleBookmark(Long jobId, Long userId) {
+    public JobResponseDto toggleBookmark(Long jobId, Long userId) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
         User user = userRepository.findById(userId)
@@ -374,19 +371,27 @@ public class JobService {
         Optional<JobApplication> existingApplication = jobApplicationRepository
                 .findByJobIdAndApplicantUserId(jobId, userId);
 
-        JobApplication application;
         if (existingApplication.isPresent()) {
-            application = existingApplication.get();
-            application.setBookmarked(!application.isBookmarked());
+            JobApplication application = existingApplication.get();
+            if (application.isBookmarked()) {
+                // If bookmark is true, delete the application row
+                jobApplicationRepository.delete(application);
+            } else {
+                // If bookmark is false, set it to true
+                application.setBookmarked(true);
+                jobApplicationRepository.save(application);
+            }
         } else {
-            application = new JobApplication();
+            // No existing application, create a new one with bookmark true
+            JobApplication application = new JobApplication();
             application.setJob(job);
             application.setApplicant(user);
             application.setBookmarked(true);
             application.setStatus(ApplicationStatus.WAITING);
+            jobApplicationRepository.save(application);
         }
 
-        return jobApplicationRepository.save(application);
+        return mapToResponseDto(job, userId);
     }
 
     public List<JobResponseDto> getAppliedJobsByUser(Long userId) {

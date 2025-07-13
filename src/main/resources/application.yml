@@ -36,6 +36,7 @@ momo:
   api-endpoint: https://test-payment.momo.vn/v2/gateway/api/create
   return-url: ${MOMO_RETURN_URL:https://talentshiftservice.onrender.com/api/momo/return}
   notify-url: ${MOMO_NOTIFY_URL:https://talentshiftservice.onrender.com/api/momo/callback}
+  frontend-url: ${MOMO_FRONTEND_URL:http://localhost:5173}
 
 vnpay:
   tmnCode: 6TZBIZ4W
@@ -52,4 +53,4 @@ logging:
 
 # File upload configuration
 file:
-  upload-dir: ${UPLOAD_DIR:/uploads}
+  upload-dir: ${UPLOAD_DIR:/tmp/uploads}

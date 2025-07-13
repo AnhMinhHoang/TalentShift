@@ -23,7 +23,6 @@ const UserModified = () => {
 
   const handleStatusChange = (userId, newStatus) => {
     // Here you would typically make an API call to update the user's status
-    console.log(`Changing user ${userId} status to ${newStatus}`);
   };
 
   return (
@@ -78,10 +77,10 @@ const UserModified = () => {
                         borderRadius: 4,
                         fontSize: 13,
                         fontWeight: 500,
-                        background: user.status === 'Active' ? '#e6f7ef' : 
-                                  user.status === 'Pending' ? '#fff4e5' : '#ffe5e5',
-                        color: user.status === 'Active' ? '#14a800' : 
-                               user.status === 'Pending' ? '#ff9800' : '#e74c3c'
+                        background: user.status === 'Active' ? '#e6f7ef' :
+                          user.status === 'Pending' ? '#fff4e5' : '#ffe5e5',
+                        color: user.status === 'Active' ? '#14a800' :
+                          user.status === 'Pending' ? '#ff9800' : '#e74c3c'
                       }}>
                         {user.status}
                       </span>
@@ -89,21 +88,21 @@ const UserModified = () => {
                     <td style={{ padding: 12 }}>{user.created}</td>
                     <td style={{ padding: 12 }}>
                       {user.status === 'Active' ? (
-                        <button 
+                        <button
                           onClick={() => handleStatusChange(user.id, 'Suspended')}
                           style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px' }}
                         >
                           Ban User
                         </button>
                       ) : user.status === 'Suspended' ? (
-                        <button 
+                        <button
                           onClick={() => handleStatusChange(user.id, 'Active')}
                           style={{ background: '#ffc107', color: '#000', border: 'none', borderRadius: 6, padding: '6px 16px' }}
                         >
                           Unban User
                         </button>
                       ) : (
-                        <button 
+                        <button
                           onClick={() => handleStatusChange(user.id, 'Active')}
                           style={{ background: '#14a800', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px' }}
                         >

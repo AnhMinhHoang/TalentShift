@@ -73,7 +73,6 @@ export default function TransactionResult() {
 
     const formatDateTime = (dateTimeString) => {
         const date = new Date(dateTimeString);
-        console.log('Received date:', dateTimeString, typeof dateTimeString);
         return date.toLocaleString('vi-VN', {
             year: 'numeric',
             month: '2-digit',

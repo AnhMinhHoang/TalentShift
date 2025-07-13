@@ -4,7 +4,9 @@ import com.ts.talentshift.Model.Transaction;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Service.MoMoService;
 import com.ts.talentshift.Service.UserService;
+
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class MoMoPaymentController {
     private final MoMoService moMoService;
     private final UserService userService;
+
+    @Value("${momo.frontend-url}")
+    private String frontendUrl;
 
     public MoMoPaymentController(MoMoService moMoService, UserService userService) {
         this.moMoService = moMoService;
@@ -68,7 +73,7 @@ public class MoMoPaymentController {
         String paymentMethod = "momo";
 
         // Redirect to frontend with transaction info
-        String redirectUrl = "http://localhost:5173/transaction-result"
+        String redirectUrl = frontendUrl + "/transaction-result"
                 + "?orderId=" + orderId
                 + "&paymentMethod=" + paymentMethod
                 + "&responseCode=" + resultCode;

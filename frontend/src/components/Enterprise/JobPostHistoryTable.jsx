@@ -1,37 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { Table, Button, Input, Select, Pagination, notification, Modal, Rate, Input as AntdInput } from "antd";
-import { FaSearch } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { fetchPublishedJobsByUser, updateJobStatus, createRating } from "../../services/jobService";
-import { useAuth } from "../../pages/AuthContext.jsx";
-import styles from "../../components/JobCard/JobCard.module.css";
+import { useState, useEffect } from "react"
+import { Table, Input, Select, Pagination, notification } from "antd"
+import { FaSearch, FaEye, FaCalendarAlt, FaUsers, FaStar } from "react-icons/fa"
+import { Link } from "react-router-dom"
+import { fetchPublishedJobsByUser, updateJobStatus, createRating } from "../../services/jobService"
+import { useAuth } from "../../pages/AuthContext.jsx"
+import RatingModal from "./RatingModal.jsx"
+import styles from "./JobPostHistoryTable.module.css"
 
-const { TextArea } = AntdInput;
-const { confirm } = Modal;
+const { Option } = Select
 
 const JobPostHistoryTable = () => {
-    const [searchText, setSearchText] = useState("");
-    const [filterStatus, setFilterStatus] = useState("All");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [jobPosts, setJobPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { userData } = useAuth();
-    const jobsPerPage = 5;
-    const [api, contextHolder] = notification.useNotification();
-    const [ratingModalVisible, setRatingModalVisible] = useState(false);
-    const [selectedJobId, setSelectedJobId] = useState(null);
-    const [selectedFreelancerId, setSelectedFreelancerId] = useState(null);
-    const [stars, setStars] = useState(0);
-    const [comment, setComment] = useState("");
+    const [searchText, setSearchText] = useState("")
+    const [filterStatus, setFilterStatus] = useState("All")
+    const [currentPage, setCurrentPage] = useState(1)
+    const [jobPosts, setJobPosts] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const { userData } = useAuth()
+    const jobsPerPage = 8
+    const [api, contextHolder] = notification.useNotification()
+    const formatToVND = (value) => {
+        return value.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
+    }
+
+    // Rating Modal State
+    const [ratingModalVisible, setRatingModalVisible] = useState(false)
+    const [selectedJobId, setSelectedJobId] = useState(null)
+    const [selectedFreelancerId, setSelectedFreelancerId] = useState(null)
 
     const loadJobs = async () => {
         try {
-            const userId = userData?.userId;
+            const userId = userData?.userId
             if (!userId) {
-                throw new Error("User ID not found");
+                throw new Error("User ID not found")
             }
-            const data = await fetchPublishedJobsByUser(userId);
+            const data = await fetchPublishedJobsByUser(userId)
             const mappedData = data.map((job) => ({
                 ...job,
                 title: job.jobTitle,
@@ -39,7 +42,7 @@ const JobPostHistoryTable = () => {
                 employmentType: job.paymentType,
                 status: job.status || "PENDING",
                 applicants: job.applicant?.length || 0,
-                salary: `${job.minBudget} - ${job.maxBudget}`,
+                salary: `${formatToVND(job.maxBudget)}`,
                 postDate: job.createdAt || new Date().toISOString(),
                 expiryDate: job.expiredAt || new Date(Date.now() + 90 * 86400000).toISOString(),
                 featured: job.isFeatured || false,
@@ -47,286 +50,320 @@ const JobPostHistoryTable = () => {
                 description: job.description || "No description available",
                 keyResponsibilities: job.keyResponsibilities || "",
                 applicant: job.applicant || [],
-            }));
-            setJobPosts(mappedData);
+            }))
+            setJobPosts(mappedData)
         } catch (err) {
-            setError(err.message);
-            notification.error({
-                message: "Fetch Failed",
-                description: err.message || "Failed to fetch job posts",
-                placement: "topRight",
-            });
+            setError(err.message)
+            openNotification("error", "Fetch Failed", err.message || "Failed to fetch job posts")
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     useEffect(() => {
-        loadJobs();
-    }, []);
+        loadJobs()
+    }, [])
 
     const formatDate = (date) => {
-        if (!date) return "N/A";
+        if (!date) return "N/A"
         const parsedDate = Array.isArray(date)
             ? new Date(date[0], date[1] - 1, date[2], date[3], date[4], date[5], date[6] / 1_000_000)
-            : new Date(date);
+            : new Date(date)
         return parsedDate.toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
-        });
-    };
+        })
+    }
 
-    const getStatusBadgeStyle = (status) => {
-        switch (status) {
-            case "PENDING":
-                return { backgroundColor: "#cce5ff", color: "#004085" };
-            case "ACTIVE":
-                return { backgroundColor: "#d4edda", color: "#155724" };
-            case "EXPIRED":
-                return { backgroundColor: "#fff3cd", color: "#856404" };
-            case "REJECTED":
-                return { backgroundColor: "#f8d7da", color: "#721c24" };
-            case "COMPLETED":
-                return { backgroundColor: "#d4edda", color: "#155724" };
-            default:
-                return { backgroundColor: "#e2e3e5", color: "#383d41" };
+    const getStatusConfig = (status) => {
+        const configs = {
+            PENDING: {
+                className: styles.statusPending,
+                text: "Pending",
+                icon: "⏳",
+            },
+            ACTIVE: {
+                className: styles.statusActive,
+                text: "Active",
+                icon: "✅",
+            },
+            EXPIRED: {
+                className: styles.statusExpired,
+                text: "Expired",
+                icon: "⏰",
+            },
+            REJECTED: {
+                className: styles.statusRejected,
+                text: "Rejected",
+                icon: "❌",
+            },
+            COMPLETED: {
+                className: styles.statusCompleted,
+                text: "Completed",
+                icon: "🎉",
+            },
         }
-    };
+        return (
+            configs[status] || {
+                className: styles.statusDefault,
+                text: status,
+                icon: "📋",
+            }
+        )
+    }
 
     const openNotification = (type, message, description) => {
         api[type]({
             message,
             description,
             placement: "topRight",
-            duration: 3,
+            duration: 4,
             showProgress: true,
             pauseOnHover: true,
-        });
-    };
+        })
+    }
 
     const handleMarkComplete = (jobId, freelancerId) => {
         if (!userData?.userId) {
-            openNotification("error", "Unauthorized", "Please log in to update job status");
-            return;
+            openNotification("error", "Unauthorized", "Please log in to update job status")
+            return
         }
-        confirm({
-            title: "Confirm Job Completion",
-            content: "Are you sure you want to mark this job as completed? You will be prompted to rate the freelancer.",
-            okText: "Yes",
-            cancelText: "No",
-            onOk: () => {
-                setSelectedJobId(jobId);
-                setSelectedFreelancerId(freelancerId);
-                setRatingModalVisible(true);
-            },
-        });
-    };
+        setSelectedJobId(jobId)
+        setSelectedFreelancerId(freelancerId)
+        setRatingModalVisible(true)
+    }
 
-    const handleSendRating = async () => {
+    const handleRatingSubmit = async (ratingData) => {
         try {
-            // Call createRating API
-            await createRating(selectedJobId, selectedFreelancerId, { stars, comment }, userData.userId);
-            // Call updateJobStatus API
-            const updatedJob = await updateJobStatus(selectedJobId, "COMPLETED", userData.userId);
-            // Update job status in state
-            setJobPosts((prevJobs) =>
-                prevJobs.map((job) =>
-                    job.id === selectedJobId ? { ...job, status: "COMPLETED" } : job
-                )
-            );
-            openNotification("success", "Job Completed and Rated", "Job marked as COMPLETED and rating submitted successfully");
-            setRatingModalVisible(false);
-            setStars(0);
-            setComment("");
-        } catch (error) {
-            openNotification("error", "Operation Failed", error.message || "Failed to submit rating or update job status");
-        }
-    };
+            await createRating(selectedJobId, selectedFreelancerId, ratingData, userData.userId)
+            const updatedJob = await updateJobStatus(selectedJobId, "COMPLETED", userData.userId)
 
-    const handleCancelRating = () => {
-        setRatingModalVisible(false);
-        setStars(0);
-        setComment("");
-    };
+            setJobPosts((prevJobs) =>
+                prevJobs.map((job) => (job.id === selectedJobId ? { ...job, status: "COMPLETED" } : job)),
+            )
+
+            openNotification("success", "Success!", "Job completed and rating submitted successfully")
+            setRatingModalVisible(false)
+        } catch (error) {
+            openNotification("error", "Operation Failed", error.message || "Failed to submit rating")
+        }
+    }
 
     const filteredJobs = jobPosts.filter((job) => {
         const matchesSearch =
             job.title.toLowerCase().includes(searchText.toLowerCase()) ||
-            job.companyName?.toLowerCase().includes(searchText.toLowerCase());
-        const matchesStatus = filterStatus === "All" || job.status === filterStatus;
-        return matchesSearch && matchesStatus;
-    });
+            job.companyName?.toLowerCase().includes(searchText.toLowerCase())
+        const matchesStatus = filterStatus === "All" || job.status === filterStatus
+        return matchesSearch && matchesStatus
+    })
 
-    const indexOfLastJob = currentPage * jobsPerPage;
-    const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-    const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
-    const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+    const indexOfLastJob = currentPage * jobsPerPage
+    const indexOfFirstJob = indexOfLastJob - jobsPerPage
+    const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob)
 
     const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
+        setCurrentPage(pageNumber)
+    }
 
     const columns = [
         {
-            title: "Job Title",
+            title: "Job Details",
             dataIndex: "title",
             key: "title",
+            width: "35%",
             render: (text, record) => (
-                <Link to={`/job-detail/${record.id}`} className="text-decoration-none text-reset">
-                    {text}
-                </Link>
+                <div className={styles.jobDetails}>
+                    <Link to={`/job-detail/${record.id}`} className={styles.jobTitle}>
+                        {text}
+                    </Link>
+                    <div className={styles.jobMeta}>
+                        <span className={styles.jobDepartment}>{record.department}</span>
+                        <span className={styles.jobSalary}>{record.salary}₫</span>
+                    </div>
+                    <div className={styles.jobSkills}>
+                        {record.skills.slice(0, 3).map((skill, index) => (
+                            <span key={index} className={styles.skillTag}>
+                {skill}
+              </span>
+                        ))}
+                        {record.skills.length > 3 && <span className={styles.skillMore}>+{record.skills.length - 3}</span>}
+                    </div>
+                </div>
             ),
         },
         {
-            title: "Company",
-            dataIndex: "companyName",
-            key: "companyName",
-            render: (text) => text || "Unknown Company",
-        },
-        {
-            title: "Posted Date",
+            title: "Posted",
             dataIndex: "postDate",
             key: "postDate",
-            render: (date) => formatDate(date),
+            width: "15%",
+            render: (date) => (
+                <div className={styles.dateInfo}>
+                    <FaCalendarAlt className={styles.dateIcon} />
+                    <span>{formatDate(date)}</span>
+                </div>
+            ),
+        },
+        {
+            title: "Applicants",
+            dataIndex: "applicants",
+            key: "applicants",
+            width: "15%",
+            render: (count) => (
+                <div className={styles.applicantInfo}>
+                    <FaUsers className={styles.applicantIcon} />
+                    <span className={styles.applicantCount}>{count}</span>
+                </div>
+            ),
         },
         {
             title: "Status",
             dataIndex: "status",
             key: "status",
+            width: "20%",
             render: (status, record) => {
-                const completedApplication = record.applicant?.find(
-                    (app) => app.status === "COMPLETED"
-                );
-                const canMarkComplete = record.status === "PENDING" && completedApplication;
+                const statusConfig = getStatusConfig(status)
+                const completedApplication = record.applicant?.find((app) => app.status === "COMPLETED")
+                const canMarkComplete = record.status === "PENDING" && completedApplication
+
                 return (
-                    <div>
-                        <span className="badge" style={getStatusBadgeStyle(status)}>
-                            {status}
-                        </span>
+                    <div className={styles.statusColumn}>
+            <span className={`${styles.statusBadge} ${statusConfig.className}`}>
+              <span className={styles.statusIcon}>{statusConfig.icon}</span>
+                {statusConfig.text}
+            </span>
                         {canMarkComplete && (
-                            <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="ms-2"
+                            <button
+                                className={styles.completeBtn}
                                 onClick={() => handleMarkComplete(record.id, completedApplication.applicantId)}
                             >
-                                Mark Complete
-                            </Button>
+                                <FaStar className="me-1" />
+                                Complete & Rate
+                            </button>
                         )}
                     </div>
-                );
+                )
             },
         },
-    ];
+        {
+            title: "Actions",
+            key: "actions",
+            width: "15%",
+            render: (_, record) => (
+                <div className={styles.actionButtons}>
+                    <Link to={`/job-detail/${record.id}`} className={styles.viewBtn}>
+                        <FaEye />
+                    </Link>
+                </div>
+            ),
+        },
+    ]
 
     return (
-        <div className="card shadow-sm border-0">
+        <div className={styles.tableContainer}>
             {contextHolder}
-            <div className="card-header bg-white py-3">
-                <div className="row mb-4">
-                    <div className="col-md-8 mb-2 mb-md-0">
-                        <div className="input-group">
-                            <span className="input-group-text bg-white">
-                                <FaSearch />
-                            </span>
-                            <Input
-                                placeholder="Search by job title or company..."
-                                value={searchText}
-                                onChange={(e) => {
-                                    setSearchText(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                            />
-                        </div>
+
+            {/* Header Section */}
+            <div className={styles.tableHeader}>
+                <div className={styles.headerStats}>
+                    <div className={styles.statCard}>
+                        <div className={styles.statNumber}>{jobPosts.length}</div>
+                        <div className={styles.statLabel}>Total Jobs</div>
                     </div>
-                    <div className="col-md-4">
-                        <Select
-                            value={filterStatus}
-                            onChange={(value) => {
-                                setFilterStatus(value);
-                                setCurrentPage(1);
-                            }}
-                            style={{ width: "100%" }}
-                        >
-                            <Option value="All">Status - All</Option>
-                            <Option value="PENDING">Pending</Option>
-                            <Option value="ACTIVE">Active</Option>
-                            <Option value="EXPIRED">Expired</Option>
-                            <Option value="REJECTED">Rejected</Option>
-                            <Option value="COMPLETED">Completed</Option>
-                        </Select>
+                    <div className={styles.statCard}>
+                        <div className={styles.statNumber}>{jobPosts.filter((job) => job.status === "ACTIVE").length}</div>
+                        <div className={styles.statLabel}>Active Jobs</div>
+                    </div>
+                    <div className={styles.statCard}>
+                        <div className={styles.statNumber}>{jobPosts.reduce((sum, job) => sum + job.applicants, 0)}</div>
+                        <div className={styles.statLabel}>Total Applicants</div>
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+
+            {/* Filters Section */}
+            <div className={styles.filtersSection}>
+                <div className={styles.searchWrapper}>
+                    <FaSearch className={styles.searchIcon} />
+                    <Input
+                        placeholder="Search jobs by title or company..."
+                        value={searchText}
+                        onChange={(e) => {
+                            setSearchText(e.target.value)
+                            setCurrentPage(1)
+                        }}
+                        className={styles.searchInput}
+                    />
+                </div>
+                <Select
+                    value={filterStatus}
+                    onChange={(value) => {
+                        setFilterStatus(value)
+                        setCurrentPage(1)
+                    }}
+                    className={styles.statusFilter}
+                >
+                    <Option value="All">All Status</Option>
+                    <Option value="PENDING">Pending</Option>
+                    <Option value="ACTIVE">Active</Option>
+                    <Option value="EXPIRED">Expired</Option>
+                    <Option value="REJECTED">Rejected</Option>
+                    <Option value="COMPLETED">Completed</Option>
+                </Select>
+            </div>
+
+            {/* Table Section */}
+            <div className={styles.tableWrapper}>
                 {loading ? (
-                    <div className="text-center mt-4">
+                    <div className={styles.loadingState}>
                         <div className="spinner-border text-primary" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </div>
+                        <p>Loading your job posts...</p>
                     </div>
                 ) : filteredJobs.length === 0 ? (
-                    <p>No job posts found.</p>
+                    <div className={styles.emptyState}>
+                        <div className={styles.emptyIcon}>📋</div>
+                        <h4>No job posts found</h4>
+                        <p>Try adjusting your search criteria or create a new job post.</p>
+                    </div>
                 ) : (
                     <>
-                        <div className="table-responsive">
-                            <Table
-                                columns={columns}
-                                dataSource={currentJobs}
-                                rowKey="id"
-                                pagination={false}
-                                loading={loading}
-                            />
-                        </div>
-                        {totalPages > 1 && (
-                            <Pagination
-                                current={currentPage}
-                                total={filteredJobs.length}
-                                pageSize={jobsPerPage}
-                                onChange={handlePageChange}
-                                className="justify-content-center mt-4"
-                                showSizeChanger={false}
-                            />
+                        <Table
+                            columns={columns}
+                            dataSource={currentJobs}
+                            rowKey="id"
+                            pagination={false}
+                            loading={loading}
+                            className={styles.customTable}
+                            rowClassName={styles.tableRow}
+                        />
+
+                        {filteredJobs.length > jobsPerPage && (
+                            <div className={styles.paginationWrapper}>
+                                <Pagination
+                                    current={currentPage}
+                                    total={filteredJobs.length}
+                                    pageSize={jobsPerPage}
+                                    onChange={handlePageChange}
+                                    showSizeChanger={false}
+                                    showQuickJumper
+                                    showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} jobs`}
+                                />
+                            </div>
                         )}
                     </>
                 )}
-                <Modal
-                    title="Rate Freelancer"
-                    open={ratingModalVisible}
-                    onCancel={handleCancelRating}
-                    footer={[
-                        <Button key="cancel" onClick={handleCancelRating}>
-                            Cancel
-                        </Button>,
-                        <Button
-                            key="submit"
-                            type="primary"
-                            disabled={stars === 0 || comment.trim() === ""}
-                            onClick={handleSendRating}
-                            style={{ backgroundColor: "#428A9B", borderColor: "#428A9B" }}
-                        >
-                            Send Rating
-                        </Button>,
-                    ]}
-                >
-                    <div style={{ marginBottom: 16 }}>
-                        <label>Rating</label>
-                        <Rate value={stars} onChange={setStars} />
-                    </div>
-                    <div>
-                        <label>Comment</label>
-                        <TextArea
-                            rows={4}
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Enter your feedback about the freelancer's work..."
-                        />
-                    </div>
-                </Modal>
             </div>
-        </div>
-    );
-};
 
-export default JobPostHistoryTable;
+            {/* Rating Modal */}
+            <RatingModal
+                visible={ratingModalVisible}
+                onClose={() => setRatingModalVisible(false)}
+                onSubmit={handleRatingSubmit}
+            />
+        </div>
+    )
+}
+
+export default JobPostHistoryTable

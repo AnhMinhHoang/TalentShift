@@ -31,6 +31,9 @@ import RoleBasedOutlet from "./components/RoleBasedOutlet";
 import PrivateOutlet from "./components/PrivateOutlet..jsx";
 import MainLayout from "./components/MainLayout";
 import FillFormVerifiedOutlet from "./components/FillFormVerifiedOutlet.jsx";
+import NotVerified from "./pages/Authentication/NotVerified.jsx";
+import AuthenCheckOutlet from "./components/AuthenCheckOutlet.jsx";
+import NotFound from "./pages/Authentication/NotFound.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -54,6 +57,8 @@ function App() {
         <Routes>
           {/* Route without layout (unauth fallback) */}
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/notverify" element={<NotVerified />} />
+          <Route path="*" element={<NotFound />} />
 
           {/* All routes inside main layout */}
           <Route element={<MainLayout />}>
@@ -61,8 +66,10 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/jobs" element={<JobListing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route element={<AuthenCheckOutlet />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
             <Route path="/job-detail" element={<JobDetail />} />
             <Route path="/job-detail/:id" element={<JobDetail />} />
             <Route path="/contact" element={<Contact />} />
@@ -91,13 +98,17 @@ function App() {
               </Route>
 
               {/* Authenticated HIRER but not yet verified */}
-              <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
-                <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
+              <Route element={<AuthenCheckOutlet />}>
+                <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
+                  <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
+                </Route>
               </Route>
 
               {/* Authenticated FREELANCER but not yet verified */}
-              <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
-                <Route path="/register-additional" element={<RegisterAdditional />} />
+              <Route element={<AuthenCheckOutlet />}>
+                <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
+                    <Route path="/register-additional" element={<RegisterAdditional />} />
+                </Route>
               </Route>
 
             </Route>
