@@ -3,7 +3,7 @@ import { Stepper, Step, StepLabel } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
-import { useAuth } from "../..//authContext"; // Adjust path as necessary
+import { useAuth } from "../../authContext"; // Adjust path as necessary
 import Step1 from "./Components/Step1";
 import Step2 from "./Components/Step2";
 import Step3 from "./Components/Step3";
