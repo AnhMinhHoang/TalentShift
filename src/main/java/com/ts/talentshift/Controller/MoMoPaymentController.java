@@ -53,7 +53,7 @@ public class MoMoPaymentController {
     }
 
     @PostMapping("/callback")
-    public ResponseEntity<String> handleCallback(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<String> handleCallback(@RequestBody Map<String, Object> params) {
         try {
             Transaction transaction = moMoService.handleCallback(params);
             return transaction != null
