@@ -53,14 +53,12 @@ public class MoMoPaymentController {
     }
 
     @PostMapping("/callback")
-    public ResponseEntity<String> handleCallback(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<String> handleCallback(@RequestParam Map<String, String> params) {
         try {
-            Transaction transaction = moMoService.handleCallback(body);
-            if (transaction != null) {
-                return ResponseEntity.ok("OK");
-            }
-            return ResponseEntity.badRequest().body("Transaction not found or invalid");
-
+            Transaction transaction = moMoService.handleCallback(params);
+            return transaction != null
+                    ? ResponseEntity.ok("OK")
+                    : ResponseEntity.badRequest().body("Transaction not found or invalid");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing callback");
         }
