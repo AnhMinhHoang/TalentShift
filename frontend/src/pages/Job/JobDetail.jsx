@@ -73,13 +73,13 @@ const AcceptApplicantModal = ({
           <div className={styles.applicantSummary}>
             <div className={styles.applicantSummaryHeader}>
               <div className={styles.applicantSummaryAvatar}>
-                {applicant.avatar && applicant.avatar !== "/placeholder.svg" ? (
-                  <img src={getImageUrl(applicant.avatar)} alt={applicant.applicantName} />
-                ) : (
-                  <div className={styles.applicantSummaryDefaultAvatar}>
-                    {applicant.applicantName?.charAt(0).toUpperCase() || "A"}
-                  </div>
-                )}
+                <AvatarWithFallback
+                  src={applicant.avatar && applicant.avatar !== "/placeholder.svg" ? getImageUrl(applicant.avatar) : null}
+                  alt={applicant.applicantName}
+                  name={applicant.applicantName}
+                  size={48}
+                  className={styles.applicantSummaryAvatarImg}
+                />
               </div>
               <div className={styles.applicantSummaryInfo}>
                 <h4>{applicant.applicantName}</h4>
@@ -88,47 +88,48 @@ const AcceptApplicantModal = ({
             </div>
           </div>
         )}
-
-        <div className={styles.paymentBreakdown}>
-          <h5>Payment Breakdown</h5>
-          <div className={styles.breakdownItem}>
-            <span className={styles.breakdownLabel}>Project Budget</span>
-            <span className={styles.breakdownValue}>{formatSalary(originalAmount)}</span>
-          </div>
-          <div className={styles.breakdownItem}>
-            <span className={styles.breakdownLabel}>Platform Fee ({feePercentage}%)</span>
-            <span className={styles.breakdownValue}>{formatSalary(feeAmount)}</span>
-          </div>
-          <div className={styles.breakdownDivider}></div>
-          <div className={`${styles.breakdownItem} ${styles.breakdownTotal}`}>
-            <span className={styles.breakdownLabel}>Total Amount</span>
-            <span className={styles.breakdownValue}>{formatSalary(totalAmount)}</span>
-          </div>
-        </div>
-
-        <div className={styles.balanceCheck}>
-          <div className={styles.balanceCheckItem}>
-            <span className={styles.balanceCheckLabel}>Your Current Balance</span>
-            <span
-              className={`${styles.balanceCheckValue} ${hasEnoughBalance ? styles.sufficient : styles.insufficient}`}
-            >
-              {formatSalary(userData.balance)}
-            </span>
-          </div>
-          {!hasEnoughBalance && (
-            <div className={styles.insufficientWarning}>
-              <FaExclamationTriangle className={styles.warningIcon} />
-              <span>Insufficient balance. You'll be redirected to top up.</span>
+        <div>
+          <div className={styles.paymentBreakdown}>
+            <h5>Payment Breakdown</h5>
+            <div className={styles.breakdownItem}>
+              <span className={styles.breakdownLabel}>Project Budget</span>
+              <span className={styles.breakdownValue}>{formatSalary(originalAmount)}</span>
             </div>
-          )}
-        </div>
+            <div className={styles.breakdownItem}>
+              <span className={styles.breakdownLabel}>Platform Fee ({feePercentage}%)</span>
+              <span className={styles.breakdownValue}>{formatSalary(feeAmount)}</span>
+            </div>
+            <div className={styles.breakdownDivider}></div>
+            <div className={`${styles.breakdownItem} ${styles.breakdownTotal}`}>
+              <span className={styles.breakdownLabel}>Total Amount</span>
+              <span className={styles.breakdownValue}>{formatSalary(totalAmount)}</span>
+            </div>
+          </div>
 
-        <div className={styles.acceptanceNote}>
-          <FaInfoCircle className={styles.noteIcon} />
-          <p>
-            By accepting this applicant, all other applications will be automatically rejected, and the project will
-            move to "In Progress" status.
-          </p>
+          <div className={styles.balanceCheck}>
+            <div className={styles.balanceCheckItem}>
+              <span className={styles.balanceCheckLabel}>Your Current Balance</span>
+              <span
+                className={`${styles.balanceCheckValue} ${hasEnoughBalance ? styles.sufficient : styles.insufficient}`}
+              >
+                {formatSalary(userData.balance)}
+              </span>
+            </div>
+            {!hasEnoughBalance && (
+              <div className={styles.insufficientWarning}>
+                <FaExclamationTriangle className={styles.warningIcon} />
+                <span>Insufficient balance. You'll be redirected to top up.</span>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.acceptanceNote}>
+            <FaInfoCircle className={styles.noteIcon} />
+            <p>
+              By accepting this applicant, all other applications will be automatically rejected, and the project will
+              move to "In Progress" status.
+            </p>
+          </div>
         </div>
       </Modal.Body>
 
@@ -155,7 +156,7 @@ const AcceptApplicantModal = ({
         </Button>
       </Modal.Footer>
     </Modal>
-  )
+  );
 }
 
 // Custom read-only component for Summary
@@ -1385,15 +1386,13 @@ export default function JobDetail() {
               <div className="d-flex align-items-center w-100 justify-content-between">
                 <div className="d-flex align-items-center">
                   <div className={styles.companyLogo}>
-                    {hasCustomLogo ? (
-                      <img
-                        src={getImageUrl(job.companyLogoPath)}
-                        alt={job.companyName}
-                        className={styles.logo}
-                      />
-                    ) : (
-                      <div className={styles.defaultAvatar}>{getAvatarLetter()}</div>
-                    )}
+                    <AvatarWithFallback
+                      src={hasCustomLogo ? getImageUrl(job.companyLogoPath) : null}
+                      alt={job.companyName}
+                      name={job.companyName}
+                      size={48}
+                      className={styles.logo}
+                    />
                   </div>
                   <div className={styles.jobTitleSection}>
                     <h1 className={styles.jobTitle}>{job.jobTitle || "Untitled Job"}</h1>

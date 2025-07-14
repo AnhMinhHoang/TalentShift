@@ -4,7 +4,7 @@ import styles from "../styles/Step5.module.css";
 export default function Step5({ formData, onSubmit, onBack }) {
   const formatBudget = () => {
     const formatNumber = (val) =>
-        val ? `${val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND` : "";
+      val ? `${val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND` : "";
 
     const min = formatNumber(formData.minBudget);
     const max = formatNumber(formData.maxBudget);
@@ -92,13 +92,6 @@ export default function Step5({ formData, onSubmit, onBack }) {
               Previous
             </Button>
             <div>
-              <Button
-                variant="outlined"
-                onClick={() => onSubmit(true)}
-                className={styles.draftButton}
-              >
-                Save as Draft
-              </Button>
               <Button
                 variant="contained"
                 onClick={() => onSubmit(false)}

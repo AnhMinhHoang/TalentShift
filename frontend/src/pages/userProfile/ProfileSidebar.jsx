@@ -295,37 +295,13 @@ const ProfileSidebar = ({ userData, setUserData }) => {
     return (
         <>
             <div className="p-4 text-center">
-                <div
-                    className="mx-auto rounded-circle position-relative overflow-hidden"
-                    style={{
-                        width: "128px",
-                        height: "128px",
-                        ...(profile.avatarImage ? {
-                            backgroundImage: profile.avatarImage ? `url(${getImageUrl(profile.avatarImage)})` : profile.avatar,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                        } : {
-                            background: profile.avatar,
-                            position: 'relative'
-                        })
-                    }}
-                >
-                    {!profile.avatarImage && profile.name && (
-                        <span
-                            style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                fontSize: '48px',
-                                color: 'white',
-                                fontWeight: 'bold',
-                                textTransform: 'uppercase'
-                            }}
-                        >
-                            {profile.name.charAt(0)}
-                        </span>
-                    )}
+                <div className="mx-auto rounded-circle position-relative overflow-hidden" style={{ width: "128px", height: "128px" }}>
+                    <AvatarWithFallback
+                        src={profile.avatarImage ? getImageUrl(profile.avatarImage) : null}
+                        alt={profile.name}
+                        name={profile.name}
+                        size={128}
+                    />
                 </div>
                 <h5 className="mt-3 mb-0">{profile.name}</h5>
                 <p className="text-muted small">{profile.email}</p>
