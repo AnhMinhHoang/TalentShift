@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { Container, Row, Col, Button, Badge, Modal, Form } from "react-bootstrap"
 import {
-  FaDollarSign,
   FaClock,
   FaBriefcase,
   FaShare,
@@ -1401,7 +1400,7 @@ export default function JobDetail() {
                         <FaBriefcase className={styles.icon} /> {job.category}
                       </span>
                       <span className={styles.salary}>
-                        <FaDollarSign className={styles.icon} /> {formatSalary(job)}
+                        {formatSalary(job)}
                       </span>
                     </div>
                   </div>
@@ -1560,7 +1559,7 @@ export default function JobDetail() {
         <Modal.Body style={{ padding: "2rem" }}>
           <h4 className={userProfileStyles.jobTitleModal}>{job.jobTitle}</h4>
           <p>
-            <FaDollarSign /> {formatSalary(job)}
+            {formatSalary(job)}
           </p>
           <Form onSubmit={handleApplySubmit}>
             <div className={styles.formSection}>
