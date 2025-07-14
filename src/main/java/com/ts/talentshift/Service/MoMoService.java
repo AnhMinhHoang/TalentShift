@@ -115,7 +115,7 @@ public class MoMoService {
             if(responseBody != null) {
                 //Update transaction with response details
                 transaction.setResultCode(responseBody.getResultCode());
-                transaction.setMessage(responseBody.getMessage());
+                transaction.setMessage("Topup with MOMO");
                 transaction.setPayUrl(responseBody.getPayUrl());
                 transaction.setResponseTime(responseBody.getResponseTime());
                 transactionRepository.save(transaction);
@@ -141,7 +141,6 @@ public class MoMoService {
     public Transaction handleCallback(Map<String, Object> callbackData){
         String orderId = String.valueOf(callbackData.get("orderId"));
         String resultCode = String.valueOf(callbackData.get("resultCode"));
-        String message = String.valueOf(callbackData.get("message"));
         String responseTime = String.valueOf(callbackData.get("responseTime"));
         String payType = String.valueOf(callbackData.get("payType"));
 
