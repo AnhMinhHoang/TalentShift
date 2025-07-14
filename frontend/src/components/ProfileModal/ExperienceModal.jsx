@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Edit, Trash, ChevronLeft, Plus } from "lucide-react";
 import { CustomModal } from "../Modal/CustomModal";
 import styles from "../../pages/userProfile/style/UserProfile.module.css";
+import { isFutureDate, isValidDateRange } from "../../utils/dateUtils";
 
 const formatDate = (dateString) => {
     if (!dateString || dateString === "Now") return "Now";
@@ -54,7 +55,9 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
         if (!formData.companyName) errors.companyName = "Company name is required";
         if (!formData.startDate) errors.startDate = "Start date is required";
         if (!formData.isCurrentPosition && !formData.endDate) errors.endDate = "End date is required";
-
+        if (formData.startDate && isFutureDate(formData.startDate)) errors.startDate = "Start date cannot be in the future";
+        if (formData.endDate && isFutureDate(formData.endDate)) errors.endDate = "End date cannot be in the future";
+        if (formData.startDate && formData.endDate && !isValidDateRange(formData.startDate, formData.endDate)) errors.endDate = "End date cannot be before start date";
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
             return;
@@ -169,6 +172,11 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
         }
     };
 
+    // Add a function to delete an experience
+    const deleteExperience = (id) => {
+        setWorkExperiences(prev => prev.filter(exp => exp.id !== id));
+    };
+
     // Handle final save
     const handleSave = () => {
         const transformedExperiences = workExperiences.map((exp) => ({
@@ -179,6 +187,17 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
 
         onSave(transformedExperiences);
     };
+
+    // Add a function to check if all experiences are valid
+    const isExperienceValid = (exp) => {
+        if (!exp.jobPosition || !exp.companyName || !exp.startDate) return false;
+        if (!exp.isCurrentPosition && !exp.endDate) return false;
+        if (exp.startDate && isFutureDate(exp.startDate)) return false;
+        if (exp.endDate && isFutureDate(exp.endDate)) return false;
+        if (exp.startDate && exp.endDate && !isValidDateRange(exp.startDate, exp.endDate)) return false;
+        return true;
+    };
+    const allExperiencesValid = workExperiences.length === 0 || workExperiences.every(isExperienceValid);
 
     return (
         <CustomModal
@@ -333,6 +352,7 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                                     value={formData.startDate || ""}
                                     onChange={handleInputChange}
                                     required
+                                    max={formData.endDate || new Date().toISOString().split("T")[0]}
                                 />
                             </div>
                             {validationErrors.startDate && <div className={styles.validationError}>{validationErrors.startDate}</div>}
@@ -352,6 +372,8 @@ export const ExperienceModal = ({ onClose, experiences, onSave }) => {
                                     onChange={handleInputChange}
                                     disabled={formData.isCurrentPosition}
                                     required={!formData.isCurrentPosition}
+                                    min={formData.startDate || undefined}
+                                    max={new Date().toISOString().split("T")[0]}
                                 />
                             </div>
                             {validationErrors.endDate && <div className={styles.validationError}>{validationErrors.endDate}</div>}

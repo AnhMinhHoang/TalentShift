@@ -1,6 +1,8 @@
 package com.ts.talentshift.Service;
 
 import com.ts.talentshift.Enums.Role;
+import com.ts.talentshift.Enums.TransactionStatus;
+import com.ts.talentshift.Model.Transaction;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,13 +23,15 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TransactionService transactionService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TransactionService transactionService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.transactionService = transactionService;
     }
 
     
@@ -107,6 +111,16 @@ public class UserService {
 
     
     public User proPurchase(Long userId) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionId(UUID.randomUUID().toString());
+        transaction.setOrderId("ORDER_" + System.currentTimeMillis());
+        transaction.setAmount(BigDecimal.valueOf(-200000)); // Assuming 200,000 is the pro purchase amount
+        transaction.setUser(userRepository.findById(userId).orElse(null));
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        transaction.setMessage("Pro purchase");
+
+        transactionService.createTransaction(transaction);
+
         return userRepository.findById(userId)
                 .map(existingUser -> {
                     existingUser.setPremium(true);

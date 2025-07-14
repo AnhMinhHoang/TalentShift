@@ -12,6 +12,8 @@ import {
   MenuBook as MenuBookIcon,
 } from "@mui/icons-material";
 import styles from "../styles/RegisterAdditional.module.css";
+import { isFutureDate, isValidDateRange } from "../../../utils/dateUtils";
+import { useState } from "react";
 
 const EducationStep = ({
   educations,
@@ -43,8 +45,18 @@ const EducationStep = ({
     overflow: "auto",
   };
 
-  // Add validation for required fields
-  const isEducationValid = currentEducation.degree && currentEducation.institution && currentEducation.startDate;
+  const [dateErrors, setDateErrors] = useState({});
+
+  // Add a function to check if all educations are valid
+  const isEducationValid = (edu) => {
+    if (!edu.degree || !edu.institution || !edu.startDate) return false;
+    if (!edu.isPresent && !edu.endDate) return false;
+    if (edu.startDate && isFutureDate(edu.startDate)) return false;
+    if (edu.endDate && isFutureDate(edu.endDate)) return false;
+    if (edu.startDate && edu.endDate && !isValidDateRange(edu.startDate, edu.endDate)) return false;
+    return true;
+  };
+  const allEducationsValid = educations.length === 0 || educations.every(isEducationValid);
 
   // Education handlers
   const handleOpenEducationModal = (index = null) => {
@@ -70,22 +82,29 @@ const EducationStep = ({
   };
 
   const handleSaveEducation = () => {
-    if (currentEducation.degree && currentEducation.institution) {
-      if (currentEducationIndex !== null) {
-        // Update existing education
-        const updatedEducations = [...educations];
-        updatedEducations[currentEducationIndex] = currentEducation;
-        setEducations(updatedEducations);
-      } else {
-        // Add new education
-        setEducations([...educations, currentEducation]);
-      }
+    const errors = {};
+    if (!currentEducation.degree) errors.degree = "Degree is required";
+    if (!currentEducation.institution) errors.institution = "Institution is required";
+    if (!currentEducation.startDate) errors.startDate = "Start date is required";
+    if (!currentEducation.isPresent && !currentEducation.endDate) errors.endDate = "End date is required";
+    if (currentEducation.startDate && isFutureDate(currentEducation.startDate)) errors.startDate = "Start date cannot be in the future";
+    if (currentEducation.endDate && isFutureDate(currentEducation.endDate)) errors.endDate = "End date cannot be in the future";
+    if (currentEducation.startDate && currentEducation.endDate && !isValidDateRange(currentEducation.startDate, currentEducation.endDate)) errors.endDate = "End date cannot be before start date";
+    setDateErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
-      handleCloseEducationModal();
-      setProgress(calculateProgress());
+    if (currentEducationIndex !== null) {
+      // Update existing education
+      const updatedEducations = [...educations];
+      updatedEducations[currentEducationIndex] = currentEducation;
+      setEducations(updatedEducations);
     } else {
-      alert("Please fill in all required fields.");
+      // Add new education
+      setEducations([...educations, currentEducation]);
     }
+
+    handleCloseEducationModal();
+    setProgress(calculateProgress());
   };
 
   return (
@@ -102,6 +121,7 @@ const EducationStep = ({
           variant="primary"
           className={`${styles.addButton} d-flex align-items-center gap-2`}
           onClick={() => handleOpenEducationModal()}
+          disabled={!allEducationsValid}
         >
           <AddIcon fontSize="small" /> Add Education
         </Button>
@@ -261,13 +281,15 @@ const EducationStep = ({
                 </label>
                 <input
                   type="date"
-                  className="form-control userProfile_formControl"
+                  className={`form-control userProfile_formControl${dateErrors.startDate ? ' is-invalid' : ''}`}
                   id="startDate"
                   name="startDate"
                   value={currentEducation.startDate || ''}
                   onChange={e => setCurrentEducation({ ...currentEducation, startDate: e.target.value })}
                   required
+                  max={currentEducation.endDate || new Date().toISOString().split("T")[0]}
                 />
+                {dateErrors.startDate && <div className="invalid-feedback">{dateErrors.startDate}</div>}
               </div>
               {!currentEducation.isPresent && (
                 <div className="col-md-6">
@@ -277,13 +299,16 @@ const EducationStep = ({
                   </label>
                   <input
                     type="date"
-                    className="form-control userProfile_formControl"
+                    className={`form-control userProfile_formControl${dateErrors.endDate ? ' is-invalid' : ''}`}
                     id="endDate"
                     name="endDate"
                     value={currentEducation.endDate || ''}
                     onChange={e => setCurrentEducation({ ...currentEducation, endDate: e.target.value })}
                     required
+                    min={currentEducation.startDate || undefined}
+                    max={new Date().toISOString().split("T")[0]}
                   />
+                  {dateErrors.endDate && <div className="invalid-feedback">{dateErrors.endDate}</div>}
                 </div>
               )}
             </div>

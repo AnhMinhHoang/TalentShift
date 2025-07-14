@@ -25,7 +25,7 @@ export const ExperienceSection = ({ workExperiences, onEdit }) => {
                             </div>
                             <div className="col-md-9">
                                 <h6 className="mb-1">
-                                    {experience.position} at {experience.company}
+                                    {experience.jobPosition} at {experience.companyName}
                                 </h6>
                                 <p className="text-muted small mb-2">{experience.description}</p>
                                 {experience.projects && experience.projects.length > 0 && (
@@ -34,7 +34,7 @@ export const ExperienceSection = ({ workExperiences, onEdit }) => {
                                         <ul className="list-unstyled ps-3">
                                             {experience.projects.map((project) => (
                                                 <li key={project.id} className="small text-muted">
-                                                    {project.name} ({project.time})
+                                                    {project.projectName} ({project.projectTime})
                                                 </li>
                                             ))}
                                         </ul>

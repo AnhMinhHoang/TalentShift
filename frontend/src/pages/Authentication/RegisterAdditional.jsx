@@ -91,13 +91,15 @@ const RegisterAdditional = () => {
   const [birthday, setBirthday] = useState(null);
   const [phone, setPhone] = useState("");
   const [links, setLinks] = useState(["", "", "", ""]);
+  // Add birthdayError state for validation
+  const [birthdayError, setBirthdayError] = useState("");
 
   // Validation functions
   const isStep1Valid = () => mainSkills.length > 0;
   const isStep2Valid = () => true; // Optional step
   const isStep3Valid = () => true; // Optional step
   const isStep4Valid = () => wordCount >= 100;
-  const isStep5Valid = () => fullName !== "" && city !== "";
+  const isStep5Valid = () => fullName !== "" && city !== "" && !birthdayError;
 
   const isStepValid = (step) => {
     switch (step) {
@@ -350,6 +352,8 @@ const RegisterAdditional = () => {
             setPhone={setPhone}
             links={links}
             setLinks={setLinks}
+            birthdayError={birthdayError}
+            setBirthdayError={setBirthdayError}
             socialPlatforms={socialPlatforms}
           />
         );

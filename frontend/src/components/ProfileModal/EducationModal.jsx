@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Edit, Trash, Plus } from "lucide-react";
 import { CustomModal } from "../Modal/CustomModal";
 import styles from "../../pages/userProfile/style/UserProfile.module.css";
+import { isFutureDate, isValidDateRange } from "../../utils/dateUtils";
 
 const formatDate = (dateString) => {
     if (!dateString || dateString === "Now") return "Now";
@@ -49,7 +50,9 @@ export const EducationModal = ({ onClose, educations, onSave }) => {
         if (!formData.school) errors.school = "School name is required";
         if (!formData.startDate) errors.startDate = "Start date is required";
         if (!formData.isCurrentlyStudying && !formData.endDate) errors.endDate = "End date is required";
-
+        if (formData.startDate && isFutureDate(formData.startDate)) errors.startDate = "Start date cannot be in the future";
+        if (formData.endDate && isFutureDate(formData.endDate)) errors.endDate = "End date cannot be in the future";
+        if (formData.startDate && formData.endDate && !isValidDateRange(formData.startDate, formData.endDate)) errors.endDate = "End date cannot be before start date";
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
             return;
@@ -92,6 +95,17 @@ export const EducationModal = ({ onClose, educations, onSave }) => {
         }));
         onSave(transformedEducations);
     };
+
+    // Add a function to check if all educations are valid
+    const isEducationValid = (edu) => {
+        if (!edu.school || !edu.startDate) return false;
+        if (!edu.isCurrentlyStudying && !edu.endDate) return false;
+        if (edu.startDate && isFutureDate(edu.startDate)) return false;
+        if (edu.endDate && isFutureDate(edu.endDate)) return false;
+        if (edu.startDate && edu.endDate && !isValidDateRange(edu.startDate, edu.endDate)) return false;
+        return true;
+    };
+    const allEducationsValid = educationList.length === 0 || educationList.every(isEducationValid);
 
     return (
         <CustomModal title="Education" onClose={onClose}>
@@ -207,6 +221,7 @@ export const EducationModal = ({ onClose, educations, onSave }) => {
                                     value={formData.startDate || ""}
                                     onChange={handleInputChange}
                                     required
+                                    max={formData.endDate || new Date().toISOString().split("T")[0]}
                                 />
                             </div>
                             {validationErrors.startDate && <div className={styles.validationError}>{validationErrors.startDate}</div>}
@@ -226,6 +241,8 @@ export const EducationModal = ({ onClose, educations, onSave }) => {
                                     onChange={handleInputChange}
                                     disabled={formData.isCurrentlyStudying}
                                     required={!formData.isCurrentlyStudying}
+                                    min={formData.startDate || undefined}
+                                    max={new Date().toISOString().split("T")[0]}
                                 />
                             </div>
                             {validationErrors.endDate && <div className={styles.validationError}>{validationErrors.endDate}</div>}

@@ -106,12 +106,16 @@ export default function TransactionResult() {
         }
     }
 
+    const handleViewHistory = () => {
+        navigate("/transaction-history");
+    };
+
     if (loading) {
         return (
             <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
                 <div className="text-center">
                     <div className="spinner-border text-primary mb-4" style={{ width: '3rem', height: '3rem' }}
-                        role="status">
+                         role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div>
                     <p className="text-muted">Loading transaction details...</p>
@@ -127,7 +131,7 @@ export default function TransactionResult() {
                     {/* Use an icon here if available, e.g. Bootstrap Icons */}
                     <div className="text-center mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="red"
-                            className="bi bi-x-circle mb-3" viewBox="0 0 16 16">
+                             className="bi bi-x-circle mb-3" viewBox="0 0 16 16">
                             <path
                                 d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm3.354 3.646a.5.5 0 0 1 0 .708L8.707 9l2.647 2.646a.5.5 0 0 1-.708.708L8 9.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 9 4.646 6.354a.5.5 0 1 1 .708-.708L8 8.293l2.646-2.647a.5.5 0 0 1 .708 0z" />
                         </svg>
@@ -235,7 +239,7 @@ export default function TransactionResult() {
                                                 <span className={`badge ${styles.statusBadge} ${getStatusColor(transaction.status)}`}>
                                                     <i className="fas fa-check me-1"></i>
                                                     Transaction {transaction.status === 'SUCCESS' ? 'Successful' :
-                                                        transaction.status === 'FAILED' ? 'Failed' : 'Pending'}
+                                                    transaction.status === 'FAILED' ? 'Failed' : 'Pending'}
                                                 </span>
                                             </div>
                                         </div>
@@ -283,21 +287,27 @@ export default function TransactionResult() {
                                 </div>
                             </div>
 
-                            {/*/!* Action Buttons *!/*/}
-                            {/*<div className="row g-3">*/}
-                            {/*    <div className="col-6">*/}
-                            {/*        <button className={`btn btn-outline-primary w-100 ${styles.actionBtn}`} onClick={handlePrintReceipt}>*/}
-                            {/*            <i className="fas fa-print me-2"></i>*/}
-                            {/*            In hóa đơn*/}
-                            {/*        </button>*/}
-                            {/*    </div>*/}
-                            {/*    <div className="col-6">*/}
-                            {/*        <button className={`btn btn-primary w-100 ${styles.actionBtn}`} onClick={handleNewPayment}>*/}
-                            {/*            <i className="fas fa-plus me-2"></i>*/}
-                            {/*            Thanh toán mới*/}
-                            {/*        </button>*/}
-                            {/*    </div>*/}
-                            {/*</div>*/}
+                            {/* Action Buttons */}
+                            <div className="row g-3">
+                                <div className="col-6">
+                                    <button
+                                        className={`btn btn-outline-primary w-100 ${styles.actionBtn}`}
+                                        onClick={handleViewHistory}
+                                    >
+                                        <i className="fas fa-history me-2"></i>
+                                        View History
+                                    </button>
+                                </div>
+                                <div className="col-6">
+                                    <button
+                                        className={`btn btn-primary w-100 ${styles.actionBtn}`}
+                                        onClick={() => navigate("/payment")}
+                                    >
+                                        <i className="fas fa-plus me-2"></i>
+                                        New Payment
+                                    </button>
+                                </div>
+                            </div>
 
                             {/* Support Notice */}
                             <div className={`text-center mt-4 ${styles.supportNotice}`}>

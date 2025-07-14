@@ -13,6 +13,8 @@ import {
   Link as LinkIcon,
 } from "@mui/icons-material";
 import styles from "../styles/RegisterAdditional.module.css";
+import { isFutureDate, isValidDateRange } from "../../../utils/dateUtils";
+import { useState } from "react";
 
 const ExperienceStep = ({
   experiences,
@@ -48,6 +50,8 @@ const ExperienceStep = ({
     overflow: "auto",
   };
 
+  const [dateErrors, setDateErrors] = useState({});
+
   // Experience handlers
   const handleOpenExperienceModal = (index = null) => {
     if (index !== null) {
@@ -73,6 +77,17 @@ const ExperienceStep = ({
   };
 
   const handleSaveExperience = () => {
+    const errors = {};
+    if (!currentExperience.jobTitle) errors.jobTitle = "Job title is required";
+    if (!currentExperience.companyName) errors.companyName = "Company name is required";
+    if (!currentExperience.startDate) errors.startDate = "Start date is required";
+    if (!currentExperience.isPresent && !currentExperience.endDate) errors.endDate = "End date is required";
+    if (currentExperience.startDate && isFutureDate(currentExperience.startDate)) errors.startDate = "Start date cannot be in the future";
+    if (currentExperience.endDate && isFutureDate(currentExperience.endDate)) errors.endDate = "End date cannot be in the future";
+    if (currentExperience.startDate && currentExperience.endDate && !isValidDateRange(currentExperience.startDate, currentExperience.endDate)) errors.endDate = "End date cannot be before start date";
+    setDateErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     if (currentExperience.jobTitle && currentExperience.companyName) {
       if (currentExperienceIndex !== null) {
         // Update existing experience
@@ -118,9 +133,19 @@ const ExperienceStep = ({
     }
   };
 
-  // Add validation for required fields
-  const isExperienceValid = currentExperience.jobTitle && currentExperience.companyName && currentExperience.startDate;
-  const isProjectValid = currentProject.name && currentProject.time;
+  // Add a function to check if all experiences are valid
+  const isExperienceValid = (exp) => {
+    if (!exp.jobTitle || !exp.companyName || !exp.startDate) return false;
+    if (!exp.isPresent && !exp.endDate) return false;
+    if (exp.startDate && isFutureDate(exp.startDate)) return false;
+    if (exp.endDate && isFutureDate(exp.endDate)) return false;
+    if (exp.startDate && exp.endDate && !isValidDateRange(exp.startDate, exp.endDate)) return false;
+    return true;
+  };
+  const allExperiencesValid = experiences.length === 0 || experiences.every(isExperienceValid);
+
+  // Add a function to check if the current project is valid
+  const isProjectValid = currentProject && currentProject.name && currentProject.time;
 
   return (
     <div className={styles.stepContent}>
@@ -137,6 +162,7 @@ const ExperienceStep = ({
           variant="primary"
           className={`${styles.addButton} d-flex align-items-center gap-2`}
           onClick={() => handleOpenExperienceModal()}
+          disabled={!allExperiencesValid}
         >
           <AddIcon fontSize="small" /> Add Experience
         </Button>
@@ -328,13 +354,15 @@ const ExperienceStep = ({
                 </label>
                 <input
                   type="date"
-                  className="form-control userProfile_formControl"
+                  className={`form-control userProfile_formControl${dateErrors.startDate ? ' is-invalid' : ''}`}
                   id="startDate"
                   name="startDate"
                   value={currentExperience.startDate || ''}
                   onChange={e => setCurrentExperience({ ...currentExperience, startDate: e.target.value })}
                   required
+                  max={currentExperience.endDate || new Date().toISOString().split("T")[0]}
                 />
+                {dateErrors.startDate && <div className="invalid-feedback">{dateErrors.startDate}</div>}
               </div>
               {!currentExperience.isPresent && (
                 <div className="col-md-6">
@@ -344,13 +372,16 @@ const ExperienceStep = ({
                   </label>
                   <input
                     type="date"
-                    className="form-control userProfile_formControl"
+                    className={`form-control userProfile_formControl${dateErrors.endDate ? ' is-invalid' : ''}`}
                     id="endDate"
                     name="endDate"
                     value={currentExperience.endDate || ''}
                     onChange={e => setCurrentExperience({ ...currentExperience, endDate: e.target.value })}
                     required
+                    min={currentExperience.startDate || undefined}
+                    max={new Date().toISOString().split("T")[0]}
                   />
+                  {dateErrors.endDate && <div className="invalid-feedback">{dateErrors.endDate}</div>}
                 </div>
               )}
             </div>
@@ -404,7 +435,7 @@ const ExperienceStep = ({
               variant="primary"
               onClick={handleSaveExperience}
               className={styles.nextButton}
-              disabled={!isExperienceValid}
+              disabled={!isExperienceValid(currentExperience)}
             >
               Save Experience
             </Button>

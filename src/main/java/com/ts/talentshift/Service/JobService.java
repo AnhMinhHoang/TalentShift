@@ -5,10 +5,12 @@ import com.ts.talentshift.DTO.Job.JobApplicationResponseDto;
 import com.ts.talentshift.Enums.ApplicationStatus;
 import com.ts.talentshift.Enums.JobStatus;
 import com.ts.talentshift.Enums.Role;
+import com.ts.talentshift.Enums.TransactionStatus;
 import com.ts.talentshift.Model.Freelancer.Skill;
 import com.ts.talentshift.Model.Job.Job;
 import com.ts.talentshift.Model.Job.JobApplication;
 import com.ts.talentshift.Model.Job.JobCategory;
+import com.ts.talentshift.Model.Transaction;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.JobCategoryRepository;
 import com.ts.talentshift.Repository.JobRepository;
@@ -23,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class JobService {
@@ -32,6 +35,7 @@ public class JobService {
     private final UserRepository userRepository;
     private final JobApplicationRepository jobApplicationRepository;
     private final UserService userService;
+    private final TransactionService transactionService;
 
     @Autowired
     public JobService(JobRepository jobRepository,
@@ -39,13 +43,15 @@ public class JobService {
                       JobCategoryRepository jobCategoryRepository,
                       UserRepository userRepository,
                       JobApplicationRepository jobApplicationRepository,
-                      UserService userService) {
+                      UserService userService,
+                      TransactionService transactionService) {
         this.jobRepository = jobRepository;
         this.skillRepository = skillRepository;
         this.jobCategoryRepository = jobCategoryRepository;
         this.userRepository = userRepository;
         this.jobApplicationRepository = jobApplicationRepository;
         this.userService = userService;
+        this.transactionService = transactionService;
     }
 
     private JobResponseDto mapToResponseDto(Job job, Long currentUserId) {
@@ -314,6 +320,15 @@ public class JobService {
 
             // Deduct balance
             userService.subtractUserBalance(dto.getHirerId(), maxBudget);
+            Transaction transaction = new Transaction();
+            transaction.setTransactionId(UUID.randomUUID().toString());
+            transaction.setOrderId("ORDER_" + System.currentTimeMillis());
+            transaction.setAmount(maxBudget.negate()); // Assuming 200,000 is the pro purchase amount
+            transaction.setUser(userRepository.findById(dto.getHirerId()).orElse(null));
+            transaction.setStatus(TransactionStatus.SUCCESS);
+            transaction.setMessage("Job application fee");
+
+            transactionService.createTransaction(transaction);
         }
 
         // Save the updated job
@@ -491,6 +506,16 @@ public class JobService {
             BigDecimal maxBudget = new BigDecimal(job.getMaxBudget());
             userService.addUserBalance(applicant, maxBudget);
             userRepository.save(applicant); // Persist the updated balance
+
+            Transaction transaction = new Transaction();
+            transaction.setTransactionId(UUID.randomUUID().toString());
+            transaction.setOrderId("ORDER_" + System.currentTimeMillis());
+            transaction.setAmount(maxBudget);
+            transaction.setUser(applicant);
+            transaction.setStatus(TransactionStatus.SUCCESS);
+            transaction.setMessage("Job completed payment");
+
+            transactionService.createTransaction(transaction);
         }
 
         Job savedJob = jobRepository.save(job);

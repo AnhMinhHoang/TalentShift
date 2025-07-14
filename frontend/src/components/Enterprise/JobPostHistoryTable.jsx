@@ -19,8 +19,11 @@ const JobPostHistoryTable = () => {
     const { userData } = useAuth()
     const jobsPerPage = 8
     const [api, contextHolder] = notification.useNotification()
+
     const formatToVND = (value) => {
-        return value.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
+        const number = Number(value)
+        if (isNaN(number)) return "0₫"
+        return number.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
     }
 
     // Rating Modal State
@@ -179,7 +182,7 @@ const JobPostHistoryTable = () => {
                     </Link>
                     <div className={styles.jobMeta}>
                         <span className={styles.jobDepartment}>{record.department}</span>
-                        <span className={styles.jobSalary}>{record.salary}₫</span>
+                        <span className={styles.jobSalary}>{record.salary}</span>
                     </div>
                     <div className={styles.jobSkills}>
                         {record.skills.slice(0, 3).map((skill, index) => (

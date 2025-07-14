@@ -15,4 +15,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Transaction findByTransactionId(String transactionId);
     List<Transaction> findByUser_UserIdOrderByCreatedTimeDesc(Long userId);
     List<Transaction> findByStatusOrderByCreatedTimeDesc(TransactionStatus status);
+    List<Transaction> findByUser(User user);
 }

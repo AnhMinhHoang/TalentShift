@@ -1,0 +1,257 @@
+/* CSS Variables for your custom color scheme */
+:root {
+    --white-color: #ffffff;
+    --primary-color: #13547a;
+    --secondary-color: #80d0c7;
+    --section-bg-color: #f0f8ff;
+    --custom-btn-bg-color: #80d0c7;
+    --custom-btn-bg-hover-color: #13547a;
+    --dark-color: #000000;
+    --p-color: #717275;
+    --border-color: #7fffd4;
+    --link-hover-color: #13547a;
+}
+
+.container {
+    background-color: var(--section-bg-color);
+    min-height: 100vh;
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cardHeader {
+    background-color: var(--primary-color) !important;
+    color: var(--white-color) !important;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.cardFooter {
+    background-color: var(--section-bg-color) !important;
+    border-top: 1px solid var(--border-color);
+}
+
+.table {
+    background-color: var(--white-color);
+}
+
+.tableHeader {
+    background-color: var(--section-bg-color) !important;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.tableHeader th {
+    color: var(--primary-color);
+    font-weight: 600;
+    border-bottom: 2px solid var(--secondary-color) !important;
+}
+
+.transactionRow {
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.transactionRow:hover {
+    background-color: var(--section-bg-color) !important;
+}
+
+.transactionId {
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.messageCell {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--dark-color);
+}
+
+.amount {
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: "Courier New", monospace;
+}
+
+.positiveAmount {
+    color: var(--secondary-color) !important;
+}
+
+.negativeAmount {
+    color: #dc3545 !important;
+}
+
+.dateTime {
+    font-family: "Courier New", monospace;
+    font-size: 0.85rem;
+    color: var(--p-color);
+}
+
+.footerText {
+    color: var(--p-color);
+}
+
+/* Status badges with custom colors */
+.statusBadge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statusCompleted {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.statusPending {
+    background-color: #ffc107;
+    color: var(--dark-color);
+}
+
+.statusFailed {
+    background-color: #dc3545;
+    color: var(--white-color);
+}
+
+.statusDefault {
+    background-color: var(--p-color);
+    color: var(--white-color);
+}
+
+/* Pagination styling */
+.pagination {
+    --bs-pagination-color: var(--primary-color);
+    --bs-pagination-bg: var(--white-color);
+    --bs-pagination-border-color: var(--border-color);
+    --bs-pagination-hover-color: var(--white-color);
+    --bs-pagination-hover-bg: var(--custom-btn-bg-color);
+    --bs-pagination-hover-border-color: var(--border-color);
+    --bs-pagination-active-color: var(--white-color);
+    --bs-pagination-active-bg: var(--primary-color);
+    --bs-pagination-active-border-color: var(--primary-color);
+    --bs-pagination-disabled-color: var(--p-color);
+    --bs-pagination-disabled-bg: var(--section-bg-color);
+    --bs-pagination-disabled-border-color: var(--border-color);
+}
+
+.pageLink {
+    border: 1px solid var(--border-color) !important;
+    color: var(--primary-color) !important;
+    background-color: var(--white-color) !important;
+    transition: all 0.2s ease;
+}
+
+.pageLink:hover {
+    background-color: var(--custom-btn-bg-color) !important;
+    color: var(--white-color) !important;
+    border-color: var(--custom-btn-bg-color) !important;
+}
+
+.pageActive {
+    background-color: var(--primary-color) !important;
+    color: var(--white-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.pageActive:hover {
+    background-color: var(--custom-btn-bg-hover-color) !important;
+    border-color: var(--custom-btn-bg-hover-color) !important;
+}
+
+/* Loading overlay */
+.loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--section-bg-color);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.noData {
+    color: var(--p-color);
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .messageCell {
+        max-width: 200px;
+    }
+
+    .transactionId {
+        font-size: 0.8rem;
+    }
+
+    .amount {
+        font-size: 0.9rem;
+    }
+
+    .dateTime {
+        font-size: 0.75rem;
+    }
+
+    .pagination {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .messageCell {
+        max-width: 150px;
+    }
+
+    .container {
+        padding: 0.5rem;
+    }
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--section-bg-color);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}

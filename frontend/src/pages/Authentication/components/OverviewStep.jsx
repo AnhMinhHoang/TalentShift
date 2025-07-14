@@ -51,9 +51,8 @@ const OverviewStep = ({ overview, setOverview, wordCount, setWordCount }) => {
             ></div>
           </div>
           <div
-            className={`${styles.wordCountText} ${
-              wordCount < 100 ? styles.wordCountInvalid : styles.wordCountValid
-            }`}
+            className={`${styles.wordCountText} ${wordCount < 100 ? styles.wordCountInvalid : styles.wordCountValid
+              }`}
           >
             {wordCount < 100 ? (
               <WarningIcon fontSize="small" className="me-1" />

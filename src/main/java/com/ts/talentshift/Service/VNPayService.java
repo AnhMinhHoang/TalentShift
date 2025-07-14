@@ -168,7 +168,7 @@ public class VNPayService {
 
             transaction.setResultCode(Integer.parseInt(responseCode));
             transaction.setBankCode(bankCode);
-            transaction.setMessage(message);
+            transaction.setMessage("Topup with VNPay");
             transaction.setResponseTime(payDate);
             transaction.setPayType("VNPAY");
 

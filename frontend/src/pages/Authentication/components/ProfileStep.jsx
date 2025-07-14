@@ -17,6 +17,7 @@ import { useState } from "react";
 import Cropper from 'react-easy-crop';
 import { notification } from "antd";
 import styles from "../styles/RegisterAdditional.module.css";
+import { isAtLeastAge, isFutureDate } from "../../../utils/dateUtils";
 
 const ProfileStep = ({
   avatar,
@@ -33,6 +34,8 @@ const ProfileStep = ({
   setPhone,
   links,
   setLinks,
+  birthdayError,
+  setBirthdayError,
 }) => {
   // Validate and format URL
   const validateAndFormatUrl = (url) => {
@@ -51,6 +54,7 @@ const ProfileStep = ({
 
   // Track validation errors for links
   const [linkErrors, setLinkErrors] = useState([false, false, false, false]);
+  // const [birthdayError, setBirthdayError] = useState(""); // This line is removed as per edit hint
 
   // Icon selection for links
   const getLinkIcon = (url) => {
@@ -168,6 +172,22 @@ const ProfileStep = ({
     setLinkErrors(updatedErrors);
   };
 
+  // Birthday validation handler
+  const handleBirthdayChange = (date) => {
+    setBirthday(date);
+    if (date) {
+      if (!isAtLeastAge(date, 18)) {
+        setBirthdayError("You must be at least 18 years old.");
+      } else if (isFutureDate(date)) {
+        setBirthdayError("Birthday cannot be in the future.");
+      } else {
+        setBirthdayError("");
+      }
+    } else {
+      setBirthdayError("");
+    }
+  };
+
   return (
     <div className={styles.stepContent}>
       <h4 className={styles.stepTitle}>
@@ -245,12 +265,14 @@ const ProfileStep = ({
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   value={birthday}
-                  onChange={(date) => setBirthday(date)}
+                  onChange={handleBirthdayChange}
                   slotProps={{
                     textField: {
                       fullWidth: true,
                       margin: "normal",
                       className: styles.dateInput,
+                      error: !!birthdayError,
+                      helperText: birthdayError,
                     },
                   }}
                 />

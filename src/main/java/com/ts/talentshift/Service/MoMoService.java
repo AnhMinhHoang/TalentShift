@@ -151,7 +151,7 @@ public class MoMoService {
         if (transactionOpt.isPresent()) {
             Transaction transaction = transactionOpt.get();
             transaction.setResultCode(Integer.parseInt(resultCode));
-            transaction.setMessage(message);
+            transaction.setMessage("Topup with MOMO");
             transaction.setResponseTime(responseTime);
             transaction.setBankCode("MOMO");
             transaction.setPayType(payType);
@@ -162,7 +162,6 @@ public class MoMoService {
             } else {
                 transaction.setStatus(TransactionStatus.FAILED);
             }
-
             return transactionRepository.save(transaction);
         }
         return null;

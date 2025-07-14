@@ -1,7 +1,8 @@
 // src/api/apiPublic.js
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL + '/api' || '/api';
+const baseUrl = import.meta.env.VITE_API_URL || '';
+const API_URL = `${baseUrl}/api`;
 
 const apiPublic = axios.create({
     baseURL: API_URL,

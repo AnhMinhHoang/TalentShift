@@ -34,6 +34,7 @@ import FillFormVerifiedOutlet from "./components/FillFormVerifiedOutlet.jsx";
 import NotVerified from "./pages/Authentication/NotVerified.jsx";
 import AuthenCheckOutlet from "./components/AuthenCheckOutlet.jsx";
 import NotFound from "./pages/Authentication/NotFound.jsx";
+import TransactionHistory from "./pages/payment/TransactionHistory.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -83,6 +84,7 @@ function App() {
               <Route path="/payment" element={<Payment />} />
               <Route path="/payment/plan" element={<Plan />} />
               <Route path="/transaction-result" element={<TransactionResult />} />
+              <Route path="/transaction-history" element={<TransactionHistory />} />
 
               {/* HIRER-only routes */}
               <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>

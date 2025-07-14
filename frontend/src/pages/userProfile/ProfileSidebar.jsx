@@ -9,6 +9,7 @@ import {
 } from "@mui/icons-material";
 import api from "../../services/api";
 import { getImageUrl } from "../../utils/imageUtils";
+import { isAtLeastAge, isFutureDate } from "../../utils/dateUtils";
 
 const ProfileSidebar = ({ userData, setUserData }) => {
     const [showModal, setShowModal] = useState(false);
@@ -40,6 +41,13 @@ const ProfileSidebar = ({ userData, setUserData }) => {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [dobError, setDobError] = useState("");
+
+    // Add a computed variable for save button disabled state
+    const isSaveDisabled =
+        !editForm.name ||
+        !!dobError ||
+        (linkErrors && linkErrors.some(Boolean));
 
     const openNotification = (type, message, placement, description) => {
         notification[type]({
@@ -163,6 +171,19 @@ const ProfileSidebar = ({ userData, setUserData }) => {
     };
 
     const handleInputChange = (field, value) => {
+        if (field === 'dob') {
+            if (value) {
+                if (!isAtLeastAge(value, 18)) {
+                    setDobError("You must be at least 18 years old.");
+                } else if (isFutureDate(value)) {
+                    setDobError("Date of birth cannot be in the future.");
+                } else {
+                    setDobError("");
+                }
+            } else {
+                setDobError("");
+            }
+        }
         setEditForm(prev => ({
             ...prev,
             [field]: value
@@ -431,10 +452,11 @@ const ProfileSidebar = ({ userData, setUserData }) => {
                                         <label className="form-label">Date of Birth</label>
                                         <input
                                             type="date"
-                                            className="form-control"
+                                            className={`form-control${dobError ? ' is-invalid' : ''}`}
                                             value={editForm.dob || ''}
                                             onChange={(e) => handleInputChange('dob', e.target.value)}
                                         />
+                                        {dobError && <div className="invalid-feedback">{dobError}</div>}
                                     </div>
                                     <div className="col-md-6 mb-3">
                                         <label className="form-label">Location</label>
@@ -478,6 +500,7 @@ const ProfileSidebar = ({ userData, setUserData }) => {
                                     className="btn"
                                     style={{ backgroundColor: "#428A9B", color: "white" }}
                                     onClick={handleSave}
+                                    disabled={isSaveDisabled}
                                 >
                                     Save Changes
                                 </button>

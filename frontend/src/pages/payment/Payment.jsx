@@ -100,7 +100,6 @@ export default function Payment() {
         }
     };
 
-    // Rest of the component remains unchanged
     return (
         <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
             <div className="row w-100 justify-content-center">
@@ -133,9 +132,7 @@ export default function Payment() {
                                                     checked={paymentMethod === "momo"}
                                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                                 />
-                                                <label htmlFor="momo" className="w
-
--100 text-center p-3 cursor-pointer">
+                                                <label htmlFor="momo" className="w-100 text-center p-3 cursor-pointer">
                                                     <div className={styles.paymentLogo}>
                                                         <div className={`${styles.momoLogo} mb-2`}>
                                                             <span className="fw-bold">MoMo</span>
@@ -232,6 +229,18 @@ export default function Payment() {
                                                 Pay {amount && `${amount} VND`}
                                             </>
                                         )}
+                                    </button>
+                                </div>
+
+                                {/* Transaction History Button */}
+                                <div className="d-grid mt-3">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary"
+                                        onClick={() => navigate('/transaction-history')}
+                                    >
+                                        <i className="fas fa-history me-2"></i>
+                                        View Transaction History
                                     </button>
                                 </div>
 

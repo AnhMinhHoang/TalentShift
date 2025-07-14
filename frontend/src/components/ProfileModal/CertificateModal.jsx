@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Edit, Trash, Plus } from "lucide-react"
 import { CustomModal } from "../Modal/CustomModal"
 import styles from "../../pages/userProfile/style/UserProfile.module.css"
+import { isFutureDate } from "../../utils/dateUtils";
 
 const formatDate = (dateString) => {
     if (!dateString) return "Now";
@@ -46,12 +47,12 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
     // Save certificate
     const saveCertificate = () => {
         // Validate required fields
-        const errors = {}
-        if (!formData.name) errors.name = "Certificate name is required"
-
+        const errors = {};
+        if (!formData.name) errors.name = "Certificate name is required";
+        if (formData.issueDate && isFutureDate(formData.issueDate)) errors.issueDate = "Issue date cannot be in the future";
         if (Object.keys(errors).length > 0) {
-            setValidationErrors(errors)
-            return
+            setValidationErrors(errors);
+            return;
         }
 
         const updatedCertificates = [...certificateList]
@@ -76,6 +77,14 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
         const updatedCertificates = certificateList.filter((cert) => cert.id !== id)
         setCertificateList(updatedCertificates)
     }
+
+    // Add a function to check if all certificates are valid
+    const isCertificateValid = (cert) => {
+        if (!cert.name) return false;
+        if (cert.issueDate && isFutureDate(cert.issueDate)) return false;
+        return true;
+    };
+    const allCertificatesValid = certificateList.length === 0 || certificateList.every(isCertificateValid);
 
     // Handle final save
     const handleSave = () => {
@@ -175,13 +184,15 @@ export const CertificateModal = ({ onClose, certificates, onSave }) => {
                             <div className="input-group">
                                 <input
                                     type="date"
-                                    className={`form-control ${styles.formControl}`}
+                                    className={`form-control ${styles.formControl}${validationErrors.issueDate ? " is-invalid" : ""}`}
                                     id="issuedDate"
                                     name="issueDate"
                                     placeholder="MM-YYYY"
                                     value={formData.issueDate || ""}
                                     onChange={handleInputChange}
+                                    max={new Date().toISOString().split("T")[0]}
                                 />
+                                {validationErrors.issueDate && <div className={styles.validationError}>{validationErrors.issueDate}</div>}
                             </div>
                         </div>
                     </div>
