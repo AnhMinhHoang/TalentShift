@@ -10,6 +10,7 @@ import {
 import api from "../../services/api";
 import { getImageUrl } from "../../utils/imageUtils";
 import { isAtLeastAge, isFutureDate } from "../../utils/dateUtils";
+import AvatarWithFallback from '../../components/AvatarWithFallback';
 
 const ProfileSidebar = ({ userData, setUserData }) => {
     const [showModal, setShowModal] = useState(false);
@@ -395,22 +396,12 @@ const ProfileSidebar = ({ userData, setUserData }) => {
                                                     border: '3px solid #dee2e6'
                                                 }}
                                             >
-                                                {!previewImage && editForm.name && (
-                                                    <span
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '50%',
-                                                            left: '50%',
-                                                            transform: 'translate(-50%, -50%)',
-                                                            fontSize: '48px',
-                                                            color: 'white',
-                                                            fontWeight: 'bold',
-                                                            textTransform: 'uppercase'
-                                                        }}
-                                                    >
-                                                        {editForm.name.charAt(0)}
-                                                    </span>
-                                                )}
+                                                <AvatarWithFallback
+                                                    src={previewImage}
+                                                    alt={editForm.name}
+                                                    name={editForm.name}
+                                                    size={120}
+                                                />
                                             </div>
                                             <div className="d-flex gap-2">
                                                 <label className="btn btn-outline-primary btn-sm">

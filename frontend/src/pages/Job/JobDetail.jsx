@@ -37,6 +37,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useAuth } from "../AuthContext.jsx"
 import apis from "../../services/api"
 import { getImageUrl } from "../../utils/imageUtils";
+import AvatarWithFallback from '../../components/AvatarWithFallback';
 
 // Accept Applicant Confirmation Modal Component
 const AcceptApplicantModal = ({
@@ -385,13 +386,21 @@ const ApplicantDetailModal = ({
       <div className={styles.applicantHeaderCard}>
         <div className={styles.applicantAvatarSection}>
           {hasCustomAvatar ? (
-            <img
+            <AvatarWithFallback
               src={getImageUrl(selectedApplicant.avatar)}
               alt={selectedApplicant.applicantName}
+              name={selectedApplicant.applicantName}
+              size={64}
               className={styles.modalApplicantAvatar}
             />
           ) : (
-            <div className={styles.modalDefaultAvatar}>{getAvatarLetter()}</div>
+            <AvatarWithFallback
+              src={null}
+              alt={selectedApplicant.applicantName}
+              name={selectedApplicant.applicantName}
+              size={64}
+              className={styles.modalDefaultAvatar}
+            />
           )}
           <div className={styles.applicantBasicInfo}>
             <h3 className={styles.applicantModalName}>{selectedApplicant.applicantName}</h3>
@@ -1149,13 +1158,21 @@ export default function JobDetail() {
                   <div className={styles.applicantHeader}>
                     <div className={styles.applicantAvatarContainer}>
                       {hasCustomApplicantAvatar(applicant) ? (
-                        <img
+                        <AvatarWithFallback
                           src={getImageUrl(applicant.avatar)}
                           alt={applicant.applicantName}
+                          name={applicant.applicantName}
+                          size={36}
                           className={styles.applicantAvatar}
                         />
                       ) : (
-                        <div className={styles.defaultAvatarApplicant}>{getApplicantAvatarLetter(applicant)}</div>
+                        <AvatarWithFallback
+                          src={null}
+                          alt={applicant.applicantName}
+                          name={applicant.applicantName}
+                          size={36}
+                          className={styles.defaultAvatarApplicant}
+                        />
                       )}
                     </div>
                     <div className={styles.applicantInfo}>
@@ -1263,13 +1280,21 @@ export default function JobDetail() {
                 <div className={styles.applicantHeader}>
                   <div className={styles.applicantAvatarContainer}>
                     {hasCustomApplicantAvatar(applicant) ? (
-                      <img
+                      <AvatarWithFallback
                         src={getImageUrl(applicant.avatar)}
                         alt={applicant.applicantName}
+                        name={applicant.applicantName}
+                        size={36}
                         className={styles.applicantAvatar}
                       />
                     ) : (
-                      <div className={styles.defaultAvatarApplicant}>{getApplicantAvatarLetter(applicant)}</div>
+                      <AvatarWithFallback
+                        src={null}
+                        alt={applicant.applicantName}
+                        name={applicant.applicantName}
+                        size={36}
+                        className={styles.defaultAvatarApplicant}
+                      />
                     )}
                   </div>
                   <div className={styles.applicantInfo}>

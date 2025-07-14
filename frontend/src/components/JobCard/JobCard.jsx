@@ -6,6 +6,7 @@ import { FaCheck, FaDollarSign } from "react-icons/fa";
 import { notification } from "antd";
 import styles from "./JobCard.module.css";
 import { getImageUrl } from "../../utils/imageUtils";
+import AvatarWithFallback from '../AvatarWithFallback';
 
 const JobCard = ({ job, userData, onJobUpdate }) => {
     const [showApplyModal, setShowApplyModal] = useState(false);
@@ -184,13 +185,21 @@ const JobCard = ({ job, userData, onJobUpdate }) => {
                 <div className={styles.cardHeader}>
                     <div className={styles.leftSection}>
                         {hasCustomLogo ? (
-                            <img
+                            <AvatarWithFallback
                                 src={getImageUrl(job.companyLogoPath)}
-                                alt="company logo"
+                                alt={job.companyName}
+                                name={job.companyName}
+                                size={36}
                                 className={styles.companyLogo}
                             />
                         ) : (
-                            <div className={styles.defaultAvatar}>{getAvatarLetter()}</div>
+                            <AvatarWithFallback
+                                src={null}
+                                alt={job.companyName}
+                                name={job.companyName}
+                                size={36}
+                                className={styles.defaultAvatar}
+                            />
                         )}
                         <div className={styles.jobDetails}>
                             <h5 className={styles.jobTitle}>{job.jobTitle}</h5>

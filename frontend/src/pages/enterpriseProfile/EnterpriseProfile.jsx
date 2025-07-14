@@ -6,6 +6,7 @@ import JobPostHistoryTable from "../../components/Enterprise/JobPostHistoryTable
 import styles from "./style/EnterpriseProfile.module.css"
 import { useAuth } from "../AuthContext.jsx"
 import { getImageUrl } from "../../utils/imageUtils";
+import AvatarWithFallback from '../../components/AvatarWithFallback';
 
 const EnterpriseProfile = () => {
     const [activeTab, setActiveTab] = useState("1")
@@ -39,24 +40,13 @@ const EnterpriseProfile = () => {
                                 {/* Profile Header */}
                                 <div className={styles.profileHeader}>
                                     <div className={styles.logoWrapper}>
-                                        <div
+                                        <AvatarWithFallback
+                                            src={userData.logoPath ? getImageUrl(userData.logoPath) : null}
+                                            alt={userData.companyName}
+                                            name={userData.companyName}
+                                            size={80}
                                             className={styles.logoContainer}
-                                            style={{
-                                                ...(userData.logoPath
-                                                    ? {
-                                                        backgroundImage: `url(${getImageUrl(userData.logoPath)})`,
-                                                        backgroundSize: "cover",
-                                                        backgroundPosition: "center",
-                                                    }
-                                                    : {}),
-                                            }}
-                                        >
-                                            {!userData.logoPath && (
-                                                <span className={styles.logoInitial}>
-                                                    {userData.companyName ? userData.companyName.charAt(0).toUpperCase() : "C"}
-                                                </span>
-                                            )}
-                                        </div>
+                                        />
                                     </div>
 
                                     <div className={styles.companyInfo}>
