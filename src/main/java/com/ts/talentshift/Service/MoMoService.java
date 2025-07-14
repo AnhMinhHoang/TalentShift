@@ -138,7 +138,7 @@ public class MoMoService {
         return error;
     }
 
-    public Transaction handleCallback(Map<String, String> callbackData){
+    public Transaction handleCallback(Map<String, Object> callbackData){
         String orderId = String.valueOf(callbackData.get("orderId"));
         String resultCode = String.valueOf(callbackData.get("resultCode"));
         String message = String.valueOf(callbackData.get("message"));
