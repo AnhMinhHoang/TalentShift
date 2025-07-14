@@ -145,6 +145,8 @@ public class MoMoService {
         String responseTime = String.valueOf(callbackData.get("responseTime"));
         String payType = String.valueOf(callbackData.get("payType"));
 
+        System.out.println("MoMo Callback Data: " + orderId);
+
         Optional<Transaction> transactionOpt = getTransactionByOrderId(orderId);
         if (transactionOpt.isPresent()) {
             Transaction transaction = transactionOpt.get();
