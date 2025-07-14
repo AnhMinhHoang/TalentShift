@@ -6,6 +6,7 @@ import com.ts.talentshift.Repository.TransactionRepository;
 import com.ts.talentshift.Service.UserService;
 import com.ts.talentshift.Service.VNPayService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,9 @@ public class VNPayController {
     private final VNPayService vnpayService;
     private final UserService userService;
     private final TransactionRepository transactionRepository;
+
+    @Value("${momo.frontend-url}")
+    private String frontendUrl;
 
     public VNPayController(VNPayService vnpayService, UserService userService, TransactionRepository transactionRepository) {
         this.vnpayService = vnpayService;
@@ -64,7 +68,7 @@ public class VNPayController {
 
             if (transaction != null) {
                 // Redirect to frontend result page with info
-                String redirectUrl = "http://localhost:5173/transaction-result"
+                String redirectUrl = frontendUrl + "/transaction-result"
                         + "?orderId=" + orderId
                         + "&paymentMethod=" + paymentMethod
                         + "&responseCode=" + responseCode;

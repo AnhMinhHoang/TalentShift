@@ -65,8 +65,8 @@ const OverviewTab = ({ userData, setUserData }) => {
                 jobDescription: exp.jobDescription,
                 projects: exp.projects.map((proj) => ({
                     id: proj.projectId,
-                    name: proj.projectName,
-                    time: proj.projectTime,
+                    projectName: proj.projectName,
+                    projectTime: proj.projectTime,
                     projectDescription: proj.projectDescription,
                 })),
             }));
