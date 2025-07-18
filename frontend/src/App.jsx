@@ -53,15 +53,6 @@ function ScrollToTop() {
 function AdminOutlet() {
   const { userData, loading } = useAuth();
   if (loading) return <Loading isLoading={true} />;
-  if (!userData) return <Navigate to="/unauthorized" replace />;
-  if (userData.role !== 'ADMIN') return <Navigate to="/unauthorized" replace />;
-  return <Outlet />;
-}
-
-// NonAdminOutlet: blocks admin users from accessing normal app routes
-function NonAdminOutlet() {
-  const { userData, loading } = useAuth();
-  if (loading) return <Loading isLoading={true} />;
   if (userData && userData.role === 'ADMIN') {
     return <Navigate to="/admin-dashboard" replace />;
   }
@@ -82,12 +73,9 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/notverify" element={<NotVerified />} />
         <Route path="*" element={<NotFound />} />
-        {/* Only admin can access /admin-dashboard */}
+        <Route path="/admin-dashboard" element={<Admin />} />
+        {/* All non-admin routes are wrapped in AdminOutlet */}
         <Route element={<AdminOutlet />}>
-          <Route path="/admin-dashboard" element={<Admin />} />
-        </Route>
-        {/* All non-admin routes are wrapped in NonAdminOutlet */}
-        <Route element={<NonAdminOutlet />}>
           <Route element={<MainLayout />}>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
