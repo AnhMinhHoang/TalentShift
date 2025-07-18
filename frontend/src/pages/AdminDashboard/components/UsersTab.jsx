@@ -1,102 +1,41 @@
-import { motion } from "framer-motion"
-import { HiUsers, HiSearch, HiFilter } from "react-icons/hi"
-import { useState } from "react"
-import styles from "../styles/Dashboard.module.css"
-import Pagination from "./Pagination"
+import { motion } from "framer-motion";
+import { HiUsers, HiSearch, HiFilter } from "react-icons/hi";
+import { useState } from "react";
+import styles from "../styles/Dashboard.module.css";
+import Pagination from "./Pagination";
+import AvatarWithFallback from '../../../components/AvatarWithFallback';
+import api from '../../../services/api'; // Adjust path to your api.js
 
-const UsersTab = () => {
-    const [filter, setFilter] = useState("all")
-    const [searchTerm, setSearchTerm] = useState("")
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 10
+const UsersTab = ({ users }) => {
+    const [filter, setFilter] = useState("ALL");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-    // Mock data
-    const users = [
-        {
-            id: 1,
-            type: "freelancer",
-            fullName: "John Doe",
-            companyName: null,
-            avatar: "/placeholder.svg?height=48&width=48",
-            logoPath: null,
-            premium: true,
-        },
-        {
-            id: 2,
-            type: "hirer",
-            fullName: null,
-            companyName: "Tech Corp Inc.",
-            avatar: null,
-            logoPath: "/placeholder.svg?height=48&width=48",
-            premium: false,
-        },
-        {
-            id: 3,
-            type: "freelancer",
-            fullName: "Jane Smith",
-            companyName: null,
-            avatar: "/placeholder.svg?height=48&width=48",
-            logoPath: null,
-            premium: false,
-        },
-        {
-            id: 4,
-            type: "hirer",
-            fullName: null,
-            companyName: "StartUp LLC",
-            avatar: null,
-            logoPath: "/placeholder.svg?height=48&width=48",
-            premium: true,
-        },
-        {
-            id: 5,
-            type: "freelancer",
-            fullName: "Mike Johnson",
-            companyName: null,
-            avatar: "/placeholder.svg?height=48&width=48",
-            logoPath: null,
-            premium: true,
-        },
-        {
-            id: 6,
-            type: "hirer",
-            fullName: null,
-            companyName: "Digital Solutions Pro",
-            avatar: null,
-            logoPath: "/placeholder.svg?height=48&width=48",
-            premium: false,
-        },
-        {
-            id: 7,
-            type: "freelancer",
-            fullName: "Sarah Wilson",
-            companyName: null,
-            avatar: "/placeholder.svg?height=48&width=48",
-            logoPath: null,
-            premium: true,
-        },
-    ]
+    // Remove useEffect and local users state
 
     const filteredUsers = users.filter((user) => {
-        const typeMatch = filter === "all" || user.type === filter
-        const displayName = user.type === "freelancer" ? user.fullName : user.companyName
-        const searchMatch = displayName.toLowerCase().includes(searchTerm.toLowerCase())
-        return typeMatch && searchMatch
-    })
+        const roleMatch = filter === "ALL" || user?.role === filter;
+        const rawName = user?.role === "FREELANCER" ? user?.fullName : user?.companyName;
+        const displayName = typeof rawName === 'string' ? rawName : '';
+        const searchMatch = displayName.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage)
+        return roleMatch && searchMatch;
+    });
+
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
 
     const handleFilterChange = (newFilter) => {
-        setFilter(newFilter)
-        setCurrentPage(1)
-    }
+        setFilter(newFilter);
+        setCurrentPage(1);
+    };
 
     const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value)
-        setCurrentPage(1)
-    }
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+    };
 
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -134,9 +73,9 @@ const UsersTab = () => {
                             value={filter}
                             onChange={(e) => handleFilterChange(e.target.value)}
                         >
-                            <option value="all">All Users ({users.length})</option>
-                            <option value="freelancer">Freelancers ({users.filter((u) => u.type === "freelancer").length})</option>
-                            <option value="hirer">Hirers ({users.filter((u) => u.type === "hirer").length})</option>
+                            <option value="ALL">All Users ({users.length})</option>
+                            <option value="FREELANCER">Freelancers ({users.filter((u) => u.role === "FREELANCER").length})</option>
+                            <option value="HIRER">Hirers ({users.filter((u) => u.role === "HIRER").length})</option>
                         </select>
                     </div>
                 </div>
@@ -151,60 +90,62 @@ const UsersTab = () => {
             >
                 <table className={styles.modernTable}>
                     <thead>
-                    <tr>
-                        <th className={styles.tableHeader}>User Details</th>
-                        <th className={styles.tableHeader}>Type</th>
-                        <th className={styles.tableHeader}>Premium Status</th>
-                    </tr>
+                        <tr>
+                            <th className={styles.tableHeader}>User Details</th>
+                            <th className={styles.tableHeader}>Type</th>
+                            <th className={styles.tableHeader}>Premium Status</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {paginatedUsers.length > 0 ? (
-                        paginatedUsers.map((user, index) => (
-                            <motion.tr
-                                key={user.id}
-                                className={styles.tableRow}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                            >
-                                <td className={styles.tableCell}>
-                                    <div className={styles.userInfo}>
-                                        <img
-                                            src={user.type === "freelancer" ? user.avatar : user.logoPath}
-                                            alt={user.type === "freelancer" ? user.fullName : user.companyName}
-                                            className={styles.userAvatar}
-                                        />
-                                        <div>
-                                            <p className={styles.userName}>
-                                                {user.type === "freelancer" ? user.fullName : user.companyName}
-                                            </p>
-                                            <p className={styles.userType}>{user.type}</p>
+                        {paginatedUsers.length > 0 ? (
+                            paginatedUsers.map((user, index) => (
+                                <motion.tr
+                                    key={user.userId}
+                                    className={styles.tableRow}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                >
+                                    <td className={styles.tableCell}>
+                                        <div className={styles.userInfo}>
+                                            <AvatarWithFallback
+                                                src={user.role === "FREELANCER" ? user.avatar : user.logoPath}
+                                                alt={user.role === "FREELANCER" ? user.fullName || 'Unknown' : user.companyName || 'Unknown'}
+                                                name={user.role === "FREELANCER" ? user.fullName || 'Unknown' : user.companyName || 'Unknown'}
+                                                size={36}
+                                                className={styles.userAvatar}
+                                            />
+                                            <div>
+                                                <p className={styles.userName}>
+                                                    {user.role === "FREELANCER" ? user.fullName || 'Unknown' : user.companyName || 'Unknown'}
+                                                </p>
+                                                <p className={styles.userType}>{user.role?.toLowerCase() || 'unknown'}</p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </td>
+                                    <td className={styles.tableCell}>
+                                        <span
+                                            className={`${styles.badge} ${user.role === "FREELANCER" ? styles.badgeVerified : styles.badgeUnverified}`}
+                                        >
+                                            {user.role?.toLowerCase() || 'unknown'}
+                                        </span>
+                                    </td>
+                                    <td className={styles.tableCell}>
+                                        <span className={`${styles.badge} ${user.premium ? styles.badgePro : styles.badgeFree}`}>
+                                            {user.premium ? "PRO" : "FREE"}
+                                        </span>
+                                    </td>
+                                </motion.tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className={styles.emptyState}>
+                                    <div className={styles.emptyStateIcon}>🔍</div>
+                                    <div className={styles.emptyStateTitle}>No users found</div>
+                                    <div className={styles.emptyStateDescription}>Try adjusting your search criteria</div>
                                 </td>
-                                <td className={styles.tableCell}>
-                    <span
-                        className={`${styles.badge} ${user.type === "freelancer" ? styles.badgeVerified : styles.badgeUnverified}`}
-                    >
-                      {user.type}
-                    </span>
-                                </td>
-                                <td className={styles.tableCell}>
-                    <span className={`${styles.badge} ${user.premium ? styles.badgePro : styles.badgeFree}`}>
-                      {user.premium ? "PRO" : "FREE"}
-                    </span>
-                                </td>
-                            </motion.tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="3" className={styles.emptyState}>
-                                <div className={styles.emptyStateIcon}>🔍</div>
-                                <div className={styles.emptyStateTitle}>No users found</div>
-                                <div className={styles.emptyStateDescription}>Try adjusting your search criteria</div>
-                            </td>
-                        </tr>
-                    )}
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </motion.div>
@@ -217,7 +158,7 @@ const UsersTab = () => {
                 onPageChange={setCurrentPage}
             />
         </motion.div>
-    )
-}
+    );
+};
 
-export default UsersTab
+export default UsersTab;

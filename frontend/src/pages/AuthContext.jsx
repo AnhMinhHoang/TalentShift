@@ -47,6 +47,21 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   const login = async (email, password, google = false) => {
+    // Hardcoded admin login
+    if (email === 'adminTS@gmail.com' && password === '@adminTS5624@') {
+      const adminUser = {
+        token: 'admin-token',
+        email: 'adminTS@gmail.com',
+        fullName: 'Admin',
+        role: 'ADMIN',
+        id: 0,
+      };
+      setUser(adminUser);
+      setUserData(adminUser);
+      localStorage.setItem('user', JSON.stringify(adminUser));
+      localStorage.setItem('token', 'admin-token');
+      return;
+    }
     try {
       let response;
       if (google) {

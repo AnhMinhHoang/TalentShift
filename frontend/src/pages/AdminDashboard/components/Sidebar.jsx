@@ -2,9 +2,11 @@ import { motion } from "framer-motion"
 import { HiChartBar, HiUsers, HiOfficeBuilding, HiLogout } from "react-icons/hi"
 import styles from "../styles/Dashboard.module.css"
 import { useState } from "react"
+import { useAuth } from "../../../pages/AuthContext"
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
     const [showLogoutModal, setShowLogoutModal] = useState(false)
+    const { logout } = useAuth()
 
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: HiChartBar },
@@ -13,11 +15,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     ]
 
     const handleLogout = () => {
-        // Add your logout logic here
-        console.log("User logged out")
-        // Example: Clear localStorage, redirect to login page, etc.
-        // localStorage.removeItem('authToken')
-        // window.location.href = '/login'
+        logout()
         setShowLogoutModal(false)
     }
 

@@ -4,6 +4,8 @@ import {
   Routes,
   Route,
   useLocation,
+  Outlet,
+  Navigate,
 } from "react-router-dom";
 import { useAuth } from "./pages/AuthContext.jsx";
 import { App as AntdApp } from "antd";
@@ -47,6 +49,25 @@ function ScrollToTop() {
   return null;
 }
 
+// AdminOutlet: redirects admin users to /admin-dashboard
+function AdminOutlet() {
+  const { userData, loading } = useAuth();
+  if (loading) return <Loading isLoading={true} />;
+  if (!userData) return <Navigate to="/unauthorized" replace />;
+  if (userData.role !== 'ADMIN') return <Navigate to="/unauthorized" replace />;
+  return <Outlet />;
+}
+
+// NonAdminOutlet: blocks admin users from accessing normal app routes
+function NonAdminOutlet() {
+  const { userData, loading } = useAuth();
+  if (loading) return <Loading isLoading={true} />;
+  if (userData && userData.role === 'ADMIN') {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+  return <Outlet />;
+}
+
 function App() {
   const { loading } = useAuth();
 
@@ -61,55 +82,52 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/notverify" element={<NotVerified />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/admin-dashboard" element={<Admin />} />
-        {/* All routes inside main layout */}
-        <Route element={<MainLayout />}>
-
-          {/* Public routes */}
-          <Route path="/" element={<Index />} />
-          <Route path="/jobs" element={<JobListing />} />
-          <Route element={<AuthenCheckOutlet />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </Route>
-          <Route path="/job-detail" element={<JobDetail />} />
-          <Route path="/job-detail/:id" element={<JobDetail />} />
-          <Route path="/contact" element={<Contact />} />
-
-          {/* Private routes: user must be logged in */}
-          <Route element={<PrivateOutlet />}>
-
-            {/* Verified users only */}
-            <Route element={<FillFormVerifiedOutlet />}>
-              {/* Payment-related routes */}
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/payment/plan" element={<Plan />} />
-              <Route path="/transaction-result" element={<TransactionResult />} />
-              <Route path="/transaction-history" element={<TransactionHistory />} />
-
-              {/* HIRER-only routes */}
+        {/* Only admin can access /admin-dashboard */}
+        <Route element={<AdminOutlet />}>
+          <Route path="/admin-dashboard" element={<Admin />} />
+        </Route>
+        {/* All non-admin routes are wrapped in NonAdminOutlet */}
+        <Route element={<NonAdminOutlet />}>
+          <Route element={<MainLayout />}>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/jobs" element={<JobListing />} />
+            <Route element={<AuthenCheckOutlet />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
+            <Route path="/job-detail" element={<JobDetail />} />
+            <Route path="/job-detail/:id" element={<JobDetail />} />
+            <Route path="/contact" element={<Contact />} />
+            {/* Private routes: user must be logged in */}
+            <Route element={<PrivateOutlet />}>
+              {/* Verified users only */}
+              <Route element={<FillFormVerifiedOutlet />}>
+                {/* Payment-related routes */}
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/payment/plan" element={<Plan />} />
+                <Route path="/transaction-result" element={<TransactionResult />} />
+                <Route path="/transaction-history" element={<TransactionHistory />} />
+                {/* HIRER-only routes */}
+                <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
+                  <Route path="/job-posting" element={<JobPost />} />
+                  <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
+                </Route>
+                {/* FREELANCER-only routes */}
+                <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
+                  <Route path="/job-apply" element={<JobApply />} />
+                  <Route path="/profile-page" element={<JobTracker />} />
+                </Route>
+              </Route>
+              {/* Authenticated HIRER but not yet verified */}
               <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
-                <Route path="/job-posting" element={<JobPost />} />
-                <Route path="/enterprise-profile-page" element={<EnterpriseProfile />} />
+                <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
               </Route>
-
-              {/* FREELANCER-only routes */}
+              {/* Authenticated FREELANCER but not yet verified */}
               <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
-                <Route path="/job-apply" element={<JobApply />} />
-                <Route path="/profile-page" element={<JobTracker />} />
+                <Route path="/register-additional" element={<RegisterAdditional />} />
               </Route>
             </Route>
-
-            {/* Authenticated HIRER but not yet verified */}
-            <Route element={<RoleBasedOutlet allowedRoles={['HIRER']} />}>
-              <Route path="/hirer-additional" element={<HirerAdditionalRegistration />} />
-            </Route>
-
-            {/* Authenticated FREELANCER but not yet verified */}
-            <Route element={<RoleBasedOutlet allowedRoles={['FREELANCER']} />}>
-              <Route path="/register-additional" element={<RegisterAdditional />} />
-            </Route>
-
           </Route>
         </Route>
       </Routes>

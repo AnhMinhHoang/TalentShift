@@ -5,6 +5,7 @@ import com.ts.talentshift.Enums.TransactionStatus;
 import com.ts.talentshift.Model.Transaction;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.UserRepository;
+import com.ts.talentshift.DTO.UserListDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -59,9 +61,12 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    
+
     public List<User> getAllUser() {
-        return userRepository.findAll();
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> !"ADMIN".equalsIgnoreCase(user.getRole().name()))
+                .collect(Collectors.toList());
     }
 
     
@@ -77,34 +82,6 @@ public class UserService {
                 .orElse(null);
     }
 
-    
-    public User updateUserProfile(Long userId, User updatedUser) {
-        return userRepository.findById(userId)
-                .map(existingUser -> {
-                    existingUser.setFullName(updatedUser.getFullName());
-                    existingUser.setPhone(updatedUser.getPhone());
-                    existingUser.setGender(updatedUser.getGender());
-                    existingUser.setAvatar(updatedUser.getAvatar());
-                    existingUser.setBio(updatedUser.getBio());
-                    existingUser.setLocation(updatedUser.getLocation());
-                    existingUser.setBirthDate(updatedUser.getBirthDate());
-                    existingUser.setSkills(updatedUser.getSkills());
-                    existingUser.setExperiences(updatedUser.getExperiences());
-                    existingUser.setEducations(updatedUser.getEducations());
-                    existingUser.setCertificates(updatedUser.getCertificates());
-                    existingUser.setLinks(updatedUser.getLinks());
-                    existingUser.setCompanyName(updatedUser.getCompanyName());
-                    existingUser.setDescription(updatedUser.getDescription());
-                    existingUser.setContactLink(updatedUser.getContactLink());
-                    existingUser.setLogoPath(updatedUser.getLogoPath());
-                    existingUser.setRegistrationFilePath(updatedUser.getRegistrationFilePath());
-                    existingUser.setVerified(updatedUser.isVerified());
-                    return userRepository.save(existingUser);
-                })
-                .orElse(null);
-    }
-
-    
     public void addUserBalance(User user, BigDecimal amount) {
         user.setBalance(user.getBalance().add(amount));
     }
@@ -136,5 +113,23 @@ public class UserService {
                     user.setBalance(user.getBalance().subtract(amount));
                     userRepository.save(user);
                 });
+    }
+
+    public List<UserListDTO> getAllUserListDTO() {
+        return userRepository.findAll().stream()
+                .filter(user -> !"ADMIN".equalsIgnoreCase(user.getRole().name()))
+                .map(user -> {
+                    UserListDTO dto = new UserListDTO();
+                    dto.setUserId(user.getUserId());
+                    dto.setRole(user.getRole() != null ? user.getRole().name() : null);
+                    dto.setFullName(user.getFullName());
+                    dto.setCompanyName(user.getCompanyName());
+                    dto.setAvatar(user.getAvatar());
+                    dto.setLogoPath(user.getLogoPath());
+                    dto.setPremium(user.isPremium());
+                    dto.setVerified(user.isVerified());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

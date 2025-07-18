@@ -1,12 +1,15 @@
 package com.ts.talentshift.Service;
 
 import com.ts.talentshift.DTO.Hirer.HirerUpdateDTO;
+import com.ts.talentshift.DTO.Hirer.HirerListDTO;
 import com.ts.talentshift.Enums.Role;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -35,5 +38,32 @@ public class HirerService {
                     return userRepository.save(existingUser);
                 })
                 .orElse(null);
+    }
+
+    public User verifyHirer(Long userId) {
+        return userRepository.findById(userId)
+                .map(existingUser -> {
+                    if (existingUser.getRole() != Role.HIRER) {
+                        return null;
+                    }
+                    existingUser.setVerified(true);
+                    return userRepository.save(existingUser);
+                })
+                .orElse(null);
+    }
+
+    public List<HirerListDTO> getAllHirerListDTO() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole() == Role.HIRER)
+                .map(user -> {
+                    HirerListDTO dto = new HirerListDTO();
+                    dto.setUserId(user.getUserId());
+                    dto.setCompanyName(user.getCompanyName());
+                    dto.setLogoPath(user.getLogoPath());
+                    dto.setPremium(user.isPremium());
+                    dto.setVerified(user.isVerified());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

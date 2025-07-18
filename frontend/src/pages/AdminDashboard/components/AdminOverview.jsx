@@ -19,7 +19,7 @@ import Pagination from "./Pagination"
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
-const AdminOverview = () => {
+const AdminOverview = ({ userStats, chartData, transactions }) => {
     // Helper function to format VND currency
     const formatVND = (amount) => {
         return new Intl.NumberFormat("vi-VN", {
@@ -30,21 +30,12 @@ const AdminOverview = () => {
         }).format(amount)
     }
 
-    // Mock data
-    const userStats = {
-        freelancers: 1250,
-        hirers: 890,
-        total: 2140,
-    }
-
-    const chartData = [
-        { month: "Jan", freelancer: 1125000000, hirer: 950000000 },
-        { month: "Feb", freelancer: 1300000000, hirer: 1025000000 },
-        { month: "Mar", freelancer: 1200000000, hirer: 1125000000 },
-        { month: "Apr", freelancer: 1525000000, hirer: 1300000000 },
-        { month: "May", freelancer: 1375000000, hirer: 1200000000 },
-        { month: "Jun", freelancer: 1675000000, hirer: 1450000000 },
-    ]
+    // Helper function to format date string
+    const formatDateTime = (isoString) => {
+        if (!isoString) return '';
+        // Handles both '2025-07-14T01:03:01' and already formatted
+        return isoString.replace('T', ' ').slice(0, 19);
+    };
 
     // Chart.js configuration
     const chartOptions = {
@@ -128,73 +119,8 @@ const AdminOverview = () => {
         },
     }
 
-    const chartDataConfig = {
-        labels: chartData.map((item) => item.month),
-        datasets: [
-            {
-                label: "Freelancer Transactions",
-                data: chartData.map((item) => item.freelancer),
-                borderColor: "#13547a",
-                backgroundColor: "rgba(19, 84, 122, 0.1)",
-                pointBackgroundColor: "#13547a",
-                pointBorderColor: "#ffffff",
-                pointHoverBackgroundColor: "#13547a",
-                pointHoverBorderColor: "#ffffff",
-                fill: false,
-                tension: 0.4,
-            },
-            {
-                label: "Hirer Transactions",
-                data: chartData.map((item) => item.hirer),
-                borderColor: "#80d0c7",
-                backgroundColor: "rgba(128, 208, 199, 0.1)",
-                pointBackgroundColor: "#80d0c7",
-                pointBorderColor: "#ffffff",
-                pointHoverBackgroundColor: "#80d0c7",
-                pointHoverBorderColor: "#ffffff",
-                fill: false,
-                tension: 0.4,
-            },
-        ],
-    }
-
-    const transactions = [
-        {
-            id: "TXN001",
-            message: "Payment for web development",
-            status: "SUCCESS",
-            amount: 37500000,
-            createdTime: "2024-01-15 10:30:00",
-        },
-        {
-            id: "TXN002",
-            message: "Freelancer payout",
-            status: "PENDING",
-            amount: 18750000,
-            createdTime: "2024-01-15 09:15:00",
-        },
-        {
-            id: "TXN003",
-            message: "Project milestone payment",
-            status: "SUCCESS",
-            amount: 50000000,
-            createdTime: "2024-01-14 16:45:00",
-        },
-        {
-            id: "TXN004",
-            message: "Refund request",
-            status: "FAILED",
-            amount: 12500000,
-            createdTime: "2024-01-14 14:20:00",
-        },
-        {
-            id: "TXN005",
-            message: "Cancelled project payment",
-            status: "CANCELLED",
-            amount: 30000000,
-            createdTime: "2024-01-13 11:10:00",
-        },
-    ]
+    // Chart data config
+    const chartDataConfig = chartData;
 
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 5
@@ -293,36 +219,36 @@ const AdminOverview = () => {
             >
                 <table className={styles.modernTable}>
                     <thead>
-                    <tr>
-                        <th className={styles.tableHeader}>Transaction ID</th>
-                        <th className={styles.tableHeader}>Message</th>
-                        <th className={styles.tableHeader}>Status</th>
-                        <th className={styles.tableHeader}>Amount</th>
-                        <th className={styles.tableHeader}>Created Time</th>
-                    </tr>
+                        <tr>
+                            <th className={styles.tableHeader}>Transaction ID</th>
+                            <th className={styles.tableHeader}>Message</th>
+                            <th className={styles.tableHeader}>Status</th>
+                            <th className={styles.tableHeader}>Amount</th>
+                            <th className={styles.tableHeader}>Created Time</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {paginatedTransactions.map((transaction, index) => (
-                        <motion.tr
-                            key={transaction.id}
-                            className={styles.tableRow}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                        >
-                            <td className={styles.tableCell}>
-                                <strong>{transaction.id}</strong>
-                            </td>
-                            <td className={styles.tableCell}>{transaction.message}</td>
-                            <td className={styles.tableCell}>
-                  <span className={`${styles.statusBadge} ${getStatusBadgeClass(transaction.status)}`}>
-                    {transaction.status}
-                  </span>
-                            </td>
-                            <td className={`${styles.tableCell} ${styles.amountText}`}>{formatVND(transaction.amount)}</td>
-                            <td className={styles.tableCell}>{transaction.createdTime}</td>
-                        </motion.tr>
-                    ))}
+                        {paginatedTransactions.map((transaction, index) => (
+                            <motion.tr
+                                key={transaction.id}
+                                className={styles.tableRow}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                            >
+                                <td className={styles.tableCell}>
+                                    <strong>{transaction.id}</strong>
+                                </td>
+                                <td className={styles.tableCell}>{transaction.message}</td>
+                                <td className={styles.tableCell}>
+                                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(transaction.status)}`}>
+                                        {transaction.status}
+                                    </span>
+                                </td>
+                                <td className={`${styles.tableCell} ${styles.amountText}`}>{formatVND(transaction.amount)}</td>
+                                <td className={styles.tableCell}>{formatDateTime(transaction.createdTime)}</td>
+                            </motion.tr>
+                        ))}
                     </tbody>
                 </table>
             </motion.div>

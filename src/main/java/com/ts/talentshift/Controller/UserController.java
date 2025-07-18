@@ -1,5 +1,6 @@
 package com.ts.talentshift.Controller;
 
+import com.ts.talentshift.DTO.UserListDTO;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Service.FreelancerService;
 import com.ts.talentshift.Service.HirerService;
@@ -37,7 +38,7 @@ public class UserController {
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUser());
+        return ResponseEntity.ok(userService.getAllUserListDTO());
     }
 
     @PostMapping("/pro-purchase")

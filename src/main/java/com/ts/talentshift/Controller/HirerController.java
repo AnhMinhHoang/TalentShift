@@ -1,6 +1,7 @@
 package com.ts.talentshift.Controller;
 
 import com.ts.talentshift.DTO.Hirer.HirerUpdateDTO;
+import com.ts.talentshift.DTO.Hirer.HirerListDTO;
 import com.ts.talentshift.Model.User;
 import com.ts.talentshift.Repository.UserRepository;
 import com.ts.talentshift.Service.HirerService;
@@ -80,6 +81,20 @@ public class HirerController {
             return ResponseEntity.ok(updated);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{userId}/verify")
+    public ResponseEntity<User> verifyHirer(@PathVariable Long userId) {
+        User user = hirerService.verifyHirer(userId); // Implement in UserService
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllHirers() {
+        return ResponseEntity.ok(hirerService.getAllHirerListDTO());
     }
 
     private String saveLogoFile(MultipartFile file) throws IOException {
