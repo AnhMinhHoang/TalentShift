@@ -35,6 +35,7 @@ import NotVerified from "./pages/Authentication/NotVerified.jsx";
 import AuthenCheckOutlet from "./components/AuthenCheckOutlet.jsx";
 import NotFound from "./pages/Authentication/NotFound.jsx";
 import TransactionHistory from "./pages/payment/TransactionHistory.jsx";
+import Admin from "./pages/AdminDashboard/Admin.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -60,7 +61,7 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/notverify" element={<NotVerified />} />
         <Route path="*" element={<NotFound />} />
-
+        <Route path="/admin-dashboard" element={<Admin />} />
         {/* All routes inside main layout */}
         <Route element={<MainLayout />}>
 
